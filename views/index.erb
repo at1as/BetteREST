@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <div>
-            <h1 style="display:inline-block">BetteR: A REST API Testing Utility.</h1>
+            <h1 style="display:inline-block">BetteR - A REST API Testing Utility.</h1>
         </div>
         <form id="form1" name="fullRequestData" method="post" action="/" target="_self" >
             <div>
@@ -149,7 +149,7 @@
         document.getElementById("headingReq").innerHTML = (document.getElementById("path").style.display != 'none' ? "[-] Request" : "[+] Request");
         document.getElementById("headingReq").style.color = (document.getElementById("path").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingReq").style.margin = (document.getElementById("path").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        toggleDivVisibility.Request = (document.getElementById("path").style.display != 'none' ? 1 : 0);
+        //toggleDivVisibility.Request = (document.getElementById("path").style.display != 'none' ? 1 : 0);
     }
 
     function toggleAuthVisibility(){
@@ -157,7 +157,7 @@
         document.getElementById("headingAuth").innerHTML = (document.getElementById("auth").style.display != 'none' ? "[-] Authentication" : "[+] Authentication");
         document.getElementById("headingAuth").style.color = (document.getElementById("auth").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingAuth").style.margin = (document.getElementById("auth").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        toggleDivVisibility.BasicAuth = (document.getElementById("auth").style.display != 'none' ? 1 : 0);
+        //toggleDivVisibility.BasicAuth = (document.getElementById("auth").style.display != 'none' ? 1 : 0);
         /*document.getElementById("serveAuthDiv").value = (document.getElementById("serveAuthDiv").value != 'hidden' ? 'hidden' : 'displayed');*/
     }
 
@@ -166,7 +166,7 @@
         document.getElementById("headingHead").innerHTML = (document.getElementById("headers").style.display != 'none' ? "[-] Headers" : "[+] Headers");
         document.getElementById("headingHead").style.color = (document.getElementById("headers").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingHead").style.margin = (document.getElementById("headers").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        toggleDivVisibility.Headers = (document.getElementById("headers").style.display != 'none' ? 1 : 0);
+        //toggleDivVisibility.Headers = (document.getElementById("headers").style.display != 'none' ? 1 : 0);
         /*document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');*/
     }
 
@@ -175,7 +175,7 @@
         document.getElementById("headingData").innerHTML = (document.getElementById("data").style.display != 'none' ? "[-] Payload" : "[+] Payload");
         document.getElementById("headingData").style.color = (document.getElementById("data").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingData").style.margin = (document.getElementById("data").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        toggleDivVisibility.Payload = (document.getElementById("data").style.display != 'none' ? 1 : 0);
+        //toggleDivVisibility.Payload = (document.getElementById("data").style.display != 'none' ? 1 : 0);
     }
 
     function toggleResultsVisibility() {
@@ -183,7 +183,7 @@
         document.getElementById("headingResults").innerHTML = (document.getElementById("results").style.display != 'none' ? "[-] Results" : "[+] Results");
         document.getElementById("headingResults").style.color = (document.getElementById("results").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingResults").style.margin = (document.getElementById("results").style.display != 'none' ? "10px 0px 0px" : "10px 0px -20px");
-        toggleDivVisibility.Results = (document.getElementById("results").style.display != 'none' ? 1 : 0);
+        //toggleDivVisibility.Results = (document.getElementById("results").style.display != 'none' ? 1 : 0);
     }
 
     var headerNode = document.getElementById("headerfieldsAll");
