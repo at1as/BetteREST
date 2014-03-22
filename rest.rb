@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'sinatra'
-require 'json'
 require 'typhoeus'
 
 helpers do
@@ -61,7 +60,6 @@ post '/' do
 		:auth_method => :auto,		#Should be manually set in order to test unideal APIs
 	  	body: params[:payload],
 	  	:headers => @headerHash,
-	  	#Constants. These should be made configurable
 	  	followlocation: @follow,
 	  	verbose: @verbose,
 	  	ssl_verifypeer: @ssl,
@@ -72,19 +70,14 @@ post '/' do
 	response = request.response
 	puts request.inspect 	#for debug only
 
-	puts "!!!!"
-	puts !!@ssl = @ssl
-	puts !!@follow = @follow
-	puts !!@verbose = @verbose
-
-	@requestOptions = request.options.to_json
+	@requestOptions = request.options
 	@returnBody = response.body 
 	@returnCode = response.return_code
 	@returnTime = response.time
 	@statCodeReturn = response.response_headers
 
 	@requests = ["#{params[:requestType]}", "GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"].uniq
-	@timeout = ["1","2","3","4","5","10"].uniq
+	@timeout = ["1","2","3","4","5","10"]
 	erb :index
 end
 
