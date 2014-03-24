@@ -24,7 +24,6 @@ Connect to Sinatra via your browser
 
 Requires a ruby installation with the following Gems:
 - 'sinatra'
-- 'json'
 - 'typhoeus'
 
 <b>Limitations</b>

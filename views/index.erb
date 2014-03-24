@@ -2,19 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>BetteR - A REST API Testing Utility</title>
+    <title>BetteR &mdash; A REST API Testing Utility</title>
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="stylesheet" href="mainCSS.css">
 </head>
 
 <body>
-    <div class="container">
-        <div>
-            <h1 style="display:inline-block">BetteR - A REST API Testing Utility.</h1>
+    <div id="header">
+        <div class="container" style="margin:0px auto 0px auto;">
+            <div id="header-title" style="display:inline-block">
+                <h1 style="min-width:100%;">BetteR &mdash; A REST API Testing Utility.</h1>
+            </div>
+            <div style="display:inline-block; float:right;">
+                <div id="settings-button" onclick="modalToggle()" style="height:100%; margin-top:8px; display:inline-block">Settings</div>
+            </div>
         </div>
+    </div>
+    <div class="container">
         <form id="form1" name="fullRequestData" method="post" action="/" target="_self" >
             <div>
-                <h2><div class="head" id="headingReq" onclick="toggleRequestVisibility()">[-] Request</div></h2>
+                <input type="hidden" id="serveURLDiv" value="displayed">
+                <h2><div class="head" id="headingReq" onclick="toggleRequestVisibility()">[&ndash;] Request</div></h2>
                 <div class="box" id="path">
                     <select id="requestType" name="requestType">
                         <% @requests.each do |request| %>
@@ -27,7 +35,7 @@
             </div>
             <div>
                 <input type="hidden" id="serveAuthDiv" value="displayed">
-                <h2><div class="head" id="headingAuth" onclick="toggleAuthVisibility()">[-] Authentication</div></h2>
+                <h2><div class="head" id="headingAuth" onclick="toggleAuthVisibility()">[&ndash;] Authentication</div></h2>
                 <div class="box" id="auth">
                     <div id="authSelect">
                         <span style="display:inline-block; white-space:nowrap; margin-top:5px;margin-bottom:5px;">      
@@ -45,9 +53,14 @@
                 </div>
             </div>
             <div>
-                <input type="hidden" id="serveHeaderDiv" value="displayed">
+                <% if @formResponse %>
+                    <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="<%=h(params[:serveHeaderDiv])%>">
+                <% else %>
+                     <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="displayed">
+               <% end %>
+
                 <input type="hidden" id="headerCount" name="headerCount" value="1">
-                <h2><div class="head" id="headingHead" onclick="toggleHeaderVisibility()">[-] Headers</div></h2>
+                <h2><div class="head" id="headingHead" onclick="toggleHeaderVisibility()">[&ndash;] Headers</div></h2>
                 <div class="box" id="headers">
                     <div id="headerfieldsAll">
                     <% @headerHash.each_with_index do |(key, value), index| %>
@@ -64,7 +77,8 @@
                 </div>
             </div>
             <div>
-                <h2><div class="head" id="headingData" onclick="toggleDataVisibility()">[-] Payload</div></h2>
+                <input type="hidden" id="servePayloadDiv" value="displayed">
+                <h2><div class="head" id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
                 <div class="box" id="data">
                     <textarea value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data"><%=h(params[:payload])%></textarea>    
                 </div>        
@@ -72,12 +86,11 @@
             <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
                 <input type="submit" value="Submit" id="submit" class="width25" onclick="prepareSubmission()"/>
                 <input type="button" value="Clear All" id="submit" class="width25" onclick="clearAllFields()"/>
-                <input type="button" value="Settings" id="submit" class="width25" onclick="modalToggle()"/>
             </div>
             <% if @formResponse == true %> 
             <div>
-                <h2><div class="head" id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[-] Results</div></h2>
-
+                <input type="hidden" id="serveResultsDiv" value="displayed">
+                <h2><div class="head" id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
                 <div class="box" id="results">
                     <ul>
                         <li style="display:inline;" id="viewResponseTab"><a onclick="hideReq()">Response Data</a></li>
@@ -133,20 +146,23 @@
 
     <script type="text/javascript" >
 
-    function modalToggle() {
+    function modalToggle() {    //make this take arguments so it can be used for more
         bgrnd = document.getElementById("dialog-background-blur");
         bgrnd.style.visibility = (bgrnd.style.visibility == "visible") ? "hidden" : "visible";
         el = document.getElementById("load-dialog-modal");
         el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
     }
-    
-    function makeRandomNoise(){ /*For testing only*/
-        alert("HELLLLLLO");
-    }
+
+    //Still in testing phase. Not yet working, so disabling.
+    /*if (document.getElementById("serveHeaderDiv").value = "hidden") {
+        alert(document.getElementById("serveHeaderDiv").value)
+        toggleHeaderVisibility();
+        document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');
+    }*/
 
     function toggleRequestVisibility(){
         document.getElementById("path").style.display = (document.getElementById("path").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingReq").innerHTML = (document.getElementById("path").style.display != 'none' ? "[-] Request" : "[+] Request");
+        document.getElementById("headingReq").innerHTML = (document.getElementById("path").style.display != 'none' ? "[&ndash;] Request" : "[+] Request");
         document.getElementById("headingReq").style.color = (document.getElementById("path").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingReq").style.margin = (document.getElementById("path").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
         //toggleDivVisibility.Request = (document.getElementById("path").style.display != 'none' ? 1 : 0);
@@ -154,25 +170,25 @@
 
     function toggleAuthVisibility(){
         document.getElementById("auth").style.display = (document.getElementById("auth").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingAuth").innerHTML = (document.getElementById("auth").style.display != 'none' ? "[-] Authentication" : "[+] Authentication");
+        document.getElementById("headingAuth").innerHTML = (document.getElementById("auth").style.display != 'none' ? "[&ndash;] Authentication" : "[+] Authentication");
         document.getElementById("headingAuth").style.color = (document.getElementById("auth").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingAuth").style.margin = (document.getElementById("auth").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
         //toggleDivVisibility.BasicAuth = (document.getElementById("auth").style.display != 'none' ? 1 : 0);
-        /*document.getElementById("serveAuthDiv").value = (document.getElementById("serveAuthDiv").value != 'hidden' ? 'hidden' : 'displayed');*/
+        //document.getElementById("serveAuthDiv").value = (document.getElementById("serveAuthDiv").value != 'hidden' ? 'hidden' : 'displayed');
     }
 
     function toggleHeaderVisibility(){
         document.getElementById("headers").style.display = (document.getElementById("headers").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingHead").innerHTML = (document.getElementById("headers").style.display != 'none' ? "[-] Headers" : "[+] Headers");
+        document.getElementById("headingHead").innerHTML = (document.getElementById("headers").style.display != 'none' ? "[&ndash;] Headers" : "[+] Headers");
         document.getElementById("headingHead").style.color = (document.getElementById("headers").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingHead").style.margin = (document.getElementById("headers").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
         //toggleDivVisibility.Headers = (document.getElementById("headers").style.display != 'none' ? 1 : 0);
-        /*document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');*/
+        document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');
     }
 
     function toggleDataVisibility(){
         document.getElementById("data").style.display = (document.getElementById("data").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingData").innerHTML = (document.getElementById("data").style.display != 'none' ? "[-] Payload" : "[+] Payload");
+        document.getElementById("headingData").innerHTML = (document.getElementById("data").style.display != 'none' ? "[&ndash;] Payload" : "[+] Payload");
         document.getElementById("headingData").style.color = (document.getElementById("data").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingData").style.margin = (document.getElementById("data").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
         //toggleDivVisibility.Payload = (document.getElementById("data").style.display != 'none' ? 1 : 0);
@@ -180,7 +196,7 @@
 
     function toggleResultsVisibility() {
         document.getElementById("results").style.display = (document.getElementById("results").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingResults").innerHTML = (document.getElementById("results").style.display != 'none' ? "[-] Results" : "[+] Results");
+        document.getElementById("headingResults").innerHTML = (document.getElementById("results").style.display != 'none' ? "[&ndash;] Results" : "[+] Results");
         document.getElementById("headingResults").style.color = (document.getElementById("results").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingResults").style.margin = (document.getElementById("results").style.display != 'none' ? "10px 0px 0px" : "10px 0px -20px");
         //toggleDivVisibility.Results = (document.getElementById("results").style.display != 'none' ? 1 : 0);

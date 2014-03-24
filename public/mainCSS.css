@@ -2,10 +2,11 @@ body {
     font-family:"Gill Sans", "Gill Sans MT", Sans-Serif;
     background-color: #FDFDFD;
     padding-bottom: 20px;
+    margin: 0px;
 } 
 .container{
     width: 555px;
-    margin:40px auto 0px auto;
+    margin:10px auto 0px auto;
 }
 .forceInline{
     display:inline;
@@ -54,7 +55,7 @@ body {
 }
 .box{
     padding:5px 5px 5px 5px;
-    background: linear-gradient(to bottom right, #F5F5F5, #F3F3F3, #F0F0F0);
+    background: linear-gradient(to bottom right, #F7F7F7, #F5F5F5, #F3F3F3);
     border-radius: 4px;
     border-style: solid;
     border-color: #CFCFCF;
@@ -67,13 +68,16 @@ body {
     color:black;
 }
 h1 {
-    font-size: 21px;
-    color: black;
+    font-size: 14px;
+    color: #999999;
+    font-style: normal;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 h2 {
     font-size: 15px;
     color: red;
     display: inline-block;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     /*padding: 12px 0 0px 0;*/
 }
 .holdValue {
@@ -85,7 +89,7 @@ div:active {
 
 #submit {  
     border:none;  
-    background:#ff4b33; 
+    background:#888888; 
     margin-top: 8px; 
     padding: 4px 12px 4px 12px;
     border-radius: 3px;
@@ -219,4 +223,21 @@ li a:active{
     padding:20px;
     box-shadow: 2px 1px 1px #DDDDDD;
     z-index:2;
+}
+
+#header{
+    background-color:black;
+    color:white;
+    padding-top:3px;
+    padding-bottom:3px;
+}
+
+#settingsbutton {
+    color:#999999;
+    background-color: #000000;
+}
+
+label {
+    font-family: "Helvetica";
+    font-size:14px;
 }
