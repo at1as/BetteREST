@@ -1,9 +1,9 @@
-BetteR
+# BetteR
 ======
 
 BetteR is a a REST testing client written in Ruby and served by Sinatra. 
 
-BetteR emphasises a both a clean and easy to understand interface, as well as allowing users to have a very granuler control over their requests (things like following redirects, verbosity of response, timeout intervals are all configurable). 
+BetteR emphasises both a clean and easy to use interface, as well as allowing users to have a very granuler control over their requests (things like following redirects, verbosity of response, timeout intervals are all configurable). The current feature set is modest, but what it does, it aims to do well.
 
 ## Usage
 
@@ -14,6 +14,10 @@ Connect to Sinatra via your browser (swap for 4567 for listening port specified 
 
     localhost:4567
 
+Logs (if enabled from the Settings menu in the UI) will be stored in the following location
+
+    ./logs/YYYY-MM-DD.log
+
 ## Dependencies
 
 Requires a ruby installation with the following Gems:
@@ -23,5 +27,6 @@ Requires a ruby installation with the following Gems:
 ## TODO
 
 * Add OAuth/OAuth2 support
+* Update current deprecated Basic/Digest Auth method
 * Add ability to save requests
 * Add file upload and download
