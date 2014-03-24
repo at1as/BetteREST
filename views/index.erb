@@ -21,7 +21,11 @@
     <div class="container">
         <form id="form1" name="fullRequestData" method="post" action="/" target="_self" >
             <div>
-                <input type="hidden" id="serveURLDiv" value="displayed">
+                <% if @visible[0] == "hidden"%>
+                    <input type="hidden" id="serveURLDiv" name="serveURLDiv" value="hidden">
+                <% else %>
+                    <input type="hidden" id="serveURLDiv" name="serveURLDiv" value="displayed">
+                <% end %>
                 <h2><div class="head" id="headingReq" onclick="toggleRequestVisibility()">[&ndash;] Request</div></h2>
                 <div class="box" id="path">
                     <select id="requestType" name="requestType">
@@ -34,7 +38,11 @@
                 </div>
             </div>
             <div>
-                <input type="hidden" id="serveAuthDiv" value="displayed">
+                <% if @visible[1] == "hidden"%>
+                    <input type="hidden" id="serveAuthDiv" name="serveAuthDiv" value="hidden">
+                <% else %>
+                     <input type="hidden" id="serveAuthDiv" name="serveAuthDiv" value="displayed">
+               <% end %>
                 <h2><div class="head" id="headingAuth" onclick="toggleAuthVisibility()">[&ndash;] Authentication</div></h2>
                 <div class="box" id="auth">
                     <div id="authSelect">
@@ -53,12 +61,11 @@
                 </div>
             </div>
             <div>
-                <% if @formResponse %>
-                    <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="<%=h(params[:serveHeaderDiv])%>">
+                <% if @visible[2] == "hidden"%>
+                    <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="hidden">
                 <% else %>
                      <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="displayed">
                <% end %>
-
                 <input type="hidden" id="headerCount" name="headerCount" value="1">
                 <h2><div class="head" id="headingHead" onclick="toggleHeaderVisibility()">[&ndash;] Headers</div></h2>
                 <div class="box" id="headers">
@@ -77,25 +84,33 @@
                 </div>
             </div>
             <div>
-                <input type="hidden" id="servePayloadDiv" value="displayed">
+                <% if @visible[3] == "hidden"%>
+                    <input type="hidden" id="servePayloadDiv" name="servePayloadDiv" value="hidden">
+                <% else %>
+                    <input type="hidden" id="servePayloadDiv" name="servePayloadDiv" value="displayed">
+                <% end %>
                 <h2><div class="head" id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
                 <div class="box" id="data">
                     <textarea value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data"><%=h(params[:payload])%></textarea>    
                 </div>        
             </div>
             <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
-                <input type="submit" value="Submit" id="submit" class="width25" onclick="prepareSubmission()"/>
-                <input type="button" value="Clear All" id="submit" class="width25" onclick="clearAllFields()"/>
+                <input type="submit" value="Send" id="submit" class="width25" onclick="prepareSubmission()" style="margin-bottom:10px;"/>
+                <input type="button" value="Clear All" id="submit" class="width25" onclick="clearAllFields()" style="margin-bottom:10px;"/>
             </div>
             <% if @formResponse == true %> 
             <div>
-                <input type="hidden" id="serveResultsDiv" value="displayed">
+                <% if @visible[4] == "hidden"%>
+                    <input type="hidden" id="serveResultsDiv" name="serveResultsDiv" value="hidden">
+                <% else %>
+                    <input type="hidden" id="serveResultsDiv" name="serveResultsDiv" value="displayed">
+                <% end %>
                 <h2><div class="head" id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
                 <div class="box" id="results">
                     <ul>
                         <li style="display:inline;" id="viewResponseTab"><a onclick="hideReq()">Response Data</a></li>
                         <li style="display:inline" id="viewResponseHeadersTab"><a onclick="hideRespData()">Response Headers</a></li>
-                        <li style="display:inline" id="viewRequestTab"><a onclick="hideResp()">cURL Request</a></li>
+                        <li style="display:inline" id="viewRequestTab"><a onclick="hideResp()">Request Headers</a></li>
                     </ul>
                     <div >
                         <textarea style="min-height:180px; margin-top:10px; overflow:scroll" id="resultsBox"> 
@@ -146,26 +161,41 @@
 
     <script type="text/javascript" >
 
-    function modalToggle() {    //make this take arguments so it can be used for more
+    /*Toggle Modal display on page*/
+    //TODO:make this take arguments so it can be used for more modals as they are added
+    function modalToggle() {
         bgrnd = document.getElementById("dialog-background-blur");
         bgrnd.style.visibility = (bgrnd.style.visibility == "visible") ? "hidden" : "visible";
         el = document.getElementById("load-dialog-modal");
         el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
     }
 
-    //Still in testing phase. Not yet working, so disabling.
-    /*if (document.getElementById("serveHeaderDiv").value = "hidden") {
-        alert(document.getElementById("serveHeaderDiv").value)
-        toggleHeaderVisibility();
-        document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');
-    }*/
+    /*Reserve minimised sections minimised on page reload. Note data from fields is always submitted*/ 
+    if (document.getElementById("serveURLDiv").value == "hidden") {
+        toggleRequestVisibility("arg1");
+    }
+    if (document.getElementById("serveAuthDiv").value == "hidden") {
+        toggleAuthVisibility("arg1");
+    }
+    if (document.getElementById("serveHeaderDiv").value == "hidden") {
+        toggleHeaderVisibility("arg1");
+    }
+    if (document.getElementById("servePayloadDiv").value == "hidden") {
+        toggleDataVisibility("arg1");
+    }
+    if (document.getElementById("serveResultsDiv") && document.getElementById("serveResultsDiv").value == "hidden") {
+        toggleResultsVisibility("arg1");
+    }
 
+    /*Change page layout to reflect minimizing/maximising divs*/
     function toggleRequestVisibility(){
         document.getElementById("path").style.display = (document.getElementById("path").style.display != 'none' ? 'none' : '');
         document.getElementById("headingReq").innerHTML = (document.getElementById("path").style.display != 'none' ? "[&ndash;] Request" : "[+] Request");
         document.getElementById("headingReq").style.color = (document.getElementById("path").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingReq").style.margin = (document.getElementById("path").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        //toggleDivVisibility.Request = (document.getElementById("path").style.display != 'none' ? 1 : 0);
+        if (arguments.length == 0) {    //So this won't be called on page reload, which would undo the minimise
+            document.getElementById("serveURLDiv").value = (document.getElementById("serveURLDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
     }
 
     function toggleAuthVisibility(){
@@ -173,8 +203,9 @@
         document.getElementById("headingAuth").innerHTML = (document.getElementById("auth").style.display != 'none' ? "[&ndash;] Authentication" : "[+] Authentication");
         document.getElementById("headingAuth").style.color = (document.getElementById("auth").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingAuth").style.margin = (document.getElementById("auth").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        //toggleDivVisibility.BasicAuth = (document.getElementById("auth").style.display != 'none' ? 1 : 0);
-        //document.getElementById("serveAuthDiv").value = (document.getElementById("serveAuthDiv").value != 'hidden' ? 'hidden' : 'displayed');
+         if (arguments.length == 0 ) {
+            document.getElementById("serveAuthDiv").value = (document.getElementById("serveAuthDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
     }
 
     function toggleHeaderVisibility(){
@@ -182,8 +213,9 @@
         document.getElementById("headingHead").innerHTML = (document.getElementById("headers").style.display != 'none' ? "[&ndash;] Headers" : "[+] Headers");
         document.getElementById("headingHead").style.color = (document.getElementById("headers").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingHead").style.margin = (document.getElementById("headers").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        //toggleDivVisibility.Headers = (document.getElementById("headers").style.display != 'none' ? 1 : 0);
-        document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        if (arguments.length == 0 ) {
+            document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
     }
 
     function toggleDataVisibility(){
@@ -191,7 +223,9 @@
         document.getElementById("headingData").innerHTML = (document.getElementById("data").style.display != 'none' ? "[&ndash;] Payload" : "[+] Payload");
         document.getElementById("headingData").style.color = (document.getElementById("data").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingData").style.margin = (document.getElementById("data").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        //toggleDivVisibility.Payload = (document.getElementById("data").style.display != 'none' ? 1 : 0);
+        if (arguments.length == 0) {
+            document.getElementById("servePayloadDiv").value = (document.getElementById("servePayloadDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
     }
 
     function toggleResultsVisibility() {
@@ -199,11 +233,14 @@
         document.getElementById("headingResults").innerHTML = (document.getElementById("results").style.display != 'none' ? "[&ndash;] Results" : "[+] Results");
         document.getElementById("headingResults").style.color = (document.getElementById("results").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingResults").style.margin = (document.getElementById("results").style.display != 'none' ? "10px 0px 0px" : "10px 0px -20px");
-        //toggleDivVisibility.Results = (document.getElementById("results").style.display != 'none' ? 1 : 0);
+        if (arguments.length == 0) {
+            document.getElementById("serveResultsDiv").value = (document.getElementById("serveResultsDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
     }
 
-    var headerNode = document.getElementById("headerfieldsAll");
+    //var headerNode = document.getElementById("headerfieldsAll");  #Doesn't seem to be used. Will delete soon.
 
+    /*clear all form fields. Delete additional header fields*/
     function clearAllFields() {
         document.getElementById("requestType").value = "GET";
         document.getElementById("url").value = "";
@@ -306,12 +343,12 @@
         document.getElementById("resultsBoxcURL").style.display = 'none';
     }
 
+    /*Block some JS and Form behaviour from occuring*/
     function returnFalse(event) {
         event.cancelBubble=true;
         if(event.stopPropagation) { event.stopPropagation(); }
         return false;
     }
     </script>
-
 </body>
 </html>

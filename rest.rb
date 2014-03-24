@@ -14,7 +14,7 @@ get '/?' do
 	@validHeaderCount = 1
 	@headerHash = {"" => ""}
 	@follow, @verbose, @ssl = true, true, false
-	@visible = "displayed"
+	@visible = Array.new(5, "displayed")	#REQUEST, AUTH, HEADERS, PAYLOAD, RESULTS
 	erb :index
 end
 
@@ -31,8 +31,7 @@ post '/' do
 	@validHeaderCount = 1
 	@formResponse = true
 	@follow, @verbose, @ssl = true, true, false
-	#@visible = params[:serveHeaderDiv]
-		
+	@visible = [params[:serveURLDiv], params[:serveAuthDiv], params[:serveHeaderDiv], params[:servePayloadDiv], params[:serveResultsDiv]]
 
 	(0..Integer(params[:headerCount])).each do |i|
 		@keyIncrement = "key" + "#{i}"
@@ -72,9 +71,9 @@ post '/' do
 	response = request.response
 	puts request.inspect 	#for debug only
 
-	puts "!!!"
 	#puts params[:serveHeaderDiv]
-	#puts @visible
+	puts "!!!!"
+	puts @visible
 
 	@requestOptions = request.options
 	@returnBody = response.body 
