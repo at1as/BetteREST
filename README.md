@@ -3,29 +3,25 @@ BetteR
 
 BetteR is a a REST testing client written in Ruby and served by Sinatra. 
 
-<b>Usage</b>
+BetteR emphasises a both a clean and easy to understand interface, as well as allowing users to have a very granuler control over their requests (things like following redirects, verbosity of response, timeout intervals are all configurable). 
+
+## Usage
 
     $cd BetteR
     $ruby rest.rb
     
-Connect to Sinatra via your browser
+Connect to Sinatra via your browser (swap for 4567 for listening port specified if not using the default)
 
     localhost:4567
 
-
-<b>Supported Browsers</b>
-
-  - Firefox
-  - Chrome
-  - Safari
-
-
-<b>Dependencies</b>
+## Dependencies
 
 Requires a ruby installation with the following Gems:
-- 'sinatra'
-- 'typhoeus'
+- 'sinatra' (sudo gem install sinatra)
+- 'typhoeus' (sudo gem install typhoeus)
 
-<b>Limitations</b>
+## TODO
 
-Currently only supports basic, payload and digest authentication. oAuth/oAuth2 will be added in future releases.
+* Add OAuth/OAuth2 support
+* Add ability to save requests
+* Add file upload and download
