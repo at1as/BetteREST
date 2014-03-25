@@ -17,7 +17,7 @@ body {
 }
 
 .width25{
-    width:12%;
+    width:13%;
     padding:0px;
 }
 .widthRemainder{
@@ -192,7 +192,8 @@ li a{
     font-weight: normal;
     font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
-li a:active{
+
+li a:hover{
     color:black;
 }
 .resultsBoxHead {
@@ -222,7 +223,7 @@ li a:active{
     margin-left:-140px;
     padding:20px;
     box-shadow: 2px 1px 1px #DDDDDD;
-    z-index:2;
+    z-index:11;
 }
 
 #header{
