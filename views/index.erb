@@ -13,13 +13,16 @@
             <div id="header-title" style="display:inline-block">
                 <h1 style="min-width:100%;">BetteR &mdash; A REST API Testing Utility.</h1>
             </div>
-            <div style="display:inline-block; float:right;">
-                <div id="settings-button" onclick="modalToggle()" style="height:100%; margin-top:8px; display:inline-block">Settings</div>
+            <div style="display:inline-block; float:right; margin-left:10px;">
+                <div id="settings-button" onclick="modalToggle('load-dialog-modal')" style="height:100%; margin-top:8px; display:inline-block">Settings</div>
+            </div>
+            <div style="display:inline-block; float:right; margin-right:10px;">
+                <div id="file-upload-button" onclick="modalToggle('file-upload-modal')" style="height:100%; margin-top:8px; display:inline-block">File Upload</div>
             </div>
         </div>
     </div>
     <div class="container">
-        <form id="form1" name="fullRequestData" method="post" action="/" target="_self" >
+        <form id="form1" name="fullRequestData" method="post" action="/" target="_self" enctype="multipart/form-data">
             <div>
                 <% if @visible[0] == "hidden"%>
                     <input type="hidden" id="serveURLDiv" name="serveURLDiv" value="hidden">
@@ -108,69 +111,98 @@
                 <h2><div class="head" id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
                 <div class="box" id="results">
                     <ul>
-                        <li style="display:inline;" id="viewResponseTab"><a onclick="hideReq()">Response Data</a></li>
-                        <li style="display:inline" id="viewResponseHeadersTab"><a onclick="hideRespData()">Response Headers</a></li>
-                        <li style="display:inline" id="viewRequestTab"><a onclick="hideResp()">Request Headers</a></li>
+                        <li style="display:inline;" id="viewResponseTab">
+                            <a onclick="hideReq()" id="responseDataText" style="color:#000000">Response Data</a>
+                        </li>
+                        <li style="display:inline" id="viewResponseHeadersTab">
+                            <a onclick="hideRespData()"id="responseHeaderText">Response Headers</a>
+                        </li>
+                        <li style="display:inline" id="viewRequestTab">
+                            <a onclick="hideResp()" id="requestHeaderText">Request Body</a>
+                        </li>
                     </ul>
                     <div >
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll" id="resultsBox"> 
-                            <%= @returnBody.to_s %> &#10----&#10Response: <%= @returnCode.to_s %> &#10Request Time: <%= @returnTime.to_s %> seconds
+                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll" id="resultsBox"><%= @returnBody.to_s %>
+                            &#10----&#10Response: <%= @returnCode.to_s %> &#10Request Time: <%= @returnTime.to_s %> seconds
                         </textarea>
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none" id="resultsBoxHead"> <%= @statCodeReturn.to_s %> </textarea>
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none" id="resultsBoxcURL"> <%= @requestOptions.to_s %> </textarea>
+                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none" id="resultsBoxHead"><%= @statCodeReturn.to_s %></textarea>
+                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none" id="resultsBoxcURL"><%= @requestOptions.to_s %></textarea>
                     </div>
                 </div>
             </div>
             <% end %>
-            <!-- BEGIN SETTINGS MODAL-->
-            <div id="dialog-background-blur" style="visibility:hidden" onclick="modalToggle()">
-                <div id="load-dialog-modal" title="Global Variables" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
-                    <p style="font-size:15px; margin-top:0px"><strong>Configuration:</strong></p>
-                    <div style="display:inline-block;width:100%">
-                        <label for="followlocation">
-                            <input type="checkbox" name="followlocation" id="followlocation" style="float:right"
-                            <% if @follow == true %>checked<% end %>>
-                            Follow Redirects?
-                        </label>
-                        <label for="verbose">
-                            <input type="checkbox" name="verbose" id="verbose" style="float:right"
-                            <% if @verbose == true %>checked<% end %>>
-                            Verbose Response?
-                        </label>
-                        <label for="ssl_verifypeer">
-                            <input type="checkbox" name="ssl_verifypeer" id="ssl_verifypeer" style="float:right"
-                            <% if @ssl == true %>checked<% end %>>
-                            Verify SSL Peer?
-                        </label>
-                        <label for="timeoutInterval">
-                            <select id="timeoutInterval" name="timeoutInterval" style="float:right">
-                                <% @timeout.each do |interval| %>
-                                    <option value=<%= interval %>
-                                        <% if h(params[:timeoutInterval]) == interval%>selected<% end %> ><%= interval %>
-                                    </option>
-                                <% end %>
-                            </select>
-                            <span style="margin-right:30px;">Timeout Inteval:</span>
-                        </label>
-                    </div>
+            <!-- MODAL GRAY BACKGROUND -->
+            <div id="dialog-background-blur" style="visibility:hidden" onclick="modalHideAll()"></div>
+            <!-- BEGIN SETTINGS MODAL-->     
+            <div id="load-dialog-modal" title="Settings" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
+                <p style="font-size:15px; margin-top:0px"><strong>Configuration:</strong></p>
+                <div style="display:inline-block;width:100%">
+                    <label for="followlocation">
+                        <input type="checkbox" name="followlocation" id="followlocation" style="float:right"
+                        <% if @follow == true %>checked<% end %>>
+                        Follow Redirects?<br/>
+                    </label>
+                    <label for="verbose">
+                        <input type="checkbox" name="verbose" id="verbose" style="float:right"
+                        <% if @verbose == true %>checked<% end %>>
+                        Verbose Response?<br/>
+                    </label>
+                    <label for="ssl_verifypeer">
+                        <input type="checkbox" name="ssl_verifypeer" id="ssl_verifypeer" style="float:right"
+                        <% if @ssl == true %>checked<% end %>>
+                        Verify SSL Peers?<br/>
+                    </label>
+                    <label for="enableLogging">
+                        <input type="checkbox" name="enableLogging" id="enableLogging" style="float:right"
+                        <% if @loggingOn == true %>checked<% end %>>
+                        Log Requests?<br/>
+                    </label>
+                    <label for="timeoutInterval">
+                        <select id="timeoutInterval" name="timeoutInterval" style="float:right">
+                            <% @timeout.each do |interval| %>
+                                <option value=<%= interval %>
+                                    <% if h(params[:timeoutInterval]) == interval%>selected<% end %> ><%= interval %>
+                                </option>
+                            <% end %>
+                        </select>
+                        <span style="margin-right:30px;">Timeout Inteval:</span>
+                    </label>
                 </div>
             </div>
-            <!-- END SETTINGS MODAL --> 
+            <!-- END SETTINGS MODAL -->
+            <!-- BEGIN FILE UPLOAD MODAL -->
+            <!--<div id="dialog-background-blur" style="visibility:hidden" onclick="modalToggle('file-upload-modal')">-->
+            <div id="file-upload-modal" title="File Upload" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
+                <p style="font-size:15px; margin-top:0px"><strong>Attach File to Request:</strong></p>
+                <div>
+                    <input type="file" id="datafile" name="datafile" style="width:100%; background-color:#CCCCCC; box-shadow:none;">
+                </div>
+                <div style="margin-top:10px;">
+                    <input type="button" value=" OK" onclick="modalToggle('file-upload-modal')">
+                </div>
+            </div>
+            <!--</div> -->
+            <!-- END FILE UPLOAD MODAL --> 
         </form>
     </div>
 
     <script type="text/javascript" >
 
     /*Toggle Modal display on page*/
-    //TODO:make this take arguments so it can be used for more modals as they are added
-    function modalToggle() {
+    function modalToggle(modal_id) {
         bgrnd = document.getElementById("dialog-background-blur");
         bgrnd.style.visibility = (bgrnd.style.visibility == "visible") ? "hidden" : "visible";
-        el = document.getElementById("load-dialog-modal");
+        el = document.getElementById(modal_id);
         el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
     }
 
-    /*Reserve minimised sections minimised on page reload. Note data from fields is always submitted*/ 
+    function modalHideAll() {
+        document.getElementById("dialog-background-blur").style.visibility = "hidden";
+        document.getElementById("load-dialog-modal").style.visibility = "hidden";
+        document.getElementById("file-upload-modal").style.visibility = "hidden";
+    }
+
+    /*Re-serve minimised sections minimised on page reload. Note data from fields is always submitted*/ 
     if (document.getElementById("serveURLDiv").value == "hidden") {
         toggleRequestVisibility("arg1");
     }
@@ -193,7 +225,8 @@
         document.getElementById("headingReq").innerHTML = (document.getElementById("path").style.display != 'none' ? "[&ndash;] Request" : "[+] Request");
         document.getElementById("headingReq").style.color = (document.getElementById("path").style.display != 'none' ? "red" : "#BBBBBB");
         document.getElementById("headingReq").style.margin = (document.getElementById("path").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        if (arguments.length == 0) {    //So this won't be called on page reload, which would undo the minimise
+        //So we can block this from being executed on page reload, which would undo the minimise
+        if (arguments.length == 0) {
             document.getElementById("serveURLDiv").value = (document.getElementById("serveURLDiv").value != 'hidden' ? 'hidden' : 'displayed');
         }
     }
@@ -238,8 +271,6 @@
         }
     }
 
-    //var headerNode = document.getElementById("headerfieldsAll");  #Doesn't seem to be used. Will delete soon.
-
     /*clear all form fields. Delete additional header fields*/
     function clearAllFields() {
         document.getElementById("requestType").value = "GET";
@@ -265,12 +296,7 @@
     document.getElementById("headerCount").value = clickCount + 1;
 
     function addNewHeader() {
-        if (clickCount != null) { 
-            clickCount += 1;
-        }
-        else {
-            clickCount = 1;
-        }
+        clickCount += 1;
         document.getElementById("headerCount").value = clickCount + 1;
         
         var input0 = document.createElement('div');
@@ -327,20 +353,29 @@
 
     function hideReq() {
         document.getElementById("resultsBox").style.display = '';
+        document.getElementById("responseDataText").style.color = "#000000";
         document.getElementById("resultsBoxHead").style.display = 'none';
+        document.getElementById("responseHeaderText").style.color = "#FFFFFF";
         document.getElementById("resultsBoxcURL").style.display = 'none';
-    }
-
-    function hideResp() {
-        document.getElementById("resultsBox").style.display = 'none';
-        document.getElementById("resultsBoxHead").style.display = 'none';
-        document.getElementById("resultsBoxcURL").style.display = '';
+        document.getElementById("requestHeaderText").style.color = "#FFFFFF";
     }
 
     function hideRespData() {
         document.getElementById("resultsBox").style.display = 'none';
+        document.getElementById("responseDataText").style.color = "#FFFFFF";
         document.getElementById("resultsBoxHead").style.display = '';
+        document.getElementById("responseHeaderText").style.color = "#000000";
         document.getElementById("resultsBoxcURL").style.display = 'none';
+        document.getElementById("requestHeaderText").style.color = "#FFFFFF";
+    }
+
+    function hideResp() {
+        document.getElementById("resultsBox").style.display = 'none';
+        document.getElementById("responseDataText").style.color = "#FFFFFF";
+        document.getElementById("resultsBoxHead").style.display = 'none';
+        document.getElementById("responseHeaderText").style.color = "#FFFFFF";
+        document.getElementById("resultsBoxcURL").style.display = '';
+        document.getElementById("requestHeaderText").style.color = "#000000";
     }
 
     /*Block some JS and Form behaviour from occuring*/

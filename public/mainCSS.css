@@ -204,7 +204,7 @@ li a:hover{
 }
 #dialog-background-blur{
     background-color: #EEEEEE;
-    opacity: 0.95;
+    opacity: 0.85;
     position: fixed;
     left:0;
     top:0;
@@ -214,6 +214,19 @@ li a:hover{
 }
 
 #load-dialog-modal{
+    background-color: #CCCCCC;
+    opacity:1.0;
+    position: fixed;
+    top: 25%;
+    left: 50% ;
+    width:280px;
+    margin-left:-140px;
+    padding:20px;
+    box-shadow: 2px 1px 1px #DDDDDD;
+    z-index:11;
+}
+
+#file-upload-modal {
     background-color: #CCCCCC;
     opacity:1.0;
     position: fixed;
