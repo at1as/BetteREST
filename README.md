@@ -6,10 +6,15 @@ BetteR emphasises both a clean and easy to use interface, as well as allowing us
 
 ## Usage
 
-    $cd BetteR
-    $./BetteR
+The easiest way to use BetteR is to install it using the gem:
+
+    $gem install better_rest
+
+Or download the reposity here and launch BetteR via
+
+    $./bin/better_rest
     
-BetteR will run rest.rb, which will content to a Sinatra session via your browser (browser should launch automatically, but otherwise the default location is localhost:5678)
+## Logs
 
 Logs (if enabled from the Settings menu in the UI) will be stored in the following location
 
@@ -17,12 +22,10 @@ Logs (if enabled from the Settings menu in the UI) will be stored in the followi
 
 ## Dependencies
 
-Requires a ruby installation with the following Gems:
+Requires a ruby installation with the following Gems (installation via the gem should take care of these dependencies):
 - 'sinatra' (sudo gem install sinatra)
 - 'typhoeus' (sudo gem install typhoeus)
 - 'vegas' (sudo gem install vegas)
-
-Note that the vegas gem is only necessary in order to use ./BetteR to call rest.rb. Launching rest.rb (via 'ruby rest.rb') will avoid the need for this gem.
 
 ## TODO
 
