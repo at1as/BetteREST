@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "better_rest"
-  s.version     = "0.0.1"
+  s.version     = "0.0.11"
   s.licenses	= ['MIT']
   s.summary     = "REST test Client"
   s.date        = "2014-03-30"
@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
   s.email       = ["hello@jasonwillems.com"]
   s.homepage    = "http://www.jasonwillems.com"
   s.files       = `git ls-files`.split("\n") 
+  s.executables << 'better_rest'
 end
