@@ -3,4 +3,4 @@
 require File.expand_path('../../lib/better_rest.rb', __FILE__)
 require 'vegas'
 
-Vegas::Runner.new(Sinatra::Application, 'rest')
+Vegas::Runner.new(Sinatra::Application, 'better_rest')
