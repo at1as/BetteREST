@@ -3,6 +3,9 @@
 require 'sinatra'
 require 'typhoeus'
 
+set :public_dir, File.expand_path('../../public', __FILE__)
+set :views, File.expand_path('../../views', __FILE__)
+
 helpers do
 	include Rack::Utils
 	alias_method :h, :escape_html
@@ -104,4 +107,8 @@ post '/' do
 	@requests = ["#{params[:requestType]}", "GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"].uniq
 	@timeout = ["1","2","5","10","60"]
 	erb :index
+end
+
+not_found do
+	redirect '/'
 end
