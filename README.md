@@ -22,10 +22,10 @@ Logs (if enabled from the Settings menu in the UI) will be stored in the followi
 
 ## Dependencies
 
-Requires a ruby installation with the following Gems (installation via the gem should take care of these dependencies):
-- 'sinatra' (sudo gem install sinatra)
-- 'typhoeus' (sudo gem install typhoeus)
-- 'vegas' (sudo gem install vegas)
+Requires a ruby installation with the following gems installed (installation via the gem will eventually take care of these dependencies, but currently does not):
+- sinatra ($sudo gem install sinatra)
+- typhoeus ($sudo gem install typhoeus)
+- vegas ($sudo gem install vegas)
 
 ## TODO
 
