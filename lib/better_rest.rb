@@ -41,7 +41,7 @@ post '/' do
 		@keyIncrement = "key" + "#{i}"
 		@valueIncrement = "value" + "#{i}"
 
-		if params[@keyIncrement] and not params[@keyIncrement].empty? and params[@valueIncrement] and not params[@valueIncrement].empty?
+		if params[@keyIncrement] && !params[@keyIncrement].empty? && params[@valueIncrement] && !params[@valueIncrement].empty?
 			@headerHash[params[@keyIncrement]] = params[@valueIncrement]
 			@validHeaderCount += 1
 		end
