@@ -36,25 +36,23 @@ post '/' do
 	@formResponse = true
 	@follow, @verbose, @ssl, @loggingOn = true, true, false, false
 	@requestBody = ""
-	@visible = [params[:serveURLDiv], params[:serveAuthDiv], params[:serveHeaderDiv], params[:servePayloadDiv], params[:serveResultsDiv]]
+        @visible = [:servURLDiv, :servAuthDiv, :servHeaderDiv, :servePayloadDiv, :servResultsDiv].map{ |k| params[k] }
 
 	# Loop through Header key/value pairs
-	(0..Integer(params[:headerCount])).each do |i|
-		@keyIncrement = "key" + "#{i}"
-		@valueIncrement = "value" + "#{i}"
+	params[:headerCount].to_i.times do |i|
+		@keyIncrement = "key#{i}"
+		@valueIncrement = "value#{i}"
 
 		# If a header is created and deleted before submit, headerCount will not renormalize (and will therefore exceed the number of sent headers)
 		# This will check that a particular header exists, before adding it
-		if params[@keyIncrement] && !params[@keyIncrement].empty? && params[@valueIncrement] && !params[@valueIncrement].empty?
+		if !(params.fetch(@keyIncrement, '').empty? || params.fetch(@valueIncrement, '').empty?)
 			@headerHash[params[@keyIncrement]] = params[@valueIncrement]
 			@validHeaderCount += 1
 		end
 	end
 
 	# Shameless branding. Only if User-Agent isn't user specified
-	if @headerHash["User-Agent"] == nil
-		@headerHash["User-Agent"] = "BetteR - https://github.com/at1as/BetteR"
-	end
+	@headerHash["User-Agent"] ||= "BetteR - https://github.com/at1as/BetteR"
 
 	# Check which options the user set
 	if params[:followlocation] == ""
@@ -69,7 +67,8 @@ post '/' do
 	if params[:enableLogging] == "on"
 		@loggingOn = true
 	end
-	if !params[:datafile].nil?
+
+	if params[:datafile]
 		@requestBody = { content: params[:payload], file: File.open(params[:datafile][:tempfile], 'r') }
 	else
 		@requestBody = { content: params[:payload] }
@@ -100,10 +99,10 @@ post '/' do
 	end
 
 	# Log the request response
-	if @loggingOn == true
-		File.open('log/' + Time.now.strftime("%Y-%m-%d") + '.log', 'a') { 
-			|file| file.write("-"*10 + "\n" + Time.now.to_s + request.inspect + "\n\n" ) 
-		}
+	if @loggingOn
+		File.open('log/' + Time.now.strftime("%Y-%m-%d") + '.log', 'a') do |file|
+			file.write("-"*10 + "\n" + Time.now.to_s + request.inspect + "\n\n" )
+		end
 	end
 
 	# For Debug, prints to terminal. This can be supressed.
