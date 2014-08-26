@@ -13,6 +13,11 @@
             <div id="header-title" style="display:inline-block">
                 <h1 style="min-width:100%;">BetteR &mdash; A REST API Testing Utility.</h1>
             </div>
+            <div style="display:inline-block; float:right; margin-right:10px; margin-left:15px;">
+              <form id="form0" name="quit-application" method="get" action="/quit" target="_self" enctype="multipart/form-data">
+                <input type="submit" value="Quit" id="quit-button" style="height:100%; margin-top:8px; display:inline-block; width:40px;">
+              </form>
+            </div>
             <div style="display:inline-block; float:right; margin-left:10px;">
                 <div id="settings-button" onclick="modalToggle('load-dialog-modal')" style="height:100%; margin-top:8px; display:inline-block">Settings</div>
             </div>
@@ -33,11 +38,20 @@
                 <div class="box" id="path">
                     <select id="requestType" name="requestType">
                         <% @requests.each do |request| %>
-                            <option value=<%= request %>><%= request %></option>
+                            <option value="<%= request %>"><%= request %></option>
                         <% end %>
                     </select>
                     <input type="text" value="<%= h(params[:url]) %>" name="url" id="url" placeholder=" URL" class="widthRemainder"/>
-                    <div class="close" id="closeURL" onclick="clearURL()">X</div>  
+                    <select id="times" name="times">
+                      <% @times.each do |number| %>
+                        <% if number == "1" %>
+                          <option value="<%= number %>"><%= number %> time</option>
+                        <% else %>
+                          <option value="<%= number %>"><%= number %> times</option>
+                        <% end %>
+                      <% end %>
+                    </select>
+                    <div class="close" id="closeURL" onclick="clearURL()">X</div>
                 </div>
             </div>
             <div>
@@ -49,9 +63,9 @@
                 <h2><div class="head" id="headingAuth" onclick="toggleAuthVisibility()">[&ndash;] Authentication</div></h2>
                 <div class="box" id="auth">
                     <div id="authSelect">
-                        <span style="display:inline-block; white-space:nowrap; margin-top:5px;margin-bottom:5px;">      
+                        <span style="display:inline-block; white-space:nowrap; margin-top:5px;margin-bottom:5px;">
                             <label for="basicAuthSelect">
-                                <input id="basicAuthSelect" type="radio" name="authType" value="basic" checked="true" style="width:14px;">Basic                             
+                                <input id="basicAuthSelect" type="radio" name="authType" value="basic" checked="true" style="width:14px;">Basic
                             </label>
                             <label for="digestAuthSelect">
                                 <input id="digestAuthSelect" type="radio" name="authType" value="digest" style="width:14px;">Digest
@@ -77,9 +91,9 @@
                         <div id="headerfields<%= index %>" style="margin-bottom:2px;" >
                             <input type="text" value="<%=key%>" name="key<%=index%>" id="key<%=index%>" placeholder=" Name" class="key" />
                             <input type="text" value="<%=value%>" name="value<%=index%>" id="value<%=index%>" placeholder=" Value" class="value" />
-                            <div class="close" id="close<%= index %>" onclick="removeRow(this)">X</div> 
+                            <div class="close" id="close<%= index %>" onclick="removeRow(this)">X</div>
                         </div>
-                    <% end %> 
+                    <% end %>
                     </div>
                     <div>
                         <input type="button" value="Add<%=h(params[:add])%>" id="add" class="width25" onclick="addNewHeader()"/>
@@ -94,14 +108,14 @@
                 <% end %>
                 <h2><div class="head" id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
                 <div class="box" id="data">
-                    <textarea value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data"><%=h(params[:payload])%></textarea>    
-                </div>        
+                    <textarea value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data"><%=h(params[:payload])%></textarea>
+                </div>
             </div>
             <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
                 <input type="submit" value="Send" id="submit" class="width25" onclick="prepareSubmission()" style="margin-bottom:10px;"/>
                 <input type="button" value="Clear All" id="submit" class="width25" onclick="clearAllFields()" style="margin-bottom:10px;"/>
             </div>
-            <% if @formResponse == true %> 
+            <% if @formResponse == true %>
             <div>
                 <% if @visible[4] == "hidden"%>
                     <input type="hidden" id="serveResultsDiv" name="serveResultsDiv" value="hidden">
@@ -133,7 +147,7 @@
             <% end %>
             <!-- MODAL GRAY BACKGROUND -->
             <div id="dialog-background-blur" style="visibility:hidden" onclick="modalHideAll()"></div>
-            <!-- BEGIN SETTINGS MODAL-->     
+            <!-- BEGIN SETTINGS MODAL-->
             <div id="load-dialog-modal" title="Settings" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
                 <p style="font-size:15px; margin-top:0px"><strong>Configuration:</strong></p>
                 <div style="display:inline-block;width:100%">
@@ -182,7 +196,7 @@
                 </div>
             </div>
             <!--</div> -->
-            <!-- END FILE UPLOAD MODAL --> 
+            <!-- END FILE UPLOAD MODAL -->
         </form>
     </div>
 
@@ -202,7 +216,7 @@
         document.getElementById("file-upload-modal").style.visibility = "hidden";
     }
 
-    /*Re-serve minimised sections minimised on page reload. Note data from fields is always submitted*/ 
+    /*Re-serve minimised sections minimised on page reload. Note data from fields is always submitted*/
     if (document.getElementById("serveURLDiv").value == "hidden") {
         toggleRequestVisibility("arg1");
     }
@@ -275,7 +289,7 @@
     function clearAllFields() {
         document.getElementById("requestType").value = "GET";
         document.getElementById("url").value = "";
-        document.getElementById("usr").value = "";        
+        document.getElementById("usr").value = "";
         document.getElementById("pwd").value = "";
         document.getElementById("payload").value = "";
         if (document.getElementById("resultsBox")){
@@ -298,7 +312,7 @@
     function addNewHeader() {
         clickCount += 1;
         document.getElementById("headerCount").value = clickCount + 1;
-        
+
         var input0 = document.createElement('div');
         var input = document.createElement('input');
         var input2 = document.createElement('input');

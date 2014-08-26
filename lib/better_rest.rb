@@ -2,6 +2,7 @@
 
 require 'sinatra'
 require 'typhoeus'
+require 'json'
 
 set :public_dir, File.expand_path('../../public', __FILE__)
 set :views, File.expand_path('../../views', __FILE__)
@@ -15,6 +16,7 @@ BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
 
 get '/?' do
   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
+  @times = ["1", "2", "5", "10"]
   @timeout = ["1","2","5","10","60"]
   @validHeaderCount = 1
   @headerHash = {"" => ""}
@@ -58,11 +60,8 @@ post '/' do
 
   # Check which options the user set
   @follow = false if params[:followlocation] == ""
-
   @verbose = false if params[:verbose] == ""
-
   @ssl = true if params[:ssl_verifypeer] == "on"
-
   @loggingOn = true if params[:enableLogging] == "on"
 
   if params[:datafile]
@@ -70,6 +69,9 @@ post '/' do
   else
     @requestBody = { content: params[:payload] }
   end
+
+  # For parallel Requests
+  hydra = Typhoeus::Hydra.new
 
   # Create the Request
   request = Typhoeus::Request.new(
@@ -86,8 +88,9 @@ post '/' do
     timeout: Integer(params[:timeoutInterval])
   )
 
-  # Send the request
-  request.run
+  # Send the request (specified number of times)
+  params[:times].to_i.times.map{ hydra.queue(request) }
+  hydra.run
   response = request.response
 
   # If user-agent wasn't set by user, don't bother showing the user this default
@@ -104,12 +107,13 @@ post '/' do
   puts params[:payload]
 
   # These values will be used by the ERB page
-  @requestOptions = request.options
+  @requestOptions = JSON.pretty_generate(request.options)
   @returnBody = response.body
   @returnCode = response.return_code
   @returnTime = response.time
   @statCodeReturn = response.response_headers
   @requests = ["#{params[:requestType]}", "GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"].uniq
+  @times = ["#{params[:times]}", "1", "2", "5", "10"].uniq
   @timeout = ["1","2","5","10","60"]
 
   erb :index
@@ -117,4 +121,10 @@ end
 
 not_found do
   redirect '/'
+end
+
+# Kills process. Work around for Vegas Gem not catching SIGINT from Terminal
+get '/quit' do
+  puts "\nExiting..."
+  exit!
 end
