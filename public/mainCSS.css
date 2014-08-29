@@ -1,75 +1,9 @@
+/*Defaults*/
 body {
     font-family:"Gill Sans", "Gill Sans MT", Sans-Serif;
     background-color: #FDFDFD;
     padding-bottom: 20px;
     margin: 0px;
-}
-.container{
-    max-width:700px;
-    margin:10px auto 0px auto;
-}
-.forceInline{
-    display:inline;
-}
-.backgroundText{
-    text-align: center;
-    color:#888888;
-}
-
-h2:hover{
-  color:black;
-}
-
-.width25{
-    width:13%;
-    padding:0px;
-}
-.widthRemainder{
-    display: inline;
-    width: 70%;
-    border: 2px 2px 2px 2px;
-    border-radius: 2px;
-    background-color:#FDFDFD;
-}
-.restrictedHeight{
-    padding: 10px 4px 10px 4px;
-    max-height: 200px;
-    overflow: scroll;
-    background-color: #F2F2F2;
-    border-radius: 3px;
-}
-.close {
-    display: inline;
-    font-size: 12px;
-    font-weight: bold;
-    color: #555555;
-    margin-left: 4px;
-    padding-left: 2px;
-    padding-right: 2px;
-    vertical-align: center;
-}
-.close:hover{
-    color:red;
-    border-radius: 7px;
-    background-color: #CCCCCC;
-}
-
-.minimal{
-    padding:0px;
-}
-.box{
-    padding:5px 5px 5px 5px;
-    background: linear-gradient(to bottom right, #F7F7F7, #F5F5F5, #F3F3F3);
-    border-radius: 4px;
-    border-style: solid;
-    border-color: #CFCFCF;
-    border-width: 1px;
-    transition: 90s;
-    box-shadow: 2px 1px 1px #CCCCCC;
-
-}
-.minmax:hover{
-    color:black;
 }
 h1 {
     font-size: 14px;
@@ -82,58 +16,9 @@ h2 {
     color: red;
     display: inline-block;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    /*padding: 12px 0 0px 0;*/
 }
-.holdValue {
-    transition: 0s 9999999s;
-}
-div:active {
-    transition:90s;
-}
-
-#submit {
-    border:none;
-    background:#888888;
-    margin-top: 8px;
-    padding: 4px 12px 4px 12px;
-    border-radius: 3px;
-    color: white;
-    float: right;
-    margin-left: 10px;
-    box-shadow: 2px 2px 1px #DDDDDD;
-}
-#submit:hover{
-    color:black;
-}
-#clearBtn{
-    border:none;
-    background:#ff4b33;
-    margin-top: 8px;
-    padding: 4px 12px 4px 12px;
-    border-radius: 3px;
-    font-weight: bold;
-    color: white;
-    float: right;
-    margin-left: 10px;
-    box-shadow: 2px 2px 1px #DDDDDD;
-}
-#clearBtn:hover{
-    color:black;
-}
-#variables{
-    border:none;
-    background:#ff4b33;
-    margin-top: 8px;
-    padding: 4px 12px 4px 12px;
-    border-radius: 3px;
-    font-weight: bold;
-    color: white;
-    float: right;
-    margin-left: 10px;
-    box-shadow: 2px 2px 1px #DDDDDD;
-}
-#variables:hover{
-    color:black;
+h2:hover{
+  color:black;
 }
 input{
     width:46%;
@@ -156,27 +41,10 @@ textarea{
     font-family: arial;
     font-size: 13px;
 }
-
-#add{
-    color:white;
-    background-color: #B9B9B9;
-    margin-top: 3px;
-    width:90px;
-}
-#add:hover{
-    color:black;
-}
-#add:active{
-    color: red;
-}
-#dialog-modal{
-    visibility: none;
-}
 ul{
     margin: 5px 5px 0px 5px;
     padding: 0;
     text-align: left;
-
 }
 li {
     min-width: 200px;
@@ -196,14 +64,118 @@ li a{
     font-weight: normal;
     font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
-
 li a:hover{
     color:black;
+}
+label {
+    font-family: "Helvetica";
+    font-size:14px;
+}
+
+/*Classes*/
+.container{
+    max-width:700px;
+    margin:10px auto 0px auto;
+}
+.forceInline{
+    display:inline;
+}
+.width25{
+    width:13%;
+    padding:0px;
+}
+.widthRemainder{
+    display: inline;
+    width: 70%;
+    border: 2px 2px 2px 2px;
+    border-radius: 2px;
+    background-color:#FDFDFD;
+}
+.close {
+    display: inline;
+    font-size: 12px;
+    font-weight: bold;
+    color: #555555;
+    margin-left: 4px;
+    padding-left: 2px;
+    padding-right: 2px;
+    vertical-align: center;
+}
+.close:hover{
+    color:red;
+    border-radius: 7px;
+    background-color: #CCCCCC;
+}
+/*minimal isn't used yet*/
+.minimal{
+    padding:0px;
+}
+.box{
+    padding:5px 5px 5px 5px;
+    background: linear-gradient(to bottom right, #F7F7F7, #F5F5F5, #F3F3F3);
+    border-radius: 4px;
+    border-style: solid;
+    border-color: #CFCFCF;
+    border-width: 1px;
+    transition: 90s;
+    box-shadow: 2px 1px 1px #CCCCCC;
 }
 .resultsBoxHead {
     visibility: none;
 }
 .resultsBoxcURL {
+    visibility: none;
+}
+.modal{
+    background-color: #CCCCCC;
+    opacity:1.0;
+    position: fixed;
+    top: 25%;
+    left: 50% ;
+    width:280px;
+    margin-left:-140px;
+    padding:20px;
+    box-shadow: 2px 1px 1px #DDDDDD;
+    z-index:11;
+}
+.header-button {
+  color:#FFFFFF;
+  background-color: #000000;
+}
+
+.header-button:hover {
+    color:#999999;
+    background-color: #000000;
+}
+.submit {
+    border:none;
+    background:#888888;
+    margin-top: 8px;
+    padding: 4px 12px 4px 12px;
+    border-radius: 3px;
+    color: white;
+    float: right;
+    margin-left: 10px;
+    box-shadow: 2px 2px 1px #DDDDDD;
+}
+.submit:hover{
+    color:black;
+}
+
+/*By ID*/
+#add{
+    color:white;
+    background-color: #B9B9B9;
+    margin-top: 3px;
+    width:90px;
+}
+#add:hover{
+    color:black;
+}
+#add:active{
+    color: red;
+}
+#dialog-modal{
     visibility: none;
 }
 #dialog-background-blur{
@@ -216,72 +188,13 @@ li a:hover{
     height:100%;
     z-index: 10;
 }
-
-#load-dialog-modal{
-    background-color: #CCCCCC;
-    opacity:1.0;
-    position: fixed;
-    top: 25%;
-    left: 50% ;
-    width:280px;
-    margin-left:-140px;
-    padding:20px;
-    box-shadow: 2px 1px 1px #DDDDDD;
-    z-index:11;
-}
-
-#file-upload-modal {
-    background-color: #CCCCCC;
-    opacity:1.0;
-    position: fixed;
-    top: 25%;
-    left: 50% ;
-    width:280px;
-    margin-left:-140px;
-    padding:20px;
-    box-shadow: 2px 1px 1px #DDDDDD;
-    z-index:11;
-}
-
 #header{
     background-color:black;
     color:white;
     padding-top:5px;
     padding-bottom:5px;
 }
-
-#settings-button {
-    color:#FFFFFF;
-    background-color: #000000;
-}
-
-#settings-button:hover {
-    color:#999999;
-    background-color: #000000;
-}
-
-#file-upload-button {
-    color:#FFFFFF;
-    background-color: #000000;
-}
-
-#file-upload-button:hover {
-    color:#999999;
-    background-color: #000000;
-}
-
 #quit-button {
-  color:#FFFFFF;
-  background-color: #000000;
   border:none;
   box-shadow: 0px 0px;
-}
-
-#quit-button:hover {
-  color:#999999;
-}
-
-label {
-    font-family: "Helvetica";
-    font-size:14px;
 }
