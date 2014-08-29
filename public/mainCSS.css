@@ -34,29 +34,23 @@ textarea{
     border-color: transparent;
     background-color: #FDFDFD;
     overflow:hidden;
-    min-height: 80px;
+    min-height: 100px;
     max-width: 98%;
     min-width: 98%;
     box-shadow: 2px 1px 1px #DDDDDD;
     font-family: arial;
     font-size: 13px;
 }
-ul{
-    margin: 5px 5px 0px 5px;
-    padding: 0;
-    text-align: left;
-}
-li {
-    min-width: 200px;
+li{
+  margin-left:20px;
+  margin-right:20px;
 }
 li a{
     text-decoration: none;
-    text-align: left;
     padding-right: 20px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 6px;
+    padding-bottom: 6px;
     padding-left: 20px;
-    margin-right: 10px;
     border-radius: 3px;
     background-color: #B9B9B9;
     font-size: 12px;
@@ -66,10 +60,6 @@ li a{
 }
 li a:hover{
     color:black;
-}
-label {
-    font-family: "Helvetica";
-    font-size:14px;
 }
 
 /*Classes*/
@@ -120,12 +110,6 @@ label {
     transition: 90s;
     box-shadow: 2px 1px 1px #CCCCCC;
 }
-.resultsBoxHead {
-    visibility: none;
-}
-.resultsBoxcURL {
-    visibility: none;
-}
 .modal{
     background-color: #CCCCCC;
     opacity:1.0;
@@ -160,6 +144,9 @@ label {
 }
 .submit:hover{
     color:black;
+}
+.checkbox{
+  width:45px;
 }
 
 /*By ID*/
@@ -196,5 +183,11 @@ label {
 }
 #quit-button {
   border:none;
-  box-shadow: 0px 0px;
+  box-shadow: none;
+  font-weight: bold;
+}
+#datafile{
+  width:100%;
+  background-color:#CCCCCC;
+  box-shadow:none;
 }

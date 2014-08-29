@@ -142,26 +142,29 @@
                 <% end %>
                 <h2><div class="head" id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
                 <div class="box" id="results">
-                    <ul>
-                        <li style="display:inline;" id="viewResponseTab">
+                  <div style="margin-left:15px; margin-top: 15px; margin-bottom: 15px;">
+                    <b>Request Time:</b> <%= @returnTime.to_s %> seconds<br/>
+                    <b>Return Code:</b> <%= @returnCode.to_s %>
+                  </div>
+                  <div style="padding: 0px;">
+                    <ul style="margin-left:0px; padding-left:0px; text-align:center">
+                        <li style="display:inline-block;" id="viewResponseTab">
                             <a onclick="hideReq()" id="responseDataText" style="color:#000000">Response Data</a>
                         </li>
-                        <li style="display:inline" id="viewResponseHeadersTab">
-                            <a onclick="hideRespData()"id="responseHeaderText">Response Headers</a>
+                        <li style="display:inline-block;" id="viewResponseHeadersTab">
+                            <a onclick="hideRespData()" id="responseHeaderText">Response Headers</a>
                         </li>
-                        <li style="display:inline" id="viewRequestTab">
+                        <li style="display:inline-block;" id="viewRequestTab">
                             <a onclick="hideResp()" id="requestHeaderText">Request Params</a>
                         </li>
                     </ul>
-                    <div id="statusReturn" style="padding:5px;">
-                      Request Time: <%= @returnTime.to_s %> seconds
                     </div>
                     <div >
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll" id="resultsBox"><%= @returnBody.to_s %>
+                        <textarea style="min-height:180px; overflow:scroll" id="resultsBox"><%= h @returnBody %>
                         </textarea>
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxHead"><%= @statCodeReturn.to_s %>
+                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxHead"><%= @statCodeReturn.to_s %>
                         </textarea>
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxcURL"><%= @requestOptions.to_s %>
+                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxcURL"><%= @requestOptions.to_s %>
                         </textarea>
                     </div>
                 </div>
@@ -174,27 +177,27 @@
             <div id="load-dialog-modal" class="modal" title="Settings" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
                 <p style="font-size:15px; margin-top:0px"><strong>Configuration:</strong></p>
                 <div style="display:inline-block;width:100%">
-                    <label for="followlocation">
-                        <input type="checkbox" name="followlocation" id="followlocation" style="float:right"
-                        <% if @follow == true %>checked<% end %>>
-                        Follow Redirects?<br/>
-                    </label>
-                    <label for="verbose">
-                        <input type="checkbox" name="verbose" id="verbose" style="float:right"
-                        <% if @verbose == true %>checked<% end %>>
-                        Verbose Response?<br/>
-                    </label>
-                    <label for="ssl_verifypeer">
-                        <input type="checkbox" name="ssl_verifypeer" id="ssl_verifypeer" style="float:right"
-                        <% if @ssl == true %>checked<% end %>>
-                        Verify SSL Peers?<br/>
-                    </label>
-                    <label for="enableLogging">
-                        <input type="checkbox" name="enableLogging" id="enableLogging" style="float:right"
-                        <% if @loggingOn == true %>checked<% end %>>
-                        Log Requests?<br/>
-                    </label>
-                    <label for="timeoutInterval">
+                  <div>
+                    <label for="followlocation">Follow Redirects?</label>
+                    <input type="checkbox" name="followlocation" id="followlocation" class="checkbox" style="float:right"
+                    <% if @follow == true %>checked<% end %>>
+                  </div>
+                  <div>
+                    <label for="verbose">Verbose Response?</label>
+                    <input type="checkbox" name="verbose" id="verbose" class="checkbox" style="float:right"
+                    <% if @verbose == true %>checked<% end %>>
+                  </div>
+                  <div>
+                    <label for="ssl_verifypeer">Verify SSL Peers?</label>
+                    <input type="checkbox" name="ssl_verifypeer" id="ssl_verifypeer" class="checkbox" style="float:right"
+                    <% if @ssl == true %>checked<% end %>>
+                  </div>
+                  <div>
+                    <label for="enableLogging">Log Requests?</label>
+                    <input type="checkbox" name="enableLogging" id="enableLogging" class="checkbox" style="float:right"
+                    <% if @loggingOn == true %>checked<% end %>>
+                  </div>
+                    <label for="timeoutInterval"></label>
                         <select id="timeoutInterval" name="timeoutInterval" style="float:right">
                             <% @timeout.each do |interval| %>
                                 <option value=<%= interval %>
@@ -212,10 +215,8 @@
             <div id="file-upload-modal" class="modal" title="File Upload" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
                 <p style="font-size:15px; margin-top:0px"><strong>Attach File to Request:</strong></p>
                 <div>
-                    <input type="file" id="datafile" name="datafile" style="width:100%; background-color:#CCCCCC; box-shadow:none;">
-                </div>
-                <div style="margin-top:10px;">
-                    <input type="button" value=" OK" onclick="modalToggle('file-upload-modal')">
+                    <input type="file" id="datafile" name="datafile">
+                    <div id="clearFileUpload" onclick="clearFileUpload()" style="float:right;">Clear</div>
                 </div>
             </div>
             <!-- END FILE UPLOAD MODAL -->
@@ -228,9 +229,9 @@
                     <div style="margin-left:auto; margin-right:auto; margin-top:10px; margin-bottom:10px;">
                       <b>{{Key}}</b> for <b>Value</b>
                     </div>
-                    For any that appear within the request. Note: will not work for Header Keys. Payload is not currently supported.
+                    Which appear within the request. Note: will not work for Header Keys
                 </div>
-                <div style="margin-top:10px;">
+                <div style="margin-top:20px;">
                     <input type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
                     <input type="text" value="<%=h(params[:varValue])%>" name="varValue" id="varValue" placeholder=" Value" />
                 </div>
@@ -451,6 +452,15 @@
         document.getElementById("api_key").style.display = 'none';
         document.getElementById("secret").style.display = 'none';
         document.getElementById("callback").style.display = 'none';
+    }
+
+    function clearFileUpload() {
+        var oldInput = document.getElementById("datafile")
+        var newInput = document.createElement('input');
+        newInput.id    = oldInput.id;
+        newInput.type  = oldInput.type;
+        newInput.name  = oldInput.name;
+        oldInput.parentNode.replaceChild(newInput, oldInput);
     }
 
     /*Block some JS and Form behaviour from occuring*/
