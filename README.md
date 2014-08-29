@@ -35,4 +35,3 @@ Requires a ruby installation with the following gems installed (installation via
 * Add ability to save requests
 * Add download to file
 * Add support for more than one variable
-* Fix body when Content-Type json or XML header is present
