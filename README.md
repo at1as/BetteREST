@@ -1,31 +1,32 @@
 # BetteR
 
-BetteR is a a REST testing client written in Ruby and served by Sinatra. 
+BetteR is a a REST testing client written in Ruby and served by Sinatra.
 
-BetteR emphasises both a clean and easy to use interface, as well as allowing users to have a very granuler control over their requests (things like following redirects, verbosity of response, timeout intervals are all configurable). The current feature set is modest, but what it does, it aims to do well.
+BetteR emphasises both a clean and easy to use interface, as well as allowing users to have a very granuler control over their requests (things like following redirects, verbosity of response and timeout intervals are all configurable). The current feature set is modest, but what it does, it aims to do well.
 
 ## Usage
 
 The easiest way to use BetteR is to install it using the gem:
-
-    $gem install better_rest
-
-Or download the reposity here and launch BetteR via
-
-    $./bin/better_rest
-    
+```bash
+$ gem install better_rest
+```
+Or download the repository here for the latest version and launch BetteR via:
+```bash
+$ ./bin/better_rest
+```
 ## Logs
 
 Logs (if enabled from the Settings menu in the UI) will be stored in the following location
-
-    ./logs/YYYY-MM-DD.log
-
+```bash
+./logs/YYYY-MM-DD.log
+```
 ## Dependencies
 
 Requires a ruby installation with the following gems installed (installation via the gem will eventually take care of these dependencies, but currently does not):
-- sinatra ($sudo gem install sinatra)
-- typhoeus ($sudo gem install typhoeus)
-- vegas ($sudo gem install vegas)
+- sinatra
+- typhoeus
+- vegas
+- json
 
 ## TODO
 
@@ -33,4 +34,5 @@ Requires a ruby installation with the following gems installed (installation via
 * Update current deprecated Basic/Digest Auth method
 * Add ability to save requests
 * Add download to file
-* Add parallel requests
+* Add support for more than one variable
+* Fix body when Content-Type json or XML header is present
