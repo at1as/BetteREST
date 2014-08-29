@@ -4,6 +4,10 @@ BetteR is a a REST testing client written in Ruby and served by Sinatra.
 
 BetteR emphasises both a clean and easy to use interface, as well as allowing users to have a very granuler control over their requests (things like following redirects, verbosity of response and timeout intervals are all configurable). The current feature set is modest, but what it does, it aims to do well.
 
+## Screenshot
+
+![Screenshot](http://at1as.github.io/github_repo_assets/BetteR-reqeust.jpg)
+
 ## Usage
 
 The easiest way to use BetteR is to install it using the gem:
