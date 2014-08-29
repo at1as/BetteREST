@@ -14,16 +14,19 @@
             <div id="header-title" style="display:inline-block">
                 <h1 style="min-width:100%;">BetteR &mdash; A REST API Testing Utility.</h1>
             </div>
-            <div style="display:inline-block; float:right; margin-right:10px; margin-left:15px;">
+            <div style="display:inline-block; float:right; margin-right:10px;">
               <form id="form0" name="quit-application" method="get" action="/quit" target="_self" enctype="multipart/form-data">
-                <input type="submit" value="Quit" id="quit-button" style="height:100%; margin-top:8px; display:inline-block; width:40px;">
+                <input type="submit" class="header-button" value="Quit" id="quit-button" style="height:100%; margin-top:8px; display:inline-block; width:40px;">
               </form>
             </div>
-            <div style="display:inline-block; float:right; margin-left:10px;">
-                <div id="settings-button" onclick="modalToggle('load-dialog-modal')" style="height:100%; margin-top:8px; display:inline-block">Settings</div>
+            <div style="display:inline-block; float:right; margin-left:10px; margin-right:10px;">
+                <div id="settings-button" class="header-button" onclick="modalToggle('load-dialog-modal')" style="height:100%; margin-top:8px; display:inline-block">Settings</div>
+            </div>
+            <div style="display:inline-block; float:right; margin-left:10px; margin-right:10px;">
+                <div id="file-upload-button" class="header-button" onclick="modalToggle('file-upload-modal')" style="height:100%; margin-top:8px; display:inline-block">File Upload</div>
             </div>
             <div style="display:inline-block; float:right; margin-right:10px;">
-                <div id="file-upload-button" onclick="modalToggle('file-upload-modal')" style="height:100%; margin-top:8px; display:inline-block">File Upload</div>
+                <div id="variables-button" class="header-button" onclick="modalToggle('variables-modal')" style="height:100%; margin-top:8px; display:inline-block">Variables</div>
             </div>
         </div>
     </div>
@@ -66,16 +69,30 @@
                     <div id="authSelect">
                         <span style="display:inline-block; white-space:nowrap; margin-top:5px;margin-bottom:5px;">
                             <label for="basicAuthSelect">
-                                <input id="basicAuthSelect" type="radio" name="authType" value="basic" checked="true" style="width:14px;">Basic
+                                <input id="basicAuthSelect" type="radio" name="authType" value="basic" onclick="oAuthHideFields()" checked="true" style="width:20px;">Basic
                             </label>
                             <label for="digestAuthSelect">
-                                <input id="digestAuthSelect" type="radio" name="authType" value="digest" style="width:14px;">Digest
+                                <input id="digestAuthSelect" type="radio" name="authType" value="digest" onclick="oAuthHideFields()" style="width:20px;">Digest
                             </label>
+                            <!-- Not yet supported. OAuth is a pain...
+                            <label for="oAuthSelect">
+                                <input id="oAuthSelect" type="radio" name="authType" value="oauth" onclick="oAuthShowFields()"style="width:20px;">OAuth</input>
+                            </label>
+                            <label for="oAuth2Select">
+                                <input id="oAuth2Select" type="radio" name="authType" value="oauth2" onclick="oAuthShowFields()"style="width:20px;">OAuth2</input>
+                            </label>
+                          -->
                         </span>
                     </div>
                     <input type="text" value="<%=h(params[:usr])%>" name="usr" id="usr" placeholder=" Username"  />
                     <input type="text" value="<%=h(params[:pwd])%>" name="pwd" id="pwd" placeholder=" Password" />
                     <div class="close" id="closeAuth" onclick="clearAuthCredentials()">X</div>
+                    <input type="text" value="<%=h(params[:api_key])%>" name="api_key" id="api_key" placeholder=" API Key" style="display:none;" />
+                    <input type="text" value="<%=h(params[:secret])%>" name="secret" id="secret" placeholder=" Shared Secret" style="display:none;" />
+                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
+                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
+                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
+                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
                 </div>
             </div>
             <div>
@@ -113,8 +130,8 @@
                 </div>
             </div>
             <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
-                <input type="submit" value="Send" id="submit" class="width25" style="margin-bottom:10px;"/>
-                <input type="button" value="Clear All" id="submit" class="width25" onclick="clearAllFields()" style="margin-bottom:10px;"/>
+                <input type="submit" value="Send" id="submit" class="submit width25" style="margin-bottom:10px;"/>
+                <input type="button" value="Clear All" id="submit" class="submit width25" onclick="clearAllFields()" style="margin-bottom:10px;"/>
             </div>
             <% if @formResponse == true %>
             <div>
@@ -133,23 +150,28 @@
                             <a onclick="hideRespData()"id="responseHeaderText">Response Headers</a>
                         </li>
                         <li style="display:inline" id="viewRequestTab">
-                            <a onclick="hideResp()" id="requestHeaderText">Request Body</a>
+                            <a onclick="hideResp()" id="requestHeaderText">Request Params</a>
                         </li>
                     </ul>
+                    <div id="statusReturn" style="padding:5px;">
+                      Request Time: <%= @returnTime.to_s %> seconds
+                    </div>
                     <div >
                         <textarea style="min-height:180px; margin-top:10px; overflow:scroll" id="resultsBox"><%= @returnBody.to_s %>
-                            &#10----&#10Response: <%= @returnCode.to_s %> &#10Request Time: <%= @returnTime.to_s %> seconds
                         </textarea>
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxHead"><%= @statCodeReturn.to_s %></textarea>
-                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxcURL"><%= @requestOptions.to_s %></textarea>
+                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxHead"><%= @statCodeReturn.to_s %>
+                        </textarea>
+                        <textarea style="min-height:180px; margin-top:10px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxcURL"><%= @requestOptions.to_s %>
+                        </textarea>
                     </div>
                 </div>
             </div>
             <% end %>
+
             <!-- MODAL GRAY BACKGROUND -->
             <div id="dialog-background-blur" style="visibility:hidden" onclick="modalHideAll()"></div>
             <!-- BEGIN SETTINGS MODAL-->
-            <div id="load-dialog-modal" title="Settings" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
+            <div id="load-dialog-modal" class="modal" title="Settings" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
                 <p style="font-size:15px; margin-top:0px"><strong>Configuration:</strong></p>
                 <div style="display:inline-block;width:100%">
                     <label for="followlocation">
@@ -185,9 +207,9 @@
                 </div>
             </div>
             <!-- END SETTINGS MODAL -->
+
             <!-- BEGIN FILE UPLOAD MODAL -->
-            <!--<div id="dialog-background-blur" style="visibility:hidden" onclick="modalToggle('file-upload-modal')">-->
-            <div id="file-upload-modal" title="File Upload" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
+            <div id="file-upload-modal" class="modal" title="File Upload" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
                 <p style="font-size:15px; margin-top:0px"><strong>Attach File to Request:</strong></p>
                 <div>
                     <input type="file" id="datafile" name="datafile" style="width:100%; background-color:#CCCCCC; box-shadow:none;">
@@ -196,9 +218,248 @@
                     <input type="button" value=" OK" onclick="modalToggle('file-upload-modal')">
                 </div>
             </div>
-            <!--</div> -->
             <!-- END FILE UPLOAD MODAL -->
+
+            <!-- BEGIN VARIABLES MODAL -->
+            <div id="variables-modal" class="modal" title="Variables" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
+                <p style="font-size:15px; margin-top:0px"><strong>Variables:</strong></p>
+                <div>
+                    Will swap any instances of: <br/>
+                    <div style="margin-left:auto; margin-right:auto; margin-top:10px; margin-bottom:10px;">
+                      <b>{{Key}}</b> for <b>Value</b>
+                    </div>
+                    For any that appear within the request. Note: will not work for Header Keys. Payload is not currently supported.
+                </div>
+                <div style="margin-top:10px;">
+                    <input type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
+                    <input type="text" value="<%=h(params[:varValue])%>" name="varValue" id="varValue" placeholder=" Value" />
+                </div>
+            </div>
+            <!-- END VARIABLES MODAL -->
         </form>
     </div>
+    <script>
+
+    /*Toggle Modal display on page*/
+    function modalToggle(modal_id) {
+        bgrnd = document.getElementById("dialog-background-blur");
+        bgrnd.style.visibility = (bgrnd.style.visibility == "visible") ? "hidden" : "visible";
+        el = document.getElementById(modal_id);
+        el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    }
+
+    function modalHideAll() {
+        document.getElementById("dialog-background-blur").style.visibility = "hidden";
+        document.getElementById("load-dialog-modal").style.visibility = "hidden";
+        document.getElementById("file-upload-modal").style.visibility = "hidden";
+        document.getElementById("variables-modal").style.visibility = "hidden";
+    }
+
+    /*Re-serve minimised sections minimised on page reload. Note data from fields is always submitted*/
+    if (document.getElementById("serveURLDiv").value == "hidden") {
+        toggleRequestVisibility("arg1");
+    }
+    if (document.getElementById("serveAuthDiv").value == "hidden") {
+        toggleAuthVisibility("arg1");
+    }
+    if (document.getElementById("serveHeaderDiv").value == "hidden") {
+        toggleHeaderVisibility("arg1");
+    }
+    if (document.getElementById("servePayloadDiv").value == "hidden") {
+        toggleDataVisibility("arg1");
+    }
+    if (document.getElementById("serveResultsDiv") && document.getElementById("serveResultsDiv").value == "hidden") {
+        toggleResultsVisibility("arg1");
+    }
+
+    /*Change page layout to reflect minimizing/maximising divs*/
+    function toggleRequestVisibility(){
+        document.getElementById("path").style.display = (document.getElementById("path").style.display != 'none' ? 'none' : '');
+        document.getElementById("headingReq").innerHTML = (document.getElementById("path").style.display != 'none' ? "[&ndash;] Request" : "[+] Request");
+        document.getElementById("headingReq").style.color = (document.getElementById("path").style.display != 'none' ? "red" : "#BBBBBB");
+        document.getElementById("headingReq").style.margin = (document.getElementById("path").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
+        //So we can block this from being executed on page reload, which would undo the minimise
+        if (arguments.length == 0) {
+            document.getElementById("serveURLDiv").value = (document.getElementById("serveURLDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
+    }
+
+    function toggleAuthVisibility(){
+        document.getElementById("auth").style.display = (document.getElementById("auth").style.display != 'none' ? 'none' : '');
+        document.getElementById("headingAuth").innerHTML = (document.getElementById("auth").style.display != 'none' ? "[&ndash;] Authentication" : "[+] Authentication");
+        document.getElementById("headingAuth").style.color = (document.getElementById("auth").style.display != 'none' ? "red" : "#BBBBBB");
+        document.getElementById("headingAuth").style.margin = (document.getElementById("auth").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
+         if (arguments.length == 0 ) {
+            document.getElementById("serveAuthDiv").value = (document.getElementById("serveAuthDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
+    }
+
+    function toggleHeaderVisibility(){
+        document.getElementById("headers").style.display = (document.getElementById("headers").style.display != 'none' ? 'none' : '');
+        document.getElementById("headingHead").innerHTML = (document.getElementById("headers").style.display != 'none' ? "[&ndash;] Headers" : "[+] Headers");
+        document.getElementById("headingHead").style.color = (document.getElementById("headers").style.display != 'none' ? "red" : "#BBBBBB");
+        document.getElementById("headingHead").style.margin = (document.getElementById("headers").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
+        if (arguments.length == 0 ) {
+            document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
+    }
+
+    function toggleDataVisibility(){
+        document.getElementById("data").style.display = (document.getElementById("data").style.display != 'none' ? 'none' : '');
+        document.getElementById("headingData").innerHTML = (document.getElementById("data").style.display != 'none' ? "[&ndash;] Payload" : "[+] Payload");
+        document.getElementById("headingData").style.color = (document.getElementById("data").style.display != 'none' ? "red" : "#BBBBBB");
+        document.getElementById("headingData").style.margin = (document.getElementById("data").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
+        if (arguments.length == 0) {
+            document.getElementById("servePayloadDiv").value = (document.getElementById("servePayloadDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
+    }
+
+    function toggleResultsVisibility() {
+        document.getElementById("results").style.display = (document.getElementById("results").style.display != 'none' ? 'none' : '');
+        document.getElementById("headingResults").innerHTML = (document.getElementById("results").style.display != 'none' ? "[&ndash;] Results" : "[+] Results");
+        document.getElementById("headingResults").style.color = (document.getElementById("results").style.display != 'none' ? "red" : "#BBBBBB");
+        document.getElementById("headingResults").style.margin = (document.getElementById("results").style.display != 'none' ? "10px 0px 0px" : "10px 0px -20px");
+        if (arguments.length == 0) {
+            document.getElementById("serveResultsDiv").value = (document.getElementById("serveResultsDiv").value != 'hidden' ? 'hidden' : 'displayed');
+        }
+    }
+
+    /*clear all form fields. Delete additional header fields*/
+    function clearAllFields() {
+        document.getElementById("requestType").value = "GET";
+        document.getElementById("url").value = "";
+        document.getElementById("usr").value = "";
+        document.getElementById("pwd").value = "";
+        document.getElementById("payload").value = "";
+        document.getElementById("varKey").value = "";
+        document.getElementById("varValue").value = "";
+        if (document.getElementById("resultsBox")){
+            document.getElementById("resultsBox").value = "";
+        }
+        if (document.getElementById("resultsBoxHead")) {
+            document.getElementById("resultsBoxHead").value = "";
+        }
+        if (document.getElementById("resultsBoxcURL")) {
+            document.getElementById("resultsBoxcURL").value = "";
+        }
+        while (headerfieldsAll.firstChild) {
+            headerfieldsAll.removeChild(headerfieldsAll.firstChild);
+        }
+    }
+
+    var clickCount = document.getElementById('headerfieldsAll').children.length - 1;
+    document.getElementById("headerCount").value = clickCount + 1;
+
+    function addNewHeader() {
+        clickCount += 1;
+        document.getElementById("headerCount").value = clickCount + 1;
+
+        var input0 = document.createElement('div');
+        var input = document.createElement('input');
+        var input2 = document.createElement('input');
+        var input3 = document.createElement('div');
+        input0.type = "div";
+        input0.style = "margin-bottom:2px;"
+        input.type = "text";
+        input2.type = "text";
+        input3.type = "close";
+        input3.className = "close";
+        input.placeholder = " Name";
+        input2.placeholder = " Value";
+        input.id = "key" + clickCount;
+        input.className = "key";
+        input2.className = "value";
+        input.autocomplete = "off";
+        input3.id = "close" + clickCount;
+        input.style.margin = "0px 4px 0px 0px";
+        input3.style.margin = "0px 0px 0px 9px";
+        input2.id = "value" + clickCount;
+        input0.id = "headerfields" + clickCount;
+        input.name = "key" + clickCount;
+        input2.name = "value" + clickCount;
+        input.value = '<%=h(params[:key])%>';
+        input.value = input.value.replace('key', 'key' + clickCount);
+
+        input2.value = '<%=h(params[:value])%>';
+        input2.value = input2.value.replace('value', 'value' + clickCount);
+        input3.innerHTML = "X";
+        input3.setAttribute("onclick", "removeRow(this)");
+
+        document.getElementById('headerfieldsAll').appendChild(input0);
+        input0.appendChild(input);
+        input0.appendChild(input2);
+        input0.appendChild(input3);
+        document.getElementById(input.id).focus()
+    }
+
+    function clearAuthCredentials() {
+        document.getElementById('usr').value = '';
+        document.getElementById('pwd').value = '';
+    }
+
+    function clearURL(){
+        document.getElementById('url').value = '';
+        document.getElementById('times').options.selectedIndex = 1;
+        document.getElementById('requestType').options.selectedIndex = 1;
+    }
+
+    function removeRow(rowNumber) {
+        rNum = rowNumber.id.charAt(rowNumber.id.length -1);
+        document.getElementById('headerfieldsAll').removeChild(document.getElementById('headerfields' + rNum));
+    }
+
+    function hideReq() {
+        document.getElementById("resultsBox").style.display = '';
+        document.getElementById("responseDataText").style.color = "#000000";
+        document.getElementById("resultsBoxHead").style.display = 'none';
+        document.getElementById("responseHeaderText").style.color = "#FFFFFF";
+        document.getElementById("resultsBoxcURL").style.display = 'none';
+        document.getElementById("requestHeaderText").style.color = "#FFFFFF";
+    }
+
+    function hideRespData() {
+        document.getElementById("resultsBox").style.display = 'none';
+        document.getElementById("responseDataText").style.color = "#FFFFFF";
+        document.getElementById("resultsBoxHead").style.display = '';
+        document.getElementById("responseHeaderText").style.color = "#000000";
+        document.getElementById("resultsBoxcURL").style.display = 'none';
+        document.getElementById("requestHeaderText").style.color = "#FFFFFF";
+    }
+
+    function hideResp() {
+        document.getElementById("resultsBox").style.display = 'none';
+        document.getElementById("responseDataText").style.color = "#FFFFFF";
+        document.getElementById("resultsBoxHead").style.display = 'none';
+        document.getElementById("responseHeaderText").style.color = "#FFFFFF";
+        document.getElementById("resultsBoxcURL").style.display = '';
+        document.getElementById("requestHeaderText").style.color = "#000000";
+    }
+
+    function oAuthShowFields() {
+        document.getElementById("usr").style.display = 'none';
+        document.getElementById("pwd").style.display = 'none';
+        document.getElementById("closeAuth").style.display = 'none';
+        document.getElementById("api_key").style.display = '';
+        document.getElementById("secret").style.display = '';
+        document.getElementById("callback").style.display = '';
+    }
+
+    function oAuthHideFields() {
+        document.getElementById("usr").style.display = '';
+        document.getElementById("pwd").style.display = '';
+        document.getElementById("closeAuth").style.display = '';
+        document.getElementById("api_key").style.display = 'none';
+        document.getElementById("secret").style.display = 'none';
+        document.getElementById("callback").style.display = 'none';
+    }
+
+    /*Block some JS and Form behaviour from occuring*/
+    function returnFalse(event) {
+        event.cancelBubble=true;
+        if(event.stopPropagation) { event.stopPropagation(); }
+        return false;
+    }
+
+    </script>
 </body>
 </html>
