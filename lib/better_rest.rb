@@ -27,14 +27,16 @@ get '/?' do
 end
 
 post '/' do
+  # Set Defaults
   @headerHash = {}
   @validHeaderCount = 1
   @formResponse = true
   @follow, @verbose, @ssl, @loggingOn = true, true, false, false
-  @requestBody = ""
+  @requestBody = params[:payload]
   @visible = [:servURLDiv, :servAuthDiv, :servHeaderDiv, :servePayloadDiv, :servResultsDiv].map{ |k| params[k] }
   @var_key = params[:varKey]
   @var_value = params[:varValue]
+  @ContentType = "text/plain"
 
   # Loop through Header key/value pairs
   # If a header is created and deleted in the UI before submit, headerCount will not renormalize (and will exceed the number headers sent)
@@ -58,14 +60,6 @@ post '/' do
   @ssl = true if params[:ssl_verifypeer] == "on"
   @loggingOn = true if params[:enableLogging] == "on"
 
-  # Assemble the Payload
-  if params[:datafile]
-    @requestBody = { content: params[:payload], file: File.open(params[:datafile][:tempfile], 'r') }
-  else
-    @requestBody = { content: params[:payload] }
-    #@requestBody = { content: JSON.parse(params[:payload]) } #.gsub(':', '=>')[1..-2].to_json#[1..-2]
-  end
-
   # For parallel Requests
   hydra = Typhoeus::Hydra.new
 
@@ -77,12 +71,18 @@ post '/' do
     password: params[:pwd].gsub("{{#{@var_key}}}", @var_value),
     auth_method: :auto,		#Should ideally not be auto, in order to test unideal APIs
     headers: @headerHash,
-    body: @requestBody,
+    body: params[:payload].gsub("{{#{@var_key}}}", @var_value),
     followlocation: @follow,
     verbose: @verbose,
     ssl_verifypeer: @ssl,
     timeout: Integer(params[:timeoutInterval])
   )
+
+  # Modify Request Payload to include datafile, if present
+  if params[:datafile]
+    @requestBody = { content: params[:payload], file: File.open(params[:datafile][:tempfile], 'r') }
+    request.options[:body] = @requestBody #{ content: params[:payload], file: File.open(params[:datafile][:tempfile], 'r') }
+  end
 
   # Substitute Header Values for defined variables
   request.options[:headers].each do |key, val|
@@ -92,9 +92,10 @@ post '/' do
   end
 
   # Remove unused fields from request (some APIs don't handle unexpected fields)
-  request.options.delete(:body) if @requestBody[:content] == "" unless @requestBody[:file]
+  request.options.delete(:body) if request.options[:body] == ""
   request.options.delete(:username) if params[:usr] == ""
   request.options.delete(:password) if params[:pwd] == ""
+  request.options.delete(:auth_method) if params[:pwd] == "" && params[:usr] == ""
 
   # Send the request (specified number of times)
   params[:times].to_i.times.map{ hydra.queue(request) }
