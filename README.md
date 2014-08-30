@@ -1,4 +1,4 @@
-# BetteR
+# BetteR [![Gem Version](https://badge.fury.io/rb/better_rest.svg)](http://badge.fury.io/rb/better_rest)
 
 BetteR is a a REST testing client written in Ruby and served by Sinatra.
 
