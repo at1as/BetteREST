@@ -22,6 +22,8 @@ get '/?' do
   @headerHash = {"" => ""}
   @follow, @verbose, @ssl, @loggingOn = true, true, false, false
   @visible = ["displayed", "hidden", "displayed", "displayed", "displayed"]	#Ordered display toggle for frontend: REQUEST, AUTH, HEADERS, PAYLOAD, RESULTS
+  @payloadHeight = "100px"
+  @resultsHeight = "180px"
 
   erb :index
 end
@@ -37,6 +39,10 @@ post '/' do
   @var_key = params[:varKey]
   @var_value = params[:varValue]
   @ContentType = "text/plain"
+  @payloadHeight = params[:payloadHeight] ||= "100px"
+  @resultsHeight = params[:responseHeight] ||= "180px"
+
+  puts "RH, #{@resultsHeight}"
 
   # Loop through Header key/value pairs
   # If a header is created and deleted in the UI before submit, headerCount will not renormalize (and will exceed the number headers sent)

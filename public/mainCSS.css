@@ -147,6 +147,8 @@ li a:hover{
 }
 .checkbox{
   width:45px;
+  border:none;
+  box-shadow: none;
 }
 
 /*By ID*/
@@ -182,7 +184,6 @@ li a:hover{
     padding-bottom:5px;
 }
 #quit-button {
-  border:none;
   box-shadow: none;
   font-weight: bold;
 }

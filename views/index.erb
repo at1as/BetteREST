@@ -126,11 +126,11 @@
                 <% end %>
                 <h2><div class="head" id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
                 <div class="box" id="data">
-                    <textarea value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data"><%=h(params[:payload])%></textarea>
+                    <textarea value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data" style="height:<%= @payloadHeight %>"><%=h(params[:payload])%></textarea>
                 </div>
             </div>
             <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
-                <input type="submit" value="Send" id="submit" class="submit width25" style="margin-bottom:10px;"/>
+                <input type="submit" value="Send" id="submit" class="submit width25" onclick="setHeight()" style="margin-bottom:10px;"/>
                 <input type="button" value="Clear All" id="submit" class="submit width25" onclick="clearAllFields()" style="margin-bottom:10px;"/>
             </div>
             <% if @formResponse == true %>
@@ -159,12 +159,12 @@
                         </li>
                     </ul>
                     </div>
-                    <div >
-                        <textarea style="min-height:180px; overflow:scroll" id="resultsBox"><%= h @returnBody %>
+                    <div>
+                        <textarea style="min-height:180px; overflow:scroll; height:<%= @resultsHeight %>" id="resultsBox"><%= h @returnBody %>
                         </textarea>
-                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxHead"><%= @statCodeReturn.to_s %>
+                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="resultsBoxHead"><%= @statCodeReturn.to_s %>
                         </textarea>
-                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px;" id="resultsBoxcURL"><%= @requestOptions.to_s %>
+                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="resultsBoxcURL"><%= @requestOptions.to_s %>
                         </textarea>
                     </div>
                 </div>
@@ -229,18 +229,21 @@
                     <div style="margin-left:auto; margin-right:auto; margin-top:10px; margin-bottom:10px;">
                       <b>{{Key}}</b> for <b>Value</b>
                     </div>
-                    Which appear within the request. Note: will not work for Header Keys
+                    that appear within the request. <i>Note:</i> will not work for Header Keys
                 </div>
                 <div style="margin-top:20px;">
                     <input type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
                     <input type="text" value="<%=h(params[:varValue])%>" name="varValue" id="varValue" placeholder=" Value" />
                 </div>
+                <div id="clearVariables" onclick="clearVariables()" style="float:right;">Clear</div>
             </div>
             <!-- END VARIABLES MODAL -->
+            <input type="hidden" id="payloadHeight" name="payloadHeight" value="100">
+            <input type="hidden" id="responseHeight" name="responseHeight" value="180">
         </form>
     </div>
-    <script>
 
+    <script>
     /*Toggle Modal display on page*/
     function modalToggle(modal_id) {
         bgrnd = document.getElementById("dialog-background-blur");
@@ -334,14 +337,18 @@
         document.getElementById("payload").value = "";
         document.getElementById("varKey").value = "";
         document.getElementById("varValue").value = "";
+        document.getElementById("payload").style.height = "100px";
         if (document.getElementById("resultsBox")){
             document.getElementById("resultsBox").value = "";
+            document.getElementById("resultsBox").style.height = "180px";
         }
         if (document.getElementById("resultsBoxHead")) {
             document.getElementById("resultsBoxHead").value = "";
+            document.getElementById("resultsBoxHead").style.height = "180px";
         }
         if (document.getElementById("resultsBoxcURL")) {
             document.getElementById("resultsBoxcURL").value = "";
+            document.getElementById("resultsBoxcURL").style.height = "180px";
         }
         while (headerfieldsAll.firstChild) {
             headerfieldsAll.removeChild(headerfieldsAll.firstChild);
@@ -400,8 +407,8 @@
 
     function clearURL(){
         document.getElementById('url').value = '';
-        document.getElementById('times').options.selectedIndex = 1;
-        document.getElementById('requestType').options.selectedIndex = 1;
+        document.getElementById('times').options.selectedIndex = 0;
+        document.getElementById('requestType').options.selectedIndex = 0;
     }
 
     function removeRow(rowNumber) {
@@ -457,10 +464,31 @@
     function clearFileUpload() {
         var oldInput = document.getElementById("datafile")
         var newInput = document.createElement('input');
-        newInput.id    = oldInput.id;
-        newInput.type  = oldInput.type;
-        newInput.name  = oldInput.name;
+        newInput.id = oldInput.id;
+        newInput.type = oldInput.type;
+        newInput.name = oldInput.name;
         oldInput.parentNode.replaceChild(newInput, oldInput);
+    }
+
+    function clearVariables() {
+        document.getElementById("varKey").value = "";
+        document.getElementById("varValue").value = "";
+    }
+
+    function setHeight() {
+        var payloadHeight = document.getElementById("payload").style.height;
+        document.getElementById("payloadHeight").value = payloadHeight;
+        if (document.getElementById("resultsBox").style.display != 'none'){
+            var resHeight = document.getElementById("resultsBox").style.height;
+        }
+        if (document.getElementById("resultsBoxHead").style.display != 'none') {
+            var resHeight = document.getElementById("resultsBoxHead").style.height;
+        }
+        if (document.getElementById("resultsBoxcURL").style.display != 'none') {
+            var resHeight = document.getElementById("resultsBoxHead").style.height;
+        }
+        document.getElementById("responseHeight").value = resHeight;
+        alert(resHeight);
     }
 
     /*Block some JS and Form behaviour from occuring*/
