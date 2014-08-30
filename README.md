@@ -10,7 +10,7 @@ BetteR emphasises both a clean and easy to use interface, as well as allowing us
 
 ## Usage
 
-The easiest way to use BetteR is to install it using the gem:
+The easiest way to use BetteR is to install it using the gem (see - http://rubygems.org/gems/better_rest):
 ```bash
 $ gem install better_rest
 ```
@@ -39,3 +39,4 @@ Requires a ruby installation with the following gems installed (installation via
 * Add ability to save requests
 * Add download to file
 * Add support for more than one variable
+* Add a horizontal page layout
