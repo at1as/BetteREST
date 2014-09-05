@@ -40,3 +40,4 @@ Requires a ruby installation with the following gems installed (installation via
 * Add download to file
 * Add support for more than one variable
 * Add a horizontal page layout
+* Make path to logs configurable
