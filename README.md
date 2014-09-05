@@ -22,7 +22,7 @@ $ ./bin/better_rest
 
 Logs (if enabled from the Settings menu in the UI) will be stored in the following location
 ```bash
-./logs/YYYY-MM-DD.log
+./log/YYYY-MM-DD.log
 ```
 ## Dependencies
 
