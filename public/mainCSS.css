@@ -107,7 +107,6 @@ li a:hover{
     border-style: solid;
     border-color: #CFCFCF;
     border-width: 1px;
-    transition: 90s;
     box-shadow: 2px 1px 1px #CCCCCC;
 }
 .modal{
@@ -123,8 +122,8 @@ li a:hover{
     z-index:11;
 }
 .header-button {
-  color:#FFFFFF;
-  background-color: #000000;
+    color:#FFFFFF;
+    background-color: #000000;
 }
 
 .header-button:hover {
@@ -146,9 +145,17 @@ li a:hover{
     color:black;
 }
 .checkbox{
-  width:45px;
-  border:none;
-  box-shadow: none;
+    width:45px;
+    border:none;
+    box-shadow: none;
+}
+.clr{
+    font-weight: bold;
+    padding-top:14px;
+    padding-right:4px;
+}
+.clr:hover{
+    color: red;
 }
 
 /*By ID*/
