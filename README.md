@@ -18,6 +18,8 @@ Or download the repository here for the latest version and launch BetteR via:
 ```bash
 $ ./bin/better_rest
 ```
+To give BetteR a try, without installing the Gem, it's also hosted on Heroku at http://better-rest.herokuapp.com/
+
 ## Logs
 
 Logs (if enabled from the Settings menu in the UI) will be stored in the following location
