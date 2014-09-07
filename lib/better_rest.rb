@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+require 'rubygems'
+require 'bundler/setup'
 
 require 'sinatra'
 require 'typhoeus'
@@ -14,16 +16,17 @@ end
 
 BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
 
+# Defaults are returned
 get '/?' do
   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
   @times = ["1", "2", "5", "10"]
-  @timeout = ["1","2","5","10","60"]
   @validHeaderCount = 1
   @headerHash = {"" => ""}
   @follow, @verbose, @ssl, @loggingOn = true, true, false, false
   @visible = ["displayed", "hidden", "displayed", "displayed", "displayed"]	#Ordered display toggle for frontend: REQUEST, AUTH, HEADERS, PAYLOAD, RESULTS
   @payloadHeight = "100px"
   @resultsHeight = "180px"
+  @timeoutInterval = 1
 
   erb :index
 end
@@ -35,14 +38,19 @@ post '/' do
   @formResponse = true
   @follow, @verbose, @ssl, @loggingOn = true, true, false, false
   @requestBody = params[:payload]
-  @visible = [:servURLDiv, :servAuthDiv, :servHeaderDiv, :servePayloadDiv, :servResultsDiv].map{ |k| params[k] }
+  @visible = [:serveURLDiv, :serveAuthDiv, :serveHeaderDiv, :servePayloadDiv, :serveResultsDiv].map{ |k| params[k] }
   @var_key = params[:varKey]
   @var_value = params[:varValue]
   @ContentType = "text/plain"
   @payloadHeight = params[:payloadHeight] ||= "100px"
   @resultsHeight = params[:responseHeight] ||= "180px"
 
-  puts "RH, #{@resultsHeight}"
+  # If timeout interval is of an invalid type (non-integer), set to 1
+  begin
+    @timeoutInterval = Integer(params[:timeoutInterval]).abs if Integer(params[:timeoutInterval]) > 0
+  rescue
+    @timeoutInterval = 1
+  end
 
   # Loop through Header key/value pairs
   # If a header is created and deleted in the UI before submit, headerCount will not renormalize (and will exceed the number headers sent)
@@ -81,7 +89,7 @@ post '/' do
     followlocation: @follow,
     verbose: @verbose,
     ssl_verifypeer: @ssl,
-    timeout: Integer(params[:timeoutInterval])
+    timeout: @timeoutInterval
   )
 
   # Modify Request Payload to include datafile, if present

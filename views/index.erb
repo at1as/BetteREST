@@ -5,7 +5,6 @@
     <title>BetteR &mdash; A REST API Testing Utility</title>
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="stylesheet" href="mainCSS.css">
-    <script src="page_actions.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -197,16 +196,10 @@
                     <input type="checkbox" name="enableLogging" id="enableLogging" class="checkbox" style="float:right"
                     <% if @loggingOn == true %>checked<% end %>>
                   </div>
-                    <label for="timeoutInterval"></label>
-                        <select id="timeoutInterval" name="timeoutInterval" style="float:right">
-                            <% @timeout.each do |interval| %>
-                                <option value=<%= interval %>
-                                    <% if h(params[:timeoutInterval]) == interval%>selected<% end %> ><%= interval %>
-                                </option>
-                            <% end %>
-                        </select>
-                        <span style="margin-right:30px;">Timeout Inteval:</span>
-                    </label>
+                  <div>
+                    <label for="timeoutInterval">Timeout Interval (seconds)?</label>
+                        <input type="text" name="timeoutInterval" id="timeoutInterval" value="<%= @timeoutInterval %>" style="float:right; display:inline-block;width:25px; text-align:right; box-shadow:none; background-color:#EEE;">
+                  </div>
                 </div>
             </div>
             <!-- END SETTINGS MODAL -->
@@ -216,7 +209,7 @@
                 <p style="font-size:15px; margin-top:0px"><strong>Attach File to Request:</strong></p>
                 <div>
                     <input type="file" id="datafile" name="datafile">
-                    <div id="clearFileUpload" onclick="clearFileUpload()" style="float:right;">Clear</div>
+                    <div id="clearFileUpload" class="clr" onclick="clearFileUpload()" style="float:right;">Clear</div>
                 </div>
             </div>
             <!-- END FILE UPLOAD MODAL -->
@@ -226,7 +219,7 @@
                 <p style="font-size:15px; margin-top:0px"><strong>Variables:</strong></p>
                 <div>
                     Will swap any instances of: <br/>
-                    <div style="margin-left:auto; margin-right:auto; margin-top:10px; margin-bottom:10px;">
+                    <div style="margin-left:70px; margin-top:20px; margin-bottom:20px;">
                       <b>{{Key}}</b> for <b>Value</b>
                     </div>
                     that appear within the request. <i>Note:</i> will not work for Header Keys
@@ -235,7 +228,7 @@
                     <input type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
                     <input type="text" value="<%=h(params[:varValue])%>" name="varValue" id="varValue" placeholder=" Value" />
                 </div>
-                <div id="clearVariables" onclick="clearVariables()" style="float:right;">Clear</div>
+                <div id="clearVariables" class="clr" onclick="clearVariables()" style="float:right;">Clear</div>
             </div>
             <!-- END VARIABLES MODAL -->
             <input type="hidden" id="payloadHeight" name="payloadHeight" value="100">
@@ -257,6 +250,7 @@
         document.getElementById("load-dialog-modal").style.visibility = "hidden";
         document.getElementById("file-upload-modal").style.visibility = "hidden";
         document.getElementById("variables-modal").style.visibility = "hidden";
+        document.getElementById("save-modal").style.visibility = "hidden";
     }
 
     /*Re-serve minimised sections minimised on page reload. Note data from fields is always submitted*/
@@ -488,7 +482,6 @@
             var resHeight = document.getElementById("resultsBoxHead").style.height;
         }
         document.getElementById("responseHeight").value = resHeight;
-        alert(resHeight);
     }
 
     /*Block some JS and Form behaviour from occuring*/
