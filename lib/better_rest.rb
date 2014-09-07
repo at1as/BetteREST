@@ -141,6 +141,35 @@ post '/' do
   erb :index
 end
 
+# Save a Request (by name)
+# post '/request' do
+#   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
+#   @times = ["1", "2", "5", "10"]
+#   @validHeaderCount = 1
+#   @headerHash = {"" => ""}
+#   @follow, @verbose, @ssl, @loggingOn = true, true, false, false
+#   @visible = [:servURLDiv, :servAuthDiv, :servHeaderDiv, :servePayloadDiv, :servResultsDiv].map{ |k| params[k] }
+#   @payloadHeight = "100px"
+#   @resultsHeight = "180px"
+#   @timeoutInterval = 1
+#
+#   request = {}
+#   request[:name] = params[:saveRequestName]
+#   request[:method] = params[:requestType]
+#   request[:url] = params[:url]
+#   request[:username] = params[:usr]
+#   request[:password] = params[:pwd]
+#   request[:times] = params[:times]
+#   request[:auth] = :auto
+#   request[:key] = params[:varKey]
+#   request[:value] = params[:varValue]
+#   request[:body] = params[:payload]
+#
+#   puts "RQ, #{request}"
+#
+#   erb :index
+# end
+
 not_found do
   redirect '/'
 end
