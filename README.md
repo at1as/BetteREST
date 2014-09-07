@@ -10,7 +10,7 @@ BetteR emphasises both a clean and easy to use interface, as well as allowing us
 
 ## Usage
 
-The easiest way to use BetteR is to install it using the gem (see - http://rubygems.org/gems/better_rest):
+The easiest way to use BetteR is to install it using [the Ruby Gem](http://rubygems.org/gems/better_rest):
 ```bash
 $ gem install better_rest
 ```
@@ -18,7 +18,7 @@ Or download the repository here for the latest version and launch BetteR via:
 ```bash
 $ ./bin/better_rest
 ```
-To give BetteR a try, without installing the Gem, it's also hosted on Heroku at http://better-rest.herokuapp.com/
+To try BetteR, without installing the Gem, it's also hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku, some of functionality won't work due to lack of access to the filesystem (saving logs, etc.)
 
 ## Logs
 
