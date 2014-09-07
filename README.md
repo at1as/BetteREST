@@ -22,7 +22,7 @@ $ ./bin/better_rest
 
 Logs (if enabled from the Settings menu in the UI) will be stored in the following location
 ```bash
-./logs/YYYY-MM-DD.log
+./log/YYYY-MM-DD.log
 ```
 ## Dependencies
 
@@ -40,3 +40,4 @@ Requires a ruby installation with the following gems installed (installation via
 * Add download to file
 * Add support for more than one variable
 * Add a horizontal page layout
+* Make path to logs configurable
