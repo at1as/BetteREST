@@ -1,2 +1,2 @@
-require 'lib/better_rest.rb'
+require './lib/better_rest.rb'
 run Sinatra::Application
