@@ -1,496 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>BetteR &mdash; A REST API Testing Utility</title>
-    <link rel="shortcut icon" href="favicon.ico">
-    <link rel="stylesheet" href="mainCSS.css">
+  <meta charset="utf-8">
+  <title>BetteR &mdash; REST API Test Client</title>
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap-theme.min.css">
+  <link rel="stylesheet" href="main.css">
 </head>
 
-<body>
-    <div id="header">
-        <div class="container" style="margin:0px auto 0px auto;">
-            <div id="header-title" style="display:inline-block">
-                <h1 style="min-width:100%;">BetteR &mdash; A REST API Testing Utility.</h1>
-            </div>
-            <div style="display:inline-block; float:right; margin-right:10px;">
-              <form id="form0" name="quit-application" method="get" action="/quit" target="_self" enctype="multipart/form-data">
-                <input type="submit" class="header-button" value="Quit" id="quit-button" style="height:100%; margin-top:8px; display:inline-block; width:40px;">
-              </form>
-            </div>
-            <div style="display:inline-block; float:right; margin-left:10px; margin-right:10px;">
-                <div id="settings-button" class="header-button" onclick="modalToggle('load-dialog-modal')" style="height:100%; margin-top:8px; display:inline-block">Settings</div>
-            </div>
-            <div style="display:inline-block; float:right; margin-left:10px; margin-right:10px;">
-                <div id="file-upload-button" class="header-button" onclick="modalToggle('file-upload-modal')" style="height:100%; margin-top:8px; display:inline-block">File Upload</div>
-            </div>
-            <div style="display:inline-block; float:right; margin-right:10px;">
-                <div id="variables-button" class="header-button" onclick="modalToggle('variables-modal')" style="height:100%; margin-top:8px; display:inline-block">Variables</div>
-            </div>
-        </div>
-    </div>
+<body role="document">
+
+  <!-- TOP NAV BAR -->
+  <div class="navbar-collapse" id="header">
     <div class="container">
-        <form id="form1" name="fullRequestData" method="post" action="/" target="_self" enctype="multipart/form-data">
-            <div>
-                <% if @visible[0] == "hidden"%>
-                    <input type="hidden" id="serveURLDiv" name="serveURLDiv" value="hidden">
-                <% else %>
-                    <input type="hidden" id="serveURLDiv" name="serveURLDiv" value="displayed">
-                <% end %>
-                <h2><div class="head" id="headingReq" onclick="toggleRequestVisibility()">[&ndash;] Request</div></h2>
-                <div class="box" id="path">
-                    <select id="requestType" name="requestType">
-                        <% @requests.each do |request| %>
-                            <option value="<%= request %>"><%= request %></option>
-                        <% end %>
-                    </select>
-                    <input type="text" value="<%= h(params[:url]) %>" name="url" id="url" placeholder=" URL" class="widthRemainder"/>
-                    <select id="times" name="times">
-                      <% @times.each do |number| %>
-                        <% if number == "1" %>
-                          <option value="<%= number %>"><%= number %> time</option>
-                        <% else %>
-                          <option value="<%= number %>"><%= number %> times</option>
-                        <% end %>
-                      <% end %>
-                    </select>
-                    <div class="close" id="closeURL" onclick="clearURL()">X</div>
-                </div>
-            </div>
-            <div>
-                <% if @visible[1] == "hidden"%>
-                    <input type="hidden" id="serveAuthDiv" name="serveAuthDiv" value="hidden">
-                <% else %>
-                     <input type="hidden" id="serveAuthDiv" name="serveAuthDiv" value="displayed">
-               <% end %>
-                <h2><div class="head" id="headingAuth" onclick="toggleAuthVisibility()">[&ndash;] Authentication</div></h2>
-                <div class="box" id="auth">
-                    <div id="authSelect">
-                        <span style="display:inline-block; white-space:nowrap; margin-top:5px;margin-bottom:5px;">
-                            <label for="basicAuthSelect">
-                                <input id="basicAuthSelect" type="radio" name="authType" value="basic" onclick="oAuthHideFields()" checked="true" style="width:20px;">Basic
-                            </label>
-                            <label for="digestAuthSelect">
-                                <input id="digestAuthSelect" type="radio" name="authType" value="digest" onclick="oAuthHideFields()" style="width:20px;">Digest
-                            </label>
-                            <!-- Not yet supported. OAuth is a pain...
-                            <label for="oAuthSelect">
-                                <input id="oAuthSelect" type="radio" name="authType" value="oauth" onclick="oAuthShowFields()"style="width:20px;">OAuth</input>
-                            </label>
-                            <label for="oAuth2Select">
-                                <input id="oAuth2Select" type="radio" name="authType" value="oauth2" onclick="oAuthShowFields()"style="width:20px;">OAuth2</input>
-                            </label>
-                          -->
-                        </span>
-                    </div>
-                    <input type="text" value="<%=h(params[:usr])%>" name="usr" id="usr" placeholder=" Username"  />
-                    <input type="text" value="<%=h(params[:pwd])%>" name="pwd" id="pwd" placeholder=" Password" />
-                    <div class="close" id="closeAuth" onclick="clearAuthCredentials()">X</div>
-                    <input type="text" value="<%=h(params[:api_key])%>" name="api_key" id="api_key" placeholder=" API Key" style="display:none;" />
-                    <input type="text" value="<%=h(params[:secret])%>" name="secret" id="secret" placeholder=" Shared Secret" style="display:none;" />
-                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
-                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
-                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
-                    <input type="text" value="<%=h(params[:callback])%>" name="callback" id="callback" placeholder=" Callback URL" style="display:none;" />
-                </div>
-            </div>
-            <div>
-                <% if @visible[2] == "hidden"%>
-                    <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="hidden">
-                <% else %>
-                     <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="displayed">
-               <% end %>
-                <input type="hidden" id="headerCount" name="headerCount" value="1">
-                <h2><div class="head" id="headingHead" onclick="toggleHeaderVisibility()">[&ndash;] Headers</div></h2>
-                <div class="box" id="headers">
-                    <div id="headerfieldsAll">
-                    <% @headerHash.each_with_index do |(key, value), index| %>
-                        <div id="headerfields<%= index %>" style="margin-bottom:2px;" >
-                            <input type="text" value="<%=key%>" name="key<%=index%>" id="key<%=index%>" placeholder=" Name" class="key" />
-                            <input type="text" value="<%=value%>" name="value<%=index%>" id="value<%=index%>" placeholder=" Value" class="value" />
-                            <div class="close" id="close<%= index %>" onclick="removeRow(this)">X</div>
-                        </div>
-                    <% end %>
-                    </div>
-                    <div>
-                        <input type="button" value="Add<%=h(params[:add])%>" id="add" class="width25" onclick="addNewHeader()"/>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <% if @visible[3] == "hidden"%>
-                    <input type="hidden" id="servePayloadDiv" name="servePayloadDiv" value="hidden">
-                <% else %>
-                    <input type="hidden" id="servePayloadDiv" name="servePayloadDiv" value="displayed">
-                <% end %>
-                <h2><div class="head" id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
-                <div class="box" id="data">
-                    <textarea value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data" style="height:<%= @payloadHeight %>"><%=h(params[:payload])%></textarea>
-                </div>
-            </div>
-            <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
-                <input type="submit" value="Send" id="submit" class="submit width25" onclick="setHeight()" style="margin-bottom:10px;"/>
-                <input type="button" value="Clear All" id="submit" class="submit width25" onclick="clearAllFields()" style="margin-bottom:10px;"/>
-            </div>
-            <% if @formResponse == true %>
-            <div>
-                <% if @visible[4] == "hidden"%>
-                    <input type="hidden" id="serveResultsDiv" name="serveResultsDiv" value="hidden">
-                <% else %>
-                    <input type="hidden" id="serveResultsDiv" name="serveResultsDiv" value="displayed">
-                <% end %>
-                <h2><div class="head" id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
-                <div class="box" id="results">
-                  <div style="margin-left:15px; margin-top: 15px; margin-bottom: 15px;">
-                    <b>Request Time:</b> <%= @returnTime.to_s %> seconds<br/>
-                    <b>Return Code:</b> <%= @returnCode.to_s %>
-                  </div>
-                  <div style="padding: 0px;">
-                    <ul style="margin-left:0px; padding-left:0px; text-align:center">
-                        <li style="display:inline-block;" id="viewResponseTab">
-                            <a onclick="hideReq()" id="responseDataText" style="color:#000000">Response Data</a>
-                        </li>
-                        <li style="display:inline-block;" id="viewResponseHeadersTab">
-                            <a onclick="hideRespData()" id="responseHeaderText">Response Headers</a>
-                        </li>
-                        <li style="display:inline-block;" id="viewRequestTab">
-                            <a onclick="hideResp()" id="requestHeaderText">Request Params</a>
-                        </li>
-                    </ul>
-                    </div>
-                    <div>
-                        <textarea style="min-height:180px; overflow:scroll; height:<%= @resultsHeight %>" id="resultsBox"><%= h @returnBody %>
-                        </textarea>
-                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="resultsBoxHead"><%= @statCodeReturn.to_s %>
-                        </textarea>
-                        <textarea style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="resultsBoxcURL"><%= @requestOptions.to_s %>
-                        </textarea>
-                    </div>
-                </div>
+      <ul class="nav navbar-nav header-ul" style="display:inline-block;">
+
+        <li style="float:left">
+          <h1>BetteR &mdash; REST API Test Client</h1>
+        </li>
+        <li class="header-li" style="float:right">
+          <a class="header-button" onclick="quit()">Quit</a>
+        </li>
+        <li class="header-li" style="float:right">
+          <a class="header-button" onclick="modalToggle('load-dialog-modal')">Settings</a>
+        </li>
+        <li class="header-li" style="float:right">
+          <a class="header-button" onclick="modalToggle('variables-modal')">Variables</a>
+        </li>
+        <li class="header-li" style="float:right">
+          <a class="header-button" onclick="modalToggle('file-upload-modal')">File Upload</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="container">
+    <form id="form1" name="fullRequestData" method="post" action="/" target="_self" enctype="multipart/form-data">
+
+      <!-- URL -->
+      <div>
+        <input type="hidden" class="form-control form-field-small" id="serveURLDiv" name="serveURLDiv" value="<% if @visible[0] == "hidden"%>hidden<% else %>displayed<% end %>">
+        <h2><div id="headingReq" onclick="toggleRequestVisibility()">[&ndash;] Request</div></h2>
+
+        <div style="width:100%" class="box" id="path">
+          <select id="requestType" class="form-control form-field-small" name="requestType" style="width:100px; display:inline-block; float:left">
+            <% @requests.each do |request| %>
+            <option value="<%= request %>"><%= request %></option>
+            <% end %>
+          </select>
+          <input type="text" class="form-control form-field-small url-input" value="<%= h(params[:url]) %>" name="url" id="url" placeholder=" URL"/>
+          <select id="times" name="times" class="form-control form-field-small" style="width:100px; display:inline-block">
+            <% @times.each do |number| %>
+            <option value="<%= number %>"><%= number %> <% if number == "1" %>time<% else %>times<% end %></option>
+            <% end %>
+          </select>
+          <button type="button" tabindex="-1" class="close" onclick="clearURL()">
+            <span style="line-height:inherit" aria-hidden="true">&times;</span>
+            <span class="sr-only">Close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- AUTH -->
+      <div>
+        <input type="hidden" id="serveAuthDiv" name="serveAuthDiv" value="<% if @visible[1] == "hidden"%>hidden<% else %>displayed<% end %>">
+
+        <h2><div id="headingAuth" onclick="toggleAuthVisibility()">[&ndash;] Authentication</div></h2>
+        <div class="box" id="auth">
+          <div id="authSelect">
+            <span id="auth-span">
+              <label class="form-label" for="basicAuthSelect">
+                <input id="basicAuthSelect" type="radio" name="authType" value="basic" onclick="oAuthHideFields()" checked="true" style="width:20px;">Basic
+              </label>
+              <label class="form-label" for="digestAuthSelect">
+                <input id="digestAuthSelect" type="radio" name="authType" value="digest" onclick="oAuthHideFields()" style="width:20px;">Digest
+              </label>
+            </span>
+          </div>
+          <div id="authFields">
+            <input class="form-control auth-input" type="text" value="<%=h(params[:usr])%>" name="usr" id="usr" placeholder=" Username"  />
+            <input class="form-control auth-input" type="text" value="<%=h(params[:pwd])%>" name="pwd" id="pwd" placeholder=" Password" />
+            <button type="button" tabindex="-1" class="close" onclick="clearAuthCredentials()">
+              <span style="line-height:inherit" aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEADERS -->
+      <div>
+        <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="<% if @visible[2] == "hidden"%>hidden<% else %>displayed<% end %>">
+        <input type="hidden" id="headerCount" name="headerCount" value="1">
+
+        <h2><div id="headingHead" onclick="toggleHeaderVisibility()">[&ndash;] Headers</div></h2>
+        <div class="box" id="headers">
+          <div id="headerfieldsAll">
+            <% @headerHash.each_with_index do |(key, value), index| %>
+            <div id="headerfields<%= index %>" style="margin-bottom:2px;" >
+              <input type="text" value="<%=key%>" name="key<%=index%>" id="key<%=index%>" placeholder=" Name" class="key form-control head-input" />
+              <input type="text" value="<%=value%>" name="value<%=index%>" id="value<%=index%>" placeholder=" Value" class="value form-control head-input" />
+
+              <button id="close<%= index %>" tabindex="-1" type="button" class="close" onclick="removeRow(this)">
+                <span style="line-height:inherit" aria-hidden="true">&times;</span>
+                <span class="sr-only">Close</span>
+              </button>
             </div>
             <% end %>
+          </div>
+          <div>
+            <input class="btn btn-borderless" type="button" value="Add" id="add" onclick="addNewHeader()"/>
+          </div>
+        </div>
+      </div>
 
-            <!-- MODAL GRAY BACKGROUND -->
-            <div id="dialog-background-blur" style="visibility:hidden" onclick="modalHideAll()"></div>
-            <!-- BEGIN SETTINGS MODAL-->
-            <div id="load-dialog-modal" class="modal" title="Settings" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
-                <p style="font-size:15px; margin-top:0px"><strong>Configuration:</strong></p>
-                <div style="display:inline-block;width:100%">
-                  <div>
-                    <label for="followlocation">Follow Redirects?</label>
-                    <input type="checkbox" name="followlocation" id="followlocation" class="checkbox" style="float:right"
-                    <% if @follow == true %>checked<% end %>>
-                  </div>
-                  <div>
-                    <label for="verbose">Verbose Response?</label>
-                    <input type="checkbox" name="verbose" id="verbose" class="checkbox" style="float:right"
-                    <% if @verbose == true %>checked<% end %>>
-                  </div>
-                  <div>
-                    <label for="ssl_verifypeer">Verify SSL Peers?</label>
-                    <input type="checkbox" name="ssl_verifypeer" id="ssl_verifypeer" class="checkbox" style="float:right"
-                    <% if @ssl == true %>checked<% end %>>
-                  </div>
-                  <div>
-                    <label for="enableLogging">Log Requests?</label>
-                    <input type="checkbox" name="enableLogging" id="enableLogging" class="checkbox" style="float:right"
-                    <% if @loggingOn == true %>checked<% end %>>
-                  </div>
-                  <div>
-                    <label for="timeoutInterval">Timeout Interval (seconds)?</label>
-                        <input type="text" name="timeoutInterval" id="timeoutInterval" value="<%= @timeoutInterval %>" style="float:right; display:inline-block;width:25px; text-align:right; box-shadow:none; background-color:#EEE;">
-                  </div>
-                </div>
+      <!-- PAYLOAD -->
+      <div>
+        <input type="hidden" id="servePayloadDiv" name="servePayloadDiv" value="<% if @visible[3] == "hidden"%>hidden<% else %>displayed<% end %>">
+
+        <h2><div id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
+        <div class="box" id="data">
+          <textarea class="form-control" value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data" style="height:<%= @payloadHeight %>"><%=h(params[:payload])%></textarea>
+        </div>
+      </div>
+      <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
+        <input type="submit" value="Send" id="submit" class="submit width25 btn btn-simple" onclick="setHeight()" style="margin-bottom:10px;"/>
+        <input type="button" value="Clear All" id="submit" class="submit width25 btn btn-simple" onclick="clearAllFields()" style="margin-bottom:10px;"/>
+      </div>
+
+      <!-- RESPONSE -->
+      <% if @formResponse %>
+      <div>
+        <input type="hidden" id="serveResultsDiv" name="serveResultsDiv" value="<% if @visible[4] == "hidden"%>hidden<% else %>displayed<% end %>">
+
+        <h2><div  id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
+        <div class="box" id="results">
+          <div id="response-status">
+            <b>Request Time:</b> <%= @returnTime.to_s %> seconds<br/>
+            <b>Return Code:</b> <%= @returnCode.to_s %>
+          </div>
+          <hr class="v-marginless">
+          <div style="padding: 0px;">
+
+            <ul id="response-filters">
+              <li style="display:inline-block;" id="viewResponseData">
+                <a class="btn btn-borderless" onclick="toggleResponseContent(this)" id="response-data-link" style="color:#337ab7">Response Data</a>
+              </li>
+              <li style="display:inline-block;" id="viewResponseHeaders">
+                <a class="btn btn-borderless" onclick="toggleResponseContent(this)" id="response-header-link">Response Headers</a>
+              </li>
+              <li style="display:inline-block;" id="viewRequest">
+                <a class="btn btn-borderless" onclick="toggleResponseContent(this)" id="request-header-link">Request Params</a>
+              </li>
+            </ul>
+
+          </div>
+          <div>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; height:<%= @resultsHeight %>" id="resultsBody"><%= h @returnBody %>
+            </textarea>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-req-head"><%= @statCodeReturn.to_s %>
+            </textarea>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-resp-head"><%= @requestOptions.to_s %>
+            </textarea>
+          </div>
+        </div>
+      </div>
+      <% end %>
+
+
+      <!-- MODALS -->
+      <div id="backdrop" style="display:none" onclick="modalHideAll()">
+
+        <!-- SETTINGS MODAL-->
+        <div id="load-dialog-modal" class="centered" tabindex="-1" role="dialog" onclick="returnFalse(event)" style="display:none;">
+          <div class="modal-content" style="padding-left:15px; padding-right:15px; height:100%">
+            <h4 style="text-align:center"><strong>Configuration</strong></h4>
+            <hr>
+            <div style="display:inline-block;width:100%; margin-bottom:15px">
+              <div>
+                <label class="form-label conf-label" for="followlocation">Follow Redirects</label>
+                <input type="checkbox" name="followlocation" id="followlocation" class="checkbox" style="float:right"
+                <% if @follow %>checked<% end %>>
+              </div>
+              <div>
+                <label class="form-label conf-label" for="verbose">Verbose Response</label>
+                <input type="checkbox" name="verbose" id="verbose" class="checkbox" style="float:right"
+                <% if @verbose %>checked<% end %>>
+              </div>
+              <div>
+                <label class="form-label conf-label" for="ssl_verifypeer">Verify SSL Peers</label>
+                <input type="checkbox" name="ssl_verifypeer" id="ssl_verifypeer" class="checkbox" style="float:right"
+                <% if @ssl %>checked<% end %>>
+              </div>
+              <div>
+                <label class="form-label conf-label" for="enableLogging">Log Requests</label>
+                <input type="checkbox" name="enableLogging" id="enableLogging" class="checkbox" style="float:right"
+                <% if @loggingOn %>checked<% end %>>
+              </div>
+              <div>
+                <label class="form-label conf-label" for="timeoutInterval">Timeout Interval (seconds)</label>
+                <input class="" type="text" name="timeoutInterval" id="timeoutInterval" value="<%= @timeoutInterval %>" style="float:right; width:50px; text-align:right; box-shadow:none;">
+              </div>
             </div>
-            <!-- END SETTINGS MODAL -->
+          </div>
+        </div>
 
-            <!-- BEGIN FILE UPLOAD MODAL -->
-            <div id="file-upload-modal" class="modal" title="File Upload" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
-                <p style="font-size:15px; margin-top:0px"><strong>Attach File to Request:</strong></p>
-                <div>
-                    <input type="file" id="datafile" name="datafile">
-                    <div id="clearFileUpload" class="clr" onclick="clearFileUpload()" style="float:right;">Clear</div>
-                </div>
+
+        <!-- FILE UPLOAD MODAL -->
+        <div id="file-upload-modal" class="centered" tabindex="-1" role="dialog" style="display:none; z-index:11" onclick="returnFalse(event)">
+          <div class="modal-content" style="padding-left:15px; padding-right:15px;">
+            <h4 style="text-align:center"><strong>Attach File to Request</strong></h4>
+            <hr>
+            <div class="modal-body">
+              <input type="file" id="datafile" name="datafile">
+              <div style="margin-top:25px; margin-bottom:5px; text-align:center">
+                <div id="clearFileUpload" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="clearFileUpload()">Clear</div>
+              </div>
             </div>
-            <!-- END FILE UPLOAD MODAL -->
+          </div>
+        </div>
 
-            <!-- BEGIN VARIABLES MODAL -->
-            <div id="variables-modal" class="modal" title="Variables" style="border-radius:4px; visibility:hidden" onclick="returnFalse(event)">
-                <p style="font-size:15px; margin-top:0px"><strong>Variables:</strong></p>
-                <div>
-                    Will swap any instances of: <br/>
-                    <div style="margin-left:70px; margin-top:20px; margin-bottom:20px;">
-                      <b>{{Key}}</b> for <b>Value</b>
-                    </div>
-                    that appear within the request. <i>Note:</i> will not work for Header Keys
-                </div>
-                <div style="margin-top:20px;">
-                    <input type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
-                    <input type="text" value="<%=h(params[:varValue])%>" name="varValue" id="varValue" placeholder=" Value" />
-                </div>
-                <div id="clearVariables" class="clr" onclick="clearVariables()" style="float:right;">Clear</div>
+
+        <!-- VARIABLES MODAL -->
+        <div id="variables-modal" class="centered" tabindex="-1" role="dialog" style="display:none; z-index:11" onclick="returnFalse(event)">
+          <div class="modal-content" style="padding-left:15px; padding-right:15px; ">
+            <h4 style="text-align:center"><strong>Variables</strong></h4>
+            <hr>
+            <div class="modal-body" style="margin-top:10px;">
+              Will swap any instances of: <br/>
+              <div style="width:100%; text-align:center; margin-top:10px; margin-bottom:10px;">
+                <b>{{Key}}</b> for <b>Value</b>
+              </div>
+              <i>Note:</i> will not work for Header Keys
             </div>
-            <!-- END VARIABLES MODAL -->
-            <input type="hidden" id="payloadHeight" name="payloadHeight" value="100">
-            <input type="hidden" id="responseHeight" name="responseHeight" value="180">
-        </form>
-    </div>
+            <div style="margin-top:20px;">
+              <input class="form-control var-input" type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
+              <input class="form-control var-input" type="text" value="<%=h(params[:varValue])%>" name="varValue" id="varValue" placeholder=" Value" style="float:right" />
+            </div>
+            <div style="margin-top:25px; margin-bottom:5px; text-align:center">
+              <div id="clearVariables" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="clearVariables()">Clear</div>
+            </div>
+          </div>
+        </div>
 
-    <script>
-    /*Toggle Modal display on page*/
-    function modalToggle(modal_id) {
-        bgrnd = document.getElementById("dialog-background-blur");
-        bgrnd.style.visibility = (bgrnd.style.visibility == "visible") ? "hidden" : "visible";
-        el = document.getElementById(modal_id);
-        el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+      </div>
+      <input type="hidden" id="payloadHeight" name="payloadHeight" value="100">
+      <input type="hidden" id="responseHeight" name="responseHeight" value="180">
+    </form>
+  </div>
+
+  <script>
+
+  /* Toggle Modal display */
+  function modalToggle(modal_id) {
+    bgrnd = document.getElementById('backdrop');
+    modal = document.getElementById(modal_id);
+    bgrnd.style.display = (bgrnd.style.display == '') ? 'none' : '';
+    modal.style.display = (modal.style.display == '') ? 'none' : '';
+  }
+
+  function modalHideAll() {
+    document.getElementById('backdrop').style.display           = 'none';
+    document.getElementById('load-dialog-modal').style.display  = 'none';
+    document.getElementById('file-upload-modal').style.display  = 'none';
+    document.getElementById('variables-modal').style.display    = 'none';
+  }
+
+  /*Re-serve minimised sections minimised on page reload */
+  if (document.getElementById('serveURLDiv').value == 'hidden') {
+    toggleRequestVisibility('arg1');
+  }
+  if (document.getElementById('serveAuthDiv').value == 'hidden') {
+    toggleAuthVisibility('arg1');
+  }
+  if (document.getElementById('serveHeaderDiv').value == 'hidden') {
+    toggleHeaderVisibility('arg1');
+  }
+  if (document.getElementById('servePayloadDiv').value == 'hidden') {
+    toggleDataVisibility('arg1');
+  }
+  if (document.getElementById('serveResultsDiv') && document.getElementById('serveResultsDiv').value == 'hidden') {
+    toggleResultsVisibility('arg1');
+  }
+
+  /* Change page layout to reflect minimizing/maximising divs */
+  function toggleRequestVisibility(){
+    var path_box   = document.getElementById('path');
+    var req_header = document.getElementById('headingReq');
+
+    path_box.style.display = (path_box.style.display != 'none' ? 'none' : '');
+    req_header.innerHTML   = (path_box.style.display != 'none' ? '[&ndash;] Request' : '[+] Request');
+    req_header.className   = (path_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
+
+    /* So we can block this from being executed on page reload, which would undo the minimise */
+    if (arguments.length == 0) {
+      document.getElementById('serveURLDiv').value = (document.getElementById('serveURLDiv').value != 'hidden' ? 'hidden' : 'displayed');
     }
+  }
 
-    function modalHideAll() {
-        document.getElementById("dialog-background-blur").style.visibility = "hidden";
-        document.getElementById("load-dialog-modal").style.visibility = "hidden";
-        document.getElementById("file-upload-modal").style.visibility = "hidden";
-        document.getElementById("variables-modal").style.visibility = "hidden";
-        document.getElementById("save-modal").style.visibility = "hidden";
+  function toggleAuthVisibility(){
+    var auth_box    = document.getElementById('auth');
+    var auth_header = document.getElementById('headingAuth');
+
+    auth_box.style.display  = (auth_box.style.display != 'none' ? 'none' : '');
+    auth_header.innerHTML   = (auth_box.style.display != 'none' ? '[&ndash;] Authentication' : '[+] Authentication');
+    auth_header.className   = (auth_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
+
+    if (arguments.length == 0 ) {
+      document.getElementById('serveAuthDiv').value = (document.getElementById('serveAuthDiv').value != 'hidden' ? 'hidden' : 'displayed');
     }
+  }
 
-    /*Re-serve minimised sections minimised on page reload. Note data from fields is always submitted*/
-    if (document.getElementById("serveURLDiv").value == "hidden") {
-        toggleRequestVisibility("arg1");
+  function toggleHeaderVisibility(){
+    var headers_box = document.getElementById('headers');
+    var head_header = document.getElementById('headingHead');
+
+    headers_box.style.display = (headers_box.style.display != 'none' ? 'none' : '');
+    head_header.innerHTML     = (headers_box.style.display != 'none' ? '[&ndash;] Headers' : '[+] Headers');
+    head_header.className     = (headers_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
+
+    if (arguments.length == 0 ) {
+      document.getElementById('serveHeaderDiv').value = (document.getElementById('serveHeaderDiv').value != 'hidden' ? 'hidden' : 'displayed');
     }
-    if (document.getElementById("serveAuthDiv").value == "hidden") {
-        toggleAuthVisibility("arg1");
+  }
+
+  function toggleDataVisibility(){
+    var data_box    = document.getElementById('data');
+    var data_header = document.getElementById('headingData');
+
+    data_box.style.display  = (data_box.style.display != 'none' ? 'none' : '');
+    data_header.innerHTML   = (data_box.style.display != 'none' ? '[&ndash;] Payload' : '[+] Payload');
+    data_header.className   = (data_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
+
+    if (arguments.length == 0) {
+      document.getElementById('servePayloadDiv').value = (document.getElementById('servePayloadDiv').value != 'hidden' ? 'hidden' : 'displayed');
     }
-    if (document.getElementById("serveHeaderDiv").value == "hidden") {
-        toggleHeaderVisibility("arg1");
+  }
+
+  function toggleResultsVisibility() {
+    var results_box     = document.getElementById('results');
+    var results_header  = document.getElementById('headingResults');
+
+    results_box.style.display = (results_box.style.display != 'none' ? 'none' : '');
+    results_header.innerHTML  = (results_box.style.display != 'none' ? '[&ndash;] Results' : '[+] Results');
+    results_header.className  = (results_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
+
+    if (arguments.length == 0) {
+      document.getElementById('serveResultsDiv').value = (document.getElementById('serveResultsDiv').value != 'hidden' ? 'hidden' : 'displayed');
     }
-    if (document.getElementById("servePayloadDiv").value == "hidden") {
-        toggleDataVisibility("arg1");
+  }
+
+  /*clear all form fields. Delete additional header fields*/
+  function clearAllFields() {
+    document.getElementById('requestType').value    = 'GET';
+    document.getElementById('times').value          = '1';
+    document.getElementById('url').value            = '';
+    document.getElementById('usr').value            = '';
+    document.getElementById('pwd').value            = '';
+    document.getElementById('payload').value        = '';
+    document.getElementById('varKey').value         = '';
+    document.getElementById('varValue').value       = '';
+    document.getElementById('payload').style.height = '100px';
+
+    if (document.getElementById('resultsBody')) {
+      document.getElementById('resultsBody').value         = '';
+      document.getElementById('resultsBody').style.height  = '180px';
     }
-    if (document.getElementById("serveResultsDiv") && document.getElementById("serveResultsDiv").value == "hidden") {
-        toggleResultsVisibility("arg1");
+    if (document.getElementById('results-req-head')) {
+      document.getElementById('results-req-head').value         = '';
+      document.getElementById('results-req-head').style.height  = '180px';
     }
-
-    /*Change page layout to reflect minimizing/maximising divs*/
-    function toggleRequestVisibility(){
-        document.getElementById("path").style.display = (document.getElementById("path").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingReq").innerHTML = (document.getElementById("path").style.display != 'none' ? "[&ndash;] Request" : "[+] Request");
-        document.getElementById("headingReq").style.color = (document.getElementById("path").style.display != 'none' ? "red" : "#BBBBBB");
-        document.getElementById("headingReq").style.margin = (document.getElementById("path").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        //So we can block this from being executed on page reload, which would undo the minimise
-        if (arguments.length == 0) {
-            document.getElementById("serveURLDiv").value = (document.getElementById("serveURLDiv").value != 'hidden' ? 'hidden' : 'displayed');
-        }
+    if (document.getElementById('results-resp-head')) {
+      document.getElementById('results-resp-head').value         = '';
+      document.getElementById('results-resp-head').style.height  = '180px';
     }
-
-    function toggleAuthVisibility(){
-        document.getElementById("auth").style.display = (document.getElementById("auth").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingAuth").innerHTML = (document.getElementById("auth").style.display != 'none' ? "[&ndash;] Authentication" : "[+] Authentication");
-        document.getElementById("headingAuth").style.color = (document.getElementById("auth").style.display != 'none' ? "red" : "#BBBBBB");
-        document.getElementById("headingAuth").style.margin = (document.getElementById("auth").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-         if (arguments.length == 0 ) {
-            document.getElementById("serveAuthDiv").value = (document.getElementById("serveAuthDiv").value != 'hidden' ? 'hidden' : 'displayed');
-        }
+    while (headerfieldsAll.firstChild) {
+      headerfieldsAll.removeChild(headerfieldsAll.firstChild);
     }
+  }
 
-    function toggleHeaderVisibility(){
-        document.getElementById("headers").style.display = (document.getElementById("headers").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingHead").innerHTML = (document.getElementById("headers").style.display != 'none' ? "[&ndash;] Headers" : "[+] Headers");
-        document.getElementById("headingHead").style.color = (document.getElementById("headers").style.display != 'none' ? "red" : "#BBBBBB");
-        document.getElementById("headingHead").style.margin = (document.getElementById("headers").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        if (arguments.length == 0 ) {
-            document.getElementById("serveHeaderDiv").value = (document.getElementById("serveHeaderDiv").value != 'hidden' ? 'hidden' : 'displayed');
-        }
+  var clickCount = document.getElementById('headerfieldsAll').children.length - 1;
+  document.getElementById('headerCount').value = clickCount + 1;
+
+  function addNewHeader() {
+    clickCount += 1;
+    document.getElementById('headerCount').value = clickCount + 1;
+
+    var input_container = document.createElement('div');
+    var header_key      = document.createElement('input');
+    var header_val      = document.createElement('input');
+    var close_btn       = document.createElement('button');
+
+    input_container.type    = 'div';
+    input_container.style   = 'margin-bottom:2px;';
+    input_container.id      = 'headerfields' + clickCount;
+
+    header_key.type         = 'text';
+    header_key.name         = 'key' + clickCount;
+    header_key.id           = 'key' + clickCount;
+    header_key.className    = 'key form-control head-input';
+    header_key.placeholder  = ' Name';
+    header_key.autocomplete = 'off';
+    header_key.value        = '<%=h(params[:key])%>';
+    header_key.value        = header_key.value.replace('key', 'key' + clickCount);
+
+    /* Not sure why this is necessary. But it is */
+    header_key.style        = 'margin-right:9px';
+
+    header_val.type         = 'text';
+    header_val.name         = 'value' + clickCount;
+    header_val.id           = 'value' + clickCount;
+    header_val.className    = 'value form-control head-input';
+    header_val.placeholder  = ' Value';
+    header_val.autocomplete = 'off';
+    header_val.value        = '<%=h(params[:value])%>';
+    header_val.value        = header_val.value.replace('value', 'value' + clickCount);
+
+    close_btn.type      = 'button';
+    close_btn.id        = 'close' + clickCount;
+    close_btn.className = 'close';
+    close_btn.tabIndex  = '-1';
+    close_btn.innerHTML = '<span style="line-height:inherit" aria-hidden="true">&times;</span><span class="sr-only">Close</span>';
+    close_btn.setAttribute('onclick', 'removeRow(this)');
+
+    document.getElementById('headerfieldsAll').appendChild(input_container);
+    input_container.appendChild(header_key);
+    input_container.appendChild(header_val);
+    input_container.appendChild(close_btn);
+    document.getElementById(header_key.id).focus();
+  }
+
+  function clearAuthCredentials() {
+    document.getElementById('usr').value = '';
+    document.getElementById('pwd').value = '';
+  }
+
+  function clearURL(){
+    document.getElementById('url').value = '';
+    document.getElementById('times').options.selectedIndex        = 0;
+    document.getElementById('requestType').options.selectedIndex  = 0;
+  }
+
+  function removeRow(rowNumber) {
+    rNum = rowNumber.id.charAt(rowNumber.id.length -1);
+    document.getElementById('headerfieldsAll').removeChild(document.getElementById('headerfields' + rNum));
+  }
+
+
+  function toggleResponseContent(new_selection){
+    /* Clear current filters */
+    document.getElementById('response-data-link').style.color   = '#000';
+    document.getElementById('resultsBody').style.display        = 'none';
+    document.getElementById('response-header-link').style.color = '#000';
+    document.getElementById('results-req-head').style.display   = 'none';
+    document.getElementById('request-header-link').style.color  = '#000';
+    document.getElementById('results-resp-head').style.display  = 'none';
+
+    /* Apply new filter */
+    new_selection.style.color = '#337ab7';
+
+    if (new_selection.id == 'response-data-link') {
+      document.getElementById('resultsBody').style.display        = '';
+    } else if (new_selection.id == 'response-header-link') {
+      document.getElementById('results-req-head').style.display   = '';
+    } else if (new_selection.id == 'request-header-link') {
+      document.getElementById('results-resp-head').style.display  = '';
     }
+  }
 
-    function toggleDataVisibility(){
-        document.getElementById("data").style.display = (document.getElementById("data").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingData").innerHTML = (document.getElementById("data").style.display != 'none' ? "[&ndash;] Payload" : "[+] Payload");
-        document.getElementById("headingData").style.color = (document.getElementById("data").style.display != 'none' ? "red" : "#BBBBBB");
-        document.getElementById("headingData").style.margin = (document.getElementById("data").style.display != 'none' ? "0px 0px 0px" : "0px 0px -20px");
-        if (arguments.length == 0) {
-            document.getElementById("servePayloadDiv").value = (document.getElementById("servePayloadDiv").value != 'hidden' ? 'hidden' : 'displayed');
-        }
+
+  function clearFileUpload() {
+    var oldInput        = document.getElementById('datafile');
+    var newInput        = document.createElement('input');
+
+    newInput.id         = oldInput.id;
+    newInput.type       = oldInput.type;
+    newInput.name       = oldInput.name;
+    newInput.className  = oldInput.className;
+    oldInput.parentNode.replaceChild(newInput, oldInput);
+  }
+
+  function clearVariables() {
+    document.getElementById('varKey').value   = '';
+    document.getElementById('varValue').value = '';
+  }
+
+  function setHeight() {
+    var payloadHeight = document.getElementById('payload').style.height;
+    document.getElementById('payloadHeight').value = payloadHeight;
+    if (document.getElementById('resultsBody').style.display != 'none'){
+      var resHeight = document.getElementById('resultsBody').style.height;
     }
-
-    function toggleResultsVisibility() {
-        document.getElementById("results").style.display = (document.getElementById("results").style.display != 'none' ? 'none' : '');
-        document.getElementById("headingResults").innerHTML = (document.getElementById("results").style.display != 'none' ? "[&ndash;] Results" : "[+] Results");
-        document.getElementById("headingResults").style.color = (document.getElementById("results").style.display != 'none' ? "red" : "#BBBBBB");
-        document.getElementById("headingResults").style.margin = (document.getElementById("results").style.display != 'none' ? "10px 0px 0px" : "10px 0px -20px");
-        if (arguments.length == 0) {
-            document.getElementById("serveResultsDiv").value = (document.getElementById("serveResultsDiv").value != 'hidden' ? 'hidden' : 'displayed');
-        }
+    if (document.getElementById('results-req-head').style.display != 'none') {
+      var resHeight = document.getElementById('results-req-head').style.height;
     }
-
-    /*clear all form fields. Delete additional header fields*/
-    function clearAllFields() {
-        document.getElementById("requestType").value = "GET";
-        document.getElementById("url").value = "";
-        document.getElementById("usr").value = "";
-        document.getElementById("pwd").value = "";
-        document.getElementById("payload").value = "";
-        document.getElementById("varKey").value = "";
-        document.getElementById("varValue").value = "";
-        document.getElementById("payload").style.height = "100px";
-        if (document.getElementById("resultsBox")){
-            document.getElementById("resultsBox").value = "";
-            document.getElementById("resultsBox").style.height = "180px";
-        }
-        if (document.getElementById("resultsBoxHead")) {
-            document.getElementById("resultsBoxHead").value = "";
-            document.getElementById("resultsBoxHead").style.height = "180px";
-        }
-        if (document.getElementById("resultsBoxcURL")) {
-            document.getElementById("resultsBoxcURL").value = "";
-            document.getElementById("resultsBoxcURL").style.height = "180px";
-        }
-        while (headerfieldsAll.firstChild) {
-            headerfieldsAll.removeChild(headerfieldsAll.firstChild);
-        }
+    if (document.getElementById('results-resp-head').style.display != 'none') {
+      var resHeight = document.getElementById('results-req-head').style.height;
     }
+    document.getElementById('responseHeight').value = resHeight;
+  }
 
-    var clickCount = document.getElementById('headerfieldsAll').children.length - 1;
-    document.getElementById("headerCount").value = clickCount + 1;
+  /* Shut down server and then reload page */
+  function quit(){
+    var url = '/quit';
+    var client = new XMLHttpRequest();
+    client.open('GET', url, false);
 
-    function addNewHeader() {
-        clickCount += 1;
-        document.getElementById("headerCount").value = clickCount + 1;
-
-        var input0 = document.createElement('div');
-        var input = document.createElement('input');
-        var input2 = document.createElement('input');
-        var input3 = document.createElement('div');
-        input0.type = "div";
-        input0.style = "margin-bottom:2px;"
-        input.type = "text";
-        input2.type = "text";
-        input3.type = "close";
-        input3.className = "close";
-        input.placeholder = " Name";
-        input2.placeholder = " Value";
-        input.id = "key" + clickCount;
-        input.className = "key";
-        input2.className = "value";
-        input.autocomplete = "off";
-        input3.id = "close" + clickCount;
-        input.style.margin = "0px 4px 0px 0px";
-        input3.style.margin = "0px 0px 0px 9px";
-        input2.id = "value" + clickCount;
-        input0.id = "headerfields" + clickCount;
-        input.name = "key" + clickCount;
-        input2.name = "value" + clickCount;
-        input.value = '<%=h(params[:key])%>';
-        input.value = input.value.replace('key', 'key' + clickCount);
-
-        input2.value = '<%=h(params[:value])%>';
-        input2.value = input2.value.replace('value', 'value' + clickCount);
-        input3.innerHTML = "X";
-        input3.setAttribute("onclick", "removeRow(this)");
-
-        document.getElementById('headerfieldsAll').appendChild(input0);
-        input0.appendChild(input);
-        input0.appendChild(input2);
-        input0.appendChild(input3);
-        document.getElementById(input.id).focus()
+    try {
+      client.send();
+    } catch (e) {
+      console.log('Expected exception... Reloading page');
+    } finally {
+      window.location.reload();
     }
+  }
 
-    function clearAuthCredentials() {
-        document.getElementById('usr').value = '';
-        document.getElementById('pwd').value = '';
+  /* Block some JS and Form behaviour from occuring */
+  function returnFalse(event) {
+    event.cancelBubble=true;
+    if(event.stopPropagation) {
+      event.stopPropagation();
     }
+    return false;
+  }
 
-    function clearURL(){
-        document.getElementById('url').value = '';
-        document.getElementById('times').options.selectedIndex = 0;
-        document.getElementById('requestType').options.selectedIndex = 0;
-    }
-
-    function removeRow(rowNumber) {
-        rNum = rowNumber.id.charAt(rowNumber.id.length -1);
-        document.getElementById('headerfieldsAll').removeChild(document.getElementById('headerfields' + rNum));
-    }
-
-    function hideReq() {
-        document.getElementById("resultsBox").style.display = '';
-        document.getElementById("responseDataText").style.color = "#000000";
-        document.getElementById("resultsBoxHead").style.display = 'none';
-        document.getElementById("responseHeaderText").style.color = "#FFFFFF";
-        document.getElementById("resultsBoxcURL").style.display = 'none';
-        document.getElementById("requestHeaderText").style.color = "#FFFFFF";
-    }
-
-    function hideRespData() {
-        document.getElementById("resultsBox").style.display = 'none';
-        document.getElementById("responseDataText").style.color = "#FFFFFF";
-        document.getElementById("resultsBoxHead").style.display = '';
-        document.getElementById("responseHeaderText").style.color = "#000000";
-        document.getElementById("resultsBoxcURL").style.display = 'none';
-        document.getElementById("requestHeaderText").style.color = "#FFFFFF";
-    }
-
-    function hideResp() {
-        document.getElementById("resultsBox").style.display = 'none';
-        document.getElementById("responseDataText").style.color = "#FFFFFF";
-        document.getElementById("resultsBoxHead").style.display = 'none';
-        document.getElementById("responseHeaderText").style.color = "#FFFFFF";
-        document.getElementById("resultsBoxcURL").style.display = '';
-        document.getElementById("requestHeaderText").style.color = "#000000";
-    }
-
-    function oAuthShowFields() {
-        document.getElementById("usr").style.display = 'none';
-        document.getElementById("pwd").style.display = 'none';
-        document.getElementById("closeAuth").style.display = 'none';
-        document.getElementById("api_key").style.display = '';
-        document.getElementById("secret").style.display = '';
-        document.getElementById("callback").style.display = '';
-    }
-
-    function oAuthHideFields() {
-        document.getElementById("usr").style.display = '';
-        document.getElementById("pwd").style.display = '';
-        document.getElementById("closeAuth").style.display = '';
-        document.getElementById("api_key").style.display = 'none';
-        document.getElementById("secret").style.display = 'none';
-        document.getElementById("callback").style.display = 'none';
-    }
-
-    function clearFileUpload() {
-        var oldInput = document.getElementById("datafile")
-        var newInput = document.createElement('input');
-        newInput.id = oldInput.id;
-        newInput.type = oldInput.type;
-        newInput.name = oldInput.name;
-        oldInput.parentNode.replaceChild(newInput, oldInput);
-    }
-
-    function clearVariables() {
-        document.getElementById("varKey").value = "";
-        document.getElementById("varValue").value = "";
-    }
-
-    function setHeight() {
-        var payloadHeight = document.getElementById("payload").style.height;
-        document.getElementById("payloadHeight").value = payloadHeight;
-        if (document.getElementById("resultsBox").style.display != 'none'){
-            var resHeight = document.getElementById("resultsBox").style.height;
-        }
-        if (document.getElementById("resultsBoxHead").style.display != 'none') {
-            var resHeight = document.getElementById("resultsBoxHead").style.height;
-        }
-        if (document.getElementById("resultsBoxcURL").style.display != 'none') {
-            var resHeight = document.getElementById("resultsBoxHead").style.height;
-        }
-        document.getElementById("responseHeight").value = resHeight;
-    }
-
-    /*Block some JS and Form behaviour from occuring*/
-    function returnFalse(event) {
-        event.cancelBubble=true;
-        if(event.stopPropagation) { event.stopPropagation(); }
-        return false;
-    }
-
-    </script>
+  </script>
 </body>
 </html>
