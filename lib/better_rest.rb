@@ -69,8 +69,8 @@ post '/' do
   @headerHash["User-Agent"] ||= BETTER_SIGNATURE
 
   # Check which options the user set or default to the following
-  @follow = false if params[:followlocation] == ""
-  @verbose = false if params[:verbose] == ""
+  @follow = false if not params[:followlocation]
+  @verbose = false if not params[:verbose]
   @ssl = true if params[:ssl_verifypeer] == "on"
   @loggingOn = true if params[:enableLogging] == "on"
 
@@ -185,6 +185,10 @@ end
 
 # Kills process. Work around for Vegas Gem not catching SIGINT from Terminal
 get '/quit' do
+  redirect to('/'), 200
+end
+
+after '/quit' do
   puts "\nExiting..."
   exit!
 end
