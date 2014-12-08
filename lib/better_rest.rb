@@ -12,11 +12,20 @@ set :views, File.expand_path('../../views', __FILE__)
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
+
+end
+
+configure do
+  dirs = ['logs', 'requests']
+  dirs.each do |folder|
+    Dir.mkdir(folder) unless File.directory? folder
+  end
 end
 
 BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
 
-# Defaults are returned
+
+# Default values returned
 get '/?' do
   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
   @times = ["1", "2", "5", "10"]
@@ -31,6 +40,8 @@ get '/?' do
   erb :index
 end
 
+
+# Sending a request
 post '/' do
   # Set Defaults
   @headerHash = {}
@@ -47,7 +58,7 @@ post '/' do
 
   # If timeout interval is of an invalid type (non-integer), set to 1
   begin
-    @timeoutInterval = Integer(params[:timeoutInterval]).abs if Integer(params[:timeoutInterval]) > 0
+    @timeoutInterval = Integer(params[:timeoutInterval])
   rescue
     @timeoutInterval = 1
   end
@@ -95,7 +106,7 @@ post '/' do
   # Modify Request Payload to include datafile, if present
   if params[:datafile]
     @requestBody = { content: params[:payload], file: File.open(params[:datafile][:tempfile], 'r') }
-    request.options[:body] = @requestBody #{ content: params[:payload], file: File.open(params[:datafile][:tempfile], 'r') }
+    request.options[:body] = @requestBody
   end
 
   # Substitute Header Values for defined variables
@@ -121,7 +132,7 @@ post '/' do
 
   # Log the request response
   if @loggingOn
-    File.open('log/' + Time.now.strftime("%Y-%m-%d") + '.log', 'a') do |file|
+    File.open('logs/' + Time.now.strftime("%Y-%m-%d") + '.log', 'a') do |file|
       file.write("-" * 10 + "\n" + Time.now.to_s + request.inspect + "\n\n" )
     end
   end
@@ -141,38 +152,103 @@ post '/' do
   erb :index
 end
 
-# Save a Request (by name)
-# post '/request' do
-#   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
-#   @times = ["1", "2", "5", "10"]
-#   @validHeaderCount = 1
-#   @headerHash = {"" => ""}
-#   @follow, @verbose, @ssl, @loggingOn = true, true, false, false
-#   @visible = [:servURLDiv, :servAuthDiv, :servHeaderDiv, :servePayloadDiv, :servResultsDiv].map{ |k| params[k] }
-#   @payloadHeight = "100px"
-#   @resultsHeight = "180px"
-#   @timeoutInterval = 1
-#
-#   request = {}
-#   request[:name] = params[:saveRequestName]
-#   request[:method] = params[:requestType]
-#   request[:url] = params[:url]
-#   request[:username] = params[:usr]
-#   request[:password] = params[:pwd]
-#   request[:times] = params[:times]
-#   request[:auth] = :auto
-#   request[:key] = params[:varKey]
-#   request[:value] = params[:varValue]
-#   request[:body] = params[:payload]
-#
-#   puts "RQ, #{request}"
-#
-#   erb :index
-# end
 
+# Save Request
+before '/save' do
+  request.body.rewind
+  @request_payload = JSON.parse request.body.read
+end
+
+post '/save' do
+  name = @request_payload['name']
+  collection = @request_payload['collection']
+
+  if File.exists? "requests/#{collection}.json"
+    stored_collection = JSON.parse File.read("requests/#{collection}.json")
+  else
+    stored_collection = {}
+  end
+  stored_collection[name] = @request_payload
+
+  File.open("requests/#{collection}.json", "w") do |f|
+    f.write(stored_collection.to_json)
+  end
+  200
+end
+
+
+# Load List of Requests
+get '/savedrequests' do
+  collection_map = {}
+  collections = Dir["requests/*.json"]
+
+  collections.each do |collection|
+    collection_contents = JSON.parse File.read(collection)
+    collection_names = collection_contents.keys
+
+    # Strip extension and directory from filename
+    collection = collection[9..-6]
+    collection_map[collection] = collection_names
+  end
+
+  if collections.length > 0
+    return collection_map.to_json
+  else
+    return 404
+  end
+end
+
+
+# Load Request
+get '/savedrequests/:collection/:request' do
+  if File.exists? "requests/#{params[:collection]}.json"
+    collection = JSON.parse File.read("requests/#{params[:collection]}.json")
+    request = collection[params[:request]]
+    return request.to_json
+  else
+    return 404
+  end
+end
+
+
+# Delete Request Collection
+delete '/collections/:collection' do
+  if File.exists? "requests/#{params[:collection]}.json"
+    File.delete("requests/#{params[:collection]}.json")
+    return 200
+  else
+    return 404
+  end
+end
+
+
+# Delete Request from Collection
+delete '/collections/:collection/:request' do
+  if File.exists? "requests/#{params[:collection]}.json"
+    stored_collection = JSON.parse File.read("requests/#{params[:collection]}.json")
+    stored_collection.delete(params[:request])
+
+    File.open("requests/#{params[:collection]}.json", "w") do |f|
+      f.write(stored_collection.to_json)
+    end
+    return 200
+  else
+    return 404
+  end
+end
+
+
+# Retrieve list of saved logs
+get '/logs' do
+  # TODO
+end
+
+
+# Defaults to main page
 not_found do
   redirect '/'
 end
+
 
 # Returns Ruby/Sinatra Environment details
 get '/env' do
@@ -183,12 +259,13 @@ get '/env' do
   ENDRESPONSE
 end
 
+
 # Kills process. Work around for Vegas Gem not catching SIGINT from Terminal
 get '/quit' do
   redirect to('/'), 200
 end
 
 after '/quit' do
-  puts "\nExiting..."
+  puts ?\n + "Exiting..."
   exit!
 end

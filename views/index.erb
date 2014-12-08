@@ -73,10 +73,10 @@
           <div id="authSelect">
             <span id="auth-span">
               <label class="form-label" for="basicAuthSelect">
-                <input id="basicAuthSelect" type="radio" name="authType" value="basic" onclick="oAuthHideFields()" checked="true" style="width:20px;">Basic
+                <input id="basicAuthSelect" class="no-back-border" type="radio" name="authType" value="basic" onclick="oAuthHideFields()" checked="true" style="width:20px;">Basic
               </label>
               <label class="form-label" for="digestAuthSelect">
-                <input id="digestAuthSelect" type="radio" name="authType" value="digest" onclick="oAuthHideFields()" style="width:20px;">Digest
+                <input id="digestAuthSelect" class="no-back-border" type="radio" name="authType" value="digest" onclick="oAuthHideFields()" style="width:20px;">Digest
               </label>
             </span>
           </div>
@@ -126,9 +126,13 @@
           <textarea class="form-control" value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data" style="height:<%= @payloadHeight %>"><%=h(params[:payload])%></textarea>
         </div>
       </div>
+
+      <!-- SUBMIT BUTTONS -->
       <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
-        <input type="submit" value="Send" id="submit" class="submit width25 btn btn-simple" onclick="setHeight()" style="margin-bottom:10px;"/>
-        <input type="button" value="Clear All" id="submit" class="submit width25 btn btn-simple" onclick="clearAllFields()" style="margin-bottom:10px;"/>
+        <input type="submit" value="Send" class="submit width25 btn btn-simple" onclick="setHeight()" style="margin-bottom:10px;"/>
+        <input type="button" value="Clear All" class="submit width25 btn btn-simple" onclick="clearAllFields()" style="margin-bottom:10px;"/>
+        <input type="button" value="Save" class="submit width25 btn btn-simple" onclick="modalToggle('save-modal')" style="margin-bottom:10px;"/>
+        <input type="button" value="Load" class="submit width25 btn btn-simple" onclick="savedRequestList()" style="margin-bottom:10px;"/>
       </div>
 
       <!-- RESPONSE -->
@@ -202,7 +206,7 @@
               </div>
               <div>
                 <label class="form-label conf-label" for="timeoutInterval">Timeout Interval (seconds)</label>
-                <input class="" type="text" name="timeoutInterval" id="timeoutInterval" value="<%= @timeoutInterval %>" style="float:right; width:50px; text-align:right; box-shadow:none;">
+                <input type="number" min="0" max="3600" name="timeoutInterval" id="timeoutInterval" value="<%= @timeoutInterval %>" style="float:right; width:50px; text-align:right; box-shadow:none;">
               </div>
             </div>
           </div>
@@ -219,6 +223,40 @@
               <div style="margin-top:25px; margin-bottom:5px; text-align:center">
                 <div id="clearFileUpload" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="clearFileUpload()">Clear</div>
               </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- SAVE REQUEST MODAL -->
+        <div id="save-modal" class="centered" tabindex="-1" role="dialog" style="display:none; z-index:11" onclick="returnFalse(event)">
+          <div class="modal-content" style="padding-left:15px; padding-right:15px;">
+            <h4 style="text-align:center"><strong>Save Request</strong></h4>
+            <hr>
+            <div class="modal-body">
+              <div>
+                <label class="conf-label" for="collection_name">Collections</label>
+                <input style="inline-block" class="form-control" type="text" id="collection_name" name="collection_name" placeholder=" Default">
+              </div>
+              <div style="margin-top:10px">
+                <label class="conf-label" for="test_name">Name</label>
+                <input class="form-control" type="text" id="test_name" name="test_name">
+              </div>
+              <div style="margin-top:25px; margin-bottom:5px; text-align:center">
+                <div id="save_submit" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="save()">Save</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- LOAD REQUEST MODAL -->
+        <div id="load-modal" class="centered" tabindex="-1" role="dialog" style="display:none; z-index:11" onclick="returnFalse(event)">
+          <div class="modal-content" style="padding-left:15px; padding-right:15px;">
+            <h4 style="text-align:center"><strong>Load Request</strong></h4>
+            <hr>
+            <div class="modal-body">
+              <div id="reqdata"></div>
             </div>
           </div>
         </div>
@@ -252,7 +290,222 @@
     </form>
   </div>
 
-  <script>
+  <script type="text/javascript">
+
+  /* Construct Simple Request Object */
+  function assembleRequestPayload() {
+    var body      = {};
+    body.headers  = {};
+
+    /* URL */
+    body.request  = document.getElementById('requestType').value;
+    body.url      = document.getElementById('url').value;
+    body.quantity = document.getElementById('times').value;
+
+    /* HEADERS */
+    for (j=0; j<=clickCount; j++) {
+      if (document.getElementById('key' + j)) {
+        if (document.getElementById('key' + j).value != '') {
+          body.headers[document.getElementById('key' + j).value] = document.getElementById('value' + j).value;
+        }
+      }
+    }
+
+    /* PAYLOAD */
+    body.payload  = document.getElementById('payload').value;
+
+    return body;
+  }
+
+
+  /* Construct Request object with all parameters*/
+  function assembleFullPayload() {
+    var body      = assembleReuestPayload();
+
+    /* AUTH */
+    body.user     = document.getElementById('usr').value;
+    body.password = document.getElementById('pwd').value;
+
+    /* VARIABLES */
+    body.var_key  = document.getElementById('varKey').value;
+    body.var_val  = document.getElementById('varValue').value;
+
+    /* SETTINGS */
+    body.redirect = document.getElementById('followlocation').checked;
+    body.verbose  = document.getElementById('verbose').checked;
+    body.ssl_ver  = document.getElementById('ssl_verifypeer').checked;
+    body.logging  = document.getElementById('enableLogging').checked;
+    body.timeout  = document.getElementById('timeoutInterval').value;
+
+    /* FILE UPLOAD */
+    body.files    = document.getElementById('datafile').value;
+
+    return body;
+  }
+
+
+  /* Save request in view to a file */
+  function save() {
+    var url             = '/save';
+    var payload         = assembleRequestPayload();
+    payload.name        = document.getElementById('test_name').value;
+    payload.collection  = document.getElementById('collection_name').value;
+    var data            = JSON.stringify(payload);
+    var client          = new XMLHttpRequest();
+
+    client.open('POST', url, false);
+    client.setRequestHeader('Content-Type', 'application/json');
+    client.send(data);
+
+    if (client.status == 200) {
+      modalHideAll();
+    } else {
+      console.log("Unknown Error: POST " + url + " failed.");
+    }
+  }
+
+
+  /* Retrives a list of saved request names per collection */
+  function savedRequestList() {
+    var url     = '/savedrequests';
+    var client  = new XMLHttpRequest();
+
+    client.open('GET', url, false);
+    client.send();
+
+    /* Clear and then populate modal with response */
+    modalToggle('load-modal');
+    var data_container = document.getElementById('reqdata');
+    data_container.innerHTML = '';
+
+    if (client.status == 200) {
+      var response  = JSON.parse(client.responseText);
+      var keys      = Object.keys(response);
+
+      /* Iterate through collections and saved requests per collection */
+      for(i=0; i < keys.length; i++) {
+
+        var collection        = document.createElement('div');
+        collection.className  = 'collection-header';
+        collection_name       = '<span id="collection_name>">' + keys[i] + '</span>';
+        collection.innerHTML  = collection_name + '<span aria-hidden="true" onclick="deleteCollection(this)" class="rm-collection">×</span><span class="sr-only">Close</span>';
+
+        for(j=0; j < response[keys[i]].length; j++) {
+          var req_container   = document.createElement('div');
+          var req_list        = document.createElement('div');
+          req_container.innerHTML = '<span aria-hidden="true" onclick="deleteRequest(this)" class="rm-collection">×</span><span class="sr-only">Close</span>';
+          req_list.id         = keys[i] + '-' + response[keys[i]][j];
+          req_list.className  = 'collection-data';
+          req_list.innerHTML  = response[keys[i]][j];
+          req_list.setAttribute('onclick', 'loadRequest(this)');
+
+          req_container.appendChild(req_list);
+          collection.appendChild(req_container);
+        }
+        data_container.appendChild(collection);
+      }
+    } else {
+      data_container.innerHTML('Unknown Error: GET ' + url + ' failed');
+    }
+  }
+
+
+  /* Retrieves all data from one request and loads into current view */
+  function loadRequest(element){
+
+    var request = element.id.split('-');
+    var url     = '/savedrequests/' + request[0] + '/' + request[1];
+    var client  = new XMLHttpRequest();
+
+    client.open('GET', url, false);
+    client.send();
+
+    if (client.status == 200) {
+      modalToggle('load-modal');
+      populateView(JSON.parse(client.responseText));
+    } else {
+      console.log('Unknown Error: GET ' + url + ' failed');
+    }
+  }
+
+
+  /* Populate fields with data */
+  function populateView(fielddata){
+    if (fielddata.url) {
+      document.getElementById('url').value = fielddata.url;
+    }
+    if (fielddata.request) {
+      document.getElementById('requestType').value = fielddata.request;
+    }
+    if (fielddata.quantity) {
+      document.getElementById('times').value = fielddata.quantity;
+    }
+    if (fielddata.payload) {
+      document.getElementById('payload').value = fielddata.payload;
+    }
+    if (fielddata.headers) {
+      var header_keys   = Object.keys(fielddata['headers']);
+      var header_fields = document.getElementById('headerfieldsAll').children.length -1;
+      var extra_headers = header_keys.length - header_fields;
+
+      console.log(extra_headers)
+
+      if (extra_headers > 0) {
+        for (m=0; m < extra_headers-1; m++) {
+          addNewHeader();
+        }
+      } else if (extra_headers <= 0) {
+        for (m=0; m < Math.abs(extra_headers)+1; m++) {
+          removeLastHeader();
+        }
+      }
+
+      indexes = getHeaderIndexes();
+      console.log(indexes);
+
+      for(n=0; n<indexes.length; n++) {
+         document.getElementById('key' + indexes[n]).value   = header_keys[n];
+         document.getElementById('value' + indexes[n]).value = fielddata['headers'][header_keys[n]];
+      }
+    }
+  }
+
+
+  /* delete a collection of requests */
+  function deleteCollection(button_id){
+    var collection_name = button_id.parentNode.firstChild.innerHTML;
+    var url     = '/collections/' + collection_name;
+    var client  = new XMLHttpRequest();
+
+    client.open('DELETE', url, false);
+    client.send();
+
+    if (client.status == 200) {
+      modalHideAll();
+    } else {
+      console.log('Unknown Error: DELETE ' + collection_name + ' failed');
+    }
+  }
+
+
+  /* delete request from collection */
+  function deleteRequest(button_id){
+    var request_name = button_id.parentNode.getElementsByTagName('div')[0].innerHTML;
+    var collection_name = button_id.parentNode.parentNode.firstChild.innerHTML;
+
+    var url     = '/collections/' + collection_name + '/' + request_name;
+    var client  = new XMLHttpRequest();
+
+    client.open('DELETE', url, false);
+    client.send();
+
+    if (client.status == 200) {
+      modalHideAll();
+    } else {
+      console.log('Unknown Error: DELETE ' + collection_name + '/' + request_name + ' failed');
+    }
+  }
+
 
   /* Toggle Modal display */
   function modalToggle(modal_id) {
@@ -262,9 +515,12 @@
     modal.style.display = (modal.style.display == '') ? 'none' : '';
   }
 
+
   function modalHideAll() {
     document.getElementById('backdrop').style.display           = 'none';
     document.getElementById('load-dialog-modal').style.display  = 'none';
+    document.getElementById('save-modal').style.display         = 'none';
+    document.getElementById('load-modal').style.display         = 'none';
     document.getElementById('file-upload-modal').style.display  = 'none';
     document.getElementById('variables-modal').style.display    = 'none';
   }
@@ -353,6 +609,7 @@
     }
   }
 
+
   /*clear all form fields. Delete additional header fields*/
   function clearAllFields() {
     document.getElementById('requestType').value    = 'GET';
@@ -385,6 +642,7 @@
   var clickCount = document.getElementById('headerfieldsAll').children.length - 1;
   document.getElementById('headerCount').value = clickCount + 1;
 
+  /* Add a new header row to bottom */
   function addNewHeader() {
     clickCount += 1;
     document.getElementById('headerCount').value = clickCount + 1;
@@ -431,6 +689,23 @@
     input_container.appendChild(header_val);
     input_container.appendChild(close_btn);
     document.getElementById(header_key.id).focus();
+  }
+
+  /* Remove a header row from the bottom */
+  function removeLastHeader() {
+    var rows      = document.getElementById('headerfieldsAll').children.length - 1;
+    var last_row  = document.getElementById('headerfieldsAll').children[rows];
+    last_row.parentNode.removeChild(last_row);
+  }
+
+  // TODO
+  function getHeaderIndexes(){
+    var rows    = document.getElementById('headerfieldsAll').children;
+    var indexes = [];
+    for(i=0; i<rows.length; i++) {
+      indexes.push(rows[i].id.match(/\d+/));
+    }
+    return indexes;
   }
 
   function clearAuthCredentials() {
