@@ -4,11 +4,11 @@ BetteR is a a REST test client written in Ruby and served by Sinatra.
 
 BetteR emphasises both a clean and easy to use interface, as well as allowing users to have a very granuler control over their requests (things like following redirects, verbosity of response and timeout intervals are all configurable). The current feature set is modest, but what it does, it aims to do well.
 
-## Screenshot
+### Screenshot
 
 ![Screenshot](http://at1as.github.io/github_repo_assets/better-rest-client.jpg)
 
-## Usage
+### Usage
 
 The easiest way to use BetteR is to install it using the [Ruby Gem](http://rubygems.org/gems/better_rest) (note that this usually lags a few commits behind):
 ```bash
@@ -20,13 +20,7 @@ $ ./bin/better_rest
 ```
 To try BetteR, without installing the Gem, it's also hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku, some of functionality won't work due to lack of access to the filesystem (saving logs, etc.). Also note that this is likely to be from an older commit.
 
-## Logs
-
-Logs (if enabled from the Settings menu in the UI) will be stored in the following location
-```bash
-./log/YYYY-MM-DD.log
-```
-## Dependencies
+### Dependencies
 
 Requires a ruby installation with the following gems installed:
 - sinatra
@@ -34,13 +28,12 @@ Requires a ruby installation with the following gems installed:
 - vegas
 - json
 
-## TODO
+### TODO
 
 * POSTMAN import
-* Saving / Loading requests
-* HTML / JS Cleanup
 * Add OAuth/OAuth2 support
 * Update current deprecated Basic/Digest Auth method
 * Add download to file
 * Add support for more than one variable
-* Make path to logs configurable
+* Download logs (Front-end)
+* Crashes and burns with UTF-8 URLs
