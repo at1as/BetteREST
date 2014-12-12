@@ -76,7 +76,7 @@ post '/request' do
 
   # Modify request object if necessary
   unless @request_body['file'].empty?
-    request.options[:body] = { content: @request_body['payload'], file: File.open(@request_body['file'], 'r') }
+    request.options[:body] = { file: File.open('tmp/' + @request_body['file'], 'r') }
   end
 
   # Remove unused fields from request
@@ -106,7 +106,7 @@ post '/request' do
   @response_body['return_msg'] = response.return_code.upcase
   @response_body['return_code'] = response.code
   @response_body['return_time'] = response.time
-  @response_body['return_body'] = response.body.inspect
+  @response_body['return_body'] = response.body
   @response_body['return_headers'] = response.response_headers
 
   @response_body.to_json

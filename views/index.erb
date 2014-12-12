@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap-theme.min.css">
   <link rel="stylesheet" href="main.css">
-  <script type="text/javascript" src="http://form-serialize.googlecode.com/svn/trunk/serialize-0.2.min.js"></script>
 </head>
 
 <body role="document">
@@ -32,7 +31,7 @@
             <li onclick="savedRequestList()"><a>Load Request</a></li>
             <li onclick="modalToggle('variables-modal')"><a>Variables</a></li>
             <li onclick="modalToggle('file-upload-modal')"><a>File Upload</a></li>
-            <li onclick="modalToggle('logs-modal')"><a>Logs</a></li>
+            <!--<li onclick="modalToggle('logs-modal')"><a>Logs</a></li>-->
             <li onclick="quit()"><a>Quit</a></li>
           </ul>
         </li>
@@ -60,7 +59,7 @@
             <option value="<%= request %>"><%= request %></option>
             <% end %>
           </select>
-          <input type="text" class="form-control form-field-small url-input" value="<%= h(params[:url]) %>" name="url" id="url" placeholder=" URL"/>
+          <input type="text" class="form-control form-field-small url-input" name="url" id="url" placeholder=" URL"/>
           <select id="times" name="times" class="form-control form-field-small" style="width:100px; display:inline-block">
             <% @times.each do |number| %>
             <option value="<%= number %>"><%= number %> <% if number == "1" %>time<% else %>times<% end %></option>
@@ -81,16 +80,16 @@
           <div id="authSelect">
             <span id="auth-span">
               <label class="form-label" for="basicAuthSelect">
-                <input id="basicAuthSelect" class="no-back-border" type="radio" name="authType" value="basic" onclick="oAuthHideFields()" checked="true" style="width:20px;">Basic
+                <input id="basicAuthSelect" class="no-back-border" type="radio" name="authType" checked="true" style="width:20px;">Basic
               </label>
               <label class="form-label" for="digestAuthSelect">
-                <input id="digestAuthSelect" class="no-back-border" type="radio" name="authType" value="digest" onclick="oAuthHideFields()" style="width:20px;">Digest
+                <input id="digestAuthSelect" class="no-back-border" type="radio" name="authType" style="width:20px;">Digest
               </label>
             </span>
           </div>
           <div id="authFields">
-            <input class="form-control auth-input" type="text" value="<%=h(params[:usr])%>" name="usr" id="usr" placeholder=" Username"  />
-            <input class="form-control auth-input" type="text" value="<%=h(params[:pwd])%>" name="pwd" id="pwd" placeholder=" Password" />
+            <input class="form-control auth-input" type="text" name="usr" id="usr" placeholder=" Username"  />
+            <input class="form-control auth-input" type="text" name="pwd" id="pwd" placeholder=" Password" />
             <button type="button" tabindex="-1" class="close" onclick="clearAuthCredentials()">
               <span style="line-height:inherit" aria-hidden="true">&times;</span>
               <span class="sr-only">Close</span>
@@ -128,7 +127,9 @@
       <div>
         <h2><div id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
         <div class="box" id="data">
-          <textarea class="form-control" value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data" style="height:<%= @payloadHeight %>"><%=h(params[:payload])%></textarea>
+          <textarea class="form-control" name="payload" id="payload" placeholder=" Payload Data"></textarea>
+          <div id="filename" style="display:none; z-index:2; text-align:center; margin-top:5px; margin-bottom:5px"></div>
+          <div id="clear-file" style="display:none" onclick="clearFile()">Remove File</div>
         </div>
       </div>
 
@@ -146,9 +147,9 @@
         <h2><div  id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
         <div class="box" id="results">
           <div id="response-status">
-            <b>Return Code:</b> <span id="returnCode"><%= @return_code.to_s %></span>
+            <b>Return Code:</b> <span id="returnCode"></span>
             <br/>
-            <b>Request Time:</b> <span id="requestTime"><%= @return_time.to_s %></span>
+            <b>Request Time:</b> <span id="requestTime"></span>
           </div>
           <hr class="v-marginless">
           <div style="padding: 0px;">
@@ -167,11 +168,11 @@
 
           </div>
           <div>
-            <textarea class="form-control" style="min-height:180px; overflow:scroll; height:<%= @resultsHeight %>" id="resultsBody"><%= h @return_body %>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; height:<%= @resultsHeight %>" id="resultsBody">
             </textarea>
-            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-req-head"><%= @return_status_code.to_s %>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-req-head">
             </textarea>
-            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-resp-head"><%= @request_options.to_s.force_encoding('utf-8') %>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-resp-head">
             </textarea>
           </div>
         </div>
@@ -210,7 +211,7 @@
               </div>
               <div>
                 <label class="form-label conf-label" for="timeoutInterval">Timeout Interval (seconds)</label>
-                <input type="number" min="0" max="3600" name="timeoutInterval" id="timeoutInterval" value="<%= @timeout_interval %>" style="float:right; width:50px; text-align:right; box-shadow:none;">
+                <input type="number" min="0" max="3600" name="timeoutInterval" id="timeoutInterval" value="<%= @timeout_interval %>">
               </div>
             </div>
           </div>
@@ -282,8 +283,8 @@
               Within headers, payload or URL
             </div>
             <div style="margin-top:20px;">
-              <input class="form-control var-input" type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
-              <input class="form-control var-input" type="text" value="<%=h(params[:varValue])%>" name="varValue" id="varValue" placeholder=" Value" style="float:right" />
+              <input class="form-control var-input" type="text" name="varKey" id="varKey" placeholder=" Key" />
+              <input class="form-control var-input" type="text" name="varValue" id="varValue" placeholder=" Value" style="float:right" />
             </div>
             <div style="margin-top:25px; margin-bottom:5px; text-align:center">
               <div id="clearVariables" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="clearVariables()">Clear</div>
@@ -347,7 +348,11 @@
     body.timeout  = document.getElementById('timeoutInterval').value;
 
     /* FILE UPLOAD */
-    body.file     = document.getElementById('datafile').value;
+    if (document.getElementById('filename').style.display != 'none') {
+      body.file   = document.getElementById('filename').innerHTML;
+    } else {
+      body.file   = '';
+    }
 
     /* VISIBILITY */
     body.show_url     = document.getElementById('path').style.display;
@@ -377,7 +382,7 @@
     /* Replace variable keys with their specified values */
     if (payload.var_key && payload.var_val){
       payload.url     = payload.url.replace('{{' + payload.var_key + '}}', payload.var_val);
-      payload.payload = payload.payload.replace('{{' + payload.var_key + '}}', payload.var_val);
+      payload.payload = payload.payload.replace('{{' + payload.var_key + '}}', payload.var_key);
 
       /* Replace values in header */
       var keys = Object.keys(payload.headers);
@@ -405,11 +410,11 @@
     if (client.status == 200) {
       var response = JSON.parse(client.responseText);
       console.log(response)
-      document.getElementById('requestTime').innerHTML = response.return_time + ' seconds';
-      document.getElementById('returnCode').innerHTML = response.return_code + ' ' + response.return_msg;
-      document.getElementById('resultsBody').innerHTML = response.return_body;
-      document.getElementById('results-req-head').innerHTML = response.return_headers;
-      document.getElementById('results-resp-head').innerHTML = response.request_options;
+      document.getElementById('requestTime').innerHTML        = response.return_time + ' seconds';
+      document.getElementById('returnCode').innerHTML         = response.return_code + ' ' + response.return_msg;
+      document.getElementById('resultsBody').innerHTML        = response.return_body;
+      document.getElementById('results-req-head').innerHTML   = response.return_headers;
+      document.getElementById('results-resp-head').innerHTML  = response.request_options;
     } else {
       console.log("Unknown Error: POST " + url + " failed.");
     }
@@ -515,6 +520,12 @@
     if (fielddata.payload) {
       document.getElementById('payload').value = fielddata.payload;
     }
+    if (fielddata.file && fielddata.file != '') {
+      document.getElementById('filename').innerHTML       = fielddata.file;
+      document.getElementById('filename').style.display   = '';
+      document.getElementById('clear-file').style.display = '';
+      document.getElementById('payload').style.display    = 'none';
+    }
     if (fielddata.user) {
       document.getElementById('usr').value = fielddata.user;
     }
@@ -525,7 +536,7 @@
       document.getElementById('varKey').value = fielddata.var_key;
     }
     if (fielddata.var_val) {
-      document.getElementById('varVal').value = fielddata.var_val;
+      document.getElementById('varValue').value = fielddata.var_val;
     }
     if (fielddata.timeout) {
       document.getElementById('timeoutInterval').value = fielddata.timeout;
@@ -814,17 +825,18 @@
     while (headerfieldsAll.firstChild) {
       headerfieldsAll.removeChild(headerfieldsAll.firstChild);
     }
+    clearFile();
   }
 
 
   /* Page View functions */
   function toggleResponseContent(new_selection){
     /* Clear current filters */
-    document.getElementById('response-data-link').style.color   = '#000';
+    document.getElementById('response-data-link').style.color   = '';
     document.getElementById('resultsBody').style.display        = 'none';
-    document.getElementById('response-header-link').style.color = '#000';
+    document.getElementById('response-header-link').style.color = '';
     document.getElementById('results-req-head').style.display   = 'none';
-    document.getElementById('request-header-link').style.color  = '#000';
+    document.getElementById('request-header-link').style.color  = '';
     document.getElementById('results-resp-head').style.display  = 'none';
 
     /* Apply new filter */
@@ -880,11 +892,18 @@
     var warning_count   = 0;
 
     // GET request with body
-    if (document.getElementById('payload').value != '' && document.getElementById('requestType').value == 'GET') {
-      warning_count += 1;
-      document.getElementById('warning-text').style.display = '';
-      document.getElementById('warning-text').setAttribute('tooltip', 'GET request should not contain a payload');
-      current_warning = document.getElementById('warning-text').getAttribute('tooltip');
+    if (document.getElementById('requestType').value == 'GET') {
+      if (document.getElementById('payload').value != '' && document.getElementById('payload').style.display != 'none') {
+        warning_count += 1;
+        document.getElementById('warning-text').style.display = '';
+        document.getElementById('warning-text').setAttribute('tooltip', 'GET request should not contain a payload');
+        current_warning = document.getElementById('warning-text').getAttribute('tooltip');
+      } else if (document.getElementById('filename').style.display != 'none') {
+        warning_count += 1;
+        document.getElementById('warning-text').style.display = '';
+        document.getElementById('warning-text').setAttribute('tooltip', 'GET request should not contain a data payload');
+        current_warning = document.getElementById('warning-text').getAttribute('tooltip');
+      }
     }
 
     // Empty header key OR value
@@ -919,6 +938,15 @@
 
     client.onreadystatechange = function() {
       if (client.readyState == 4 && client.status == 200) {
+        var height    = document.getElementById('payload').offsetHeight;
+        var filename  = document.getElementById('datafile').files[0].name;
+
+        document.getElementById('payload').style.display    = 'none';
+        document.getElementById('filename').style.display   = '';
+        document.getElementById('clear-file').style.display = '';
+        document.getElementById('filename').height          = height;
+        document.getElementById('filename').innerHTML       = filename;
+
         modalHideAll();
       } else if (client.readyState == 4) {
         console.log('Error uploading file');
@@ -927,6 +955,14 @@
 
     client.open('POST', '/upload', true);
     client.send(form);
+  }
+
+  function clearFile(){
+    document.getElementById('payload').style.display    = '';
+    document.getElementById('clear-file').style.display = 'none';
+    document.getElementById('filename').innerHTML       = '';
+    document.getElementById('filename').style.display   = 'none';
+    clearFileUpload();
   }
 
 

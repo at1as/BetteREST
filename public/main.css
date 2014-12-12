@@ -171,11 +171,11 @@ ul li:hover ul {
   width: calc(50% - 15px);
 }
 .btn-simple{
-  border-color: #000;
+  border-color: #333;
   text-shadow: 0 1px 0 #fff;
 }
 .btn-simple:hover{
-  background-color:black;
+  background-color:#000;
   color:white;
   text-shadow: 0 1px 0 #000;
 }
@@ -315,8 +315,23 @@ ul li:hover ul {
 #warning-text{
   margin-left:120px;
 }
-#viewResponseHeaders.a:hover {
-  color:white;
+#clear-file{
+  margin-top:5px;
+  padding:2px;
+  background-color:#DDD;
+  text-align:center;
+}
+#clear-file:hover{
+  font-weight:600;
+  background-color:#CCC;
+  -webkit-transition-delay: 0.1s;
+  transition-delay: 0.1s;
+}
+#timeoutInterval{
+  float:right;
+  width:50px;
+  text-align:right;
+  box-shadow:none;
 }
 
 
@@ -335,7 +350,7 @@ ul li:hover ul {
     color: white;
     border-radius: 3px;
     box-shadow: 2px 2px 1px black;
-    min-width: 250px;
+    min-width: 280px;
     text-align:center;
 }
 
