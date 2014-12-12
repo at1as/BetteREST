@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
+
 require 'rubygems'
 require 'bundler/setup'
 
@@ -12,11 +14,10 @@ set :views, File.expand_path('../../views', __FILE__)
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
-
 end
 
 configure do
-  dirs = ['logs', 'requests']
+  dirs = ['logs', 'requests', 'tmp']
   dirs.each do |folder|
     Dir.mkdir(folder) unless File.directory? folder
   end
@@ -25,131 +26,90 @@ end
 BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
 
 
-# Default values returned
+# Return default values
 get '/?' do
   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
   @times = ["1", "2", "5", "10"]
   @validHeaderCount = 1
-  @headerHash = {"" => ""}
-  @follow, @verbose, @ssl, @loggingOn = true, true, false, false
-  @visible = ["displayed", "hidden", "displayed", "displayed", "displayed"]	#Ordered display toggle for frontend: REQUEST, AUTH, HEADERS, PAYLOAD, RESULTS
+  @header_hash = {"" => ""}
+  @follow, @verbose, @ssl, @log_requests = true, true, false, false
   @payloadHeight = "100px"
   @resultsHeight = "180px"
-  @timeoutInterval = 1
+  @timeout_interval = 1
 
   erb :index
 end
 
 
-# Sending a request
-post '/' do
-  # Set Defaults
-  @headerHash = {}
-  @validHeaderCount = 1
-  @formResponse = true
-  @follow, @verbose, @ssl, @loggingOn = true, true, false, false
-  @requestBody = params[:payload]
-  @visible = [:serveURLDiv, :serveAuthDiv, :serveHeaderDiv, :servePayloadDiv, :serveResultsDiv].map{ |k| params[k] }
-  @var_key = params[:varKey]
-  @var_value = params[:varValue]
-  @ContentType = "text/plain"
-  @payloadHeight = params[:payloadHeight] ||= "100px"
-  @resultsHeight = params[:responseHeight] ||= "180px"
+# Send a request
+before '/request' do
+  request.body.rewind
+  @request_body = JSON.parse request.body.read
+end
 
-  # If timeout interval is of an invalid type (non-integer), set to 1
-  begin
-    @timeoutInterval = Integer(params[:timeoutInterval])
-  rescue
-    @timeoutInterval = 1
-  end
+post '/request' do
+  puts @request_body
 
-  # Loop through Header key/value pairs
-  # If a header is created and deleted in the UI before submit, headerCount will not renormalize (and will exceed the number headers sent)
-  # This will check that a particular header exists, before adding it to the Hash
-  params[:headerCount].to_i.times do |i|
-    @keyIncrement = "key#{i}"
-    @valueIncrement = "value#{i}"
+  # Request Configuration
+  @follow = @request_body['redirect'] rescue false
+  @verbose = @request_body['verbose'] rescue false
+  @ssl = @request_body['ssl_ver'] rescue false
+  @log_requests = @request_body['logging'] rescue false
+  @timeout_interval = Integer(@request_body['timeout']) rescue 1
+  @request_body['headers']['User-Agent'] = BETTER_SIGNATURE unless @request_body['headers']['User-Agent']
 
-    if !(params.fetch(@keyIncrement, '').empty? || params.fetch(@valueIncrement, '').empty?)
-      @headerHash[params[@keyIncrement]] = params[@valueIncrement]
-      @validHeaderCount += 1
-    end
-  end
-
-  # Shameless branding. Only if User-Agent isn't user specified
-  @headerHash["User-Agent"] ||= BETTER_SIGNATURE
-
-  # Check which options the user set or default to the following
-  @follow = false if not params[:followlocation]
-  @verbose = false if not params[:verbose]
-  @ssl = true if params[:ssl_verifypeer] == "on"
-  @loggingOn = true if params[:enableLogging] == "on"
-
-  # For parallel Requests
+  # Create the Request
   hydra = Typhoeus::Hydra.new
-
-  # Create the Request (swap variable keys for values, if they have been set)
   request = Typhoeus::Request.new(
-    params[:url].gsub("{{#{@var_key}}}", @var_value),
-    method: params[:requestType],
-    username: params[:usr].gsub("{{#{@var_key}}}", @var_value),
-    password: params[:pwd].gsub("{{#{@var_key}}}", @var_value),
-    auth_method: :auto,		#Should ideally not be auto, in order to test unideal APIs
-    headers: @headerHash,
-    body: params[:payload].gsub("{{#{@var_key}}}", @var_value),
+    @request_body["url"],
+    method: @request_body["request"],
+    username: @request_body["user"],
+    password: @request_body["password"],
+    auth_method: :auto,
+    headers: @request_body["headers"],
+    body: @request_body["payload"],
     followlocation: @follow,
     verbose: @verbose,
     ssl_verifypeer: @ssl,
-    timeout: @timeoutInterval
+    timeout: @timeout_interval
   )
 
-  # Modify Request Payload to include datafile, if present
-  if params[:datafile]
-    @requestBody = { content: params[:payload], file: File.open(params[:datafile][:tempfile], 'r') }
-    request.options[:body] = @requestBody
+  # Modify request object if necessary
+  unless @request_body['file'].empty?
+    request.options[:body] = { content: @request_body['payload'], file: File.open(@request_body['file'], 'r') }
   end
 
-  # Substitute Header Values for defined variables
-  request.options[:headers].each do |key, val|
-    if val.to_s.include? "{{#{@var_key}}}"
-      request.options[:headers][key.to_s] = val.gsub("{{#{@var_key}}}", @var_value)
-    end
+  # Remove unused fields from request
+  request.options.delete(:body) if request.options[:body].empty?
+  if @request_body['user'].empty? || @request_body['password'].empty?
+    request.options.delete(:username)
+    request.options.delete(:password)
+    request.options.delete(:auth_method)
   end
-
-  # Remove unused fields from request (some APIs don't handle unexpected fields)
-  request.options.delete(:body) if request.options[:body] == ""
-  request.options.delete(:username) if params[:usr] == ""
-  request.options.delete(:password) if params[:pwd] == ""
-  request.options.delete(:auth_method) if params[:pwd] == "" && params[:usr] == ""
 
   # Send the request (specified number of times)
-  params[:times].to_i.times.map{ hydra.queue(request) }
+  @request_body['quantity'].to_i.times.map{ hydra.queue(request) }
   hydra.run
   response = request.response
 
-  # If user-agent wasn't set by user, don't bother showing the user this default
-  request.options[:headers].delete('User-Agent') && @headerHash.delete("User-Agent") if @headerHash["User-Agent"] == BETTER_SIGNATURE
-
-  # Log the request response
-  if @loggingOn
-    File.open('logs/' + Time.now.strftime("%Y-%m-%d") + '.log', 'a') do |file|
-      file.write("-" * 10 + "\n" + Time.now.to_s + request.inspect + "\n\n" )
+  # Log the request
+  if @log_requests
+    File.open('logs/' + Time.now.strftime('%Y-%m-%d') + '.log', 'a') do |file|
+      file.write('-' * 10 + ?\n + Time.now.to_s + request.inspect + "\n\n")
     end
   end
 
-  # These values will be used by the ERB page
-  # Add the URL to the Request Options returned
+  # View response parameters
+  @response_body = {}
   request.options[:url] = request.url
-  @requestOptions = JSON.pretty_generate(request.options)
-  @returnBody = response.body
-  @returnCode = response.return_code
-  @returnTime = response.time
-  @statCodeReturn = response.response_headers
-  @requests = ["#{params[:requestType]}", "GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"].uniq
-  @times = ["#{params[:times]}", "1", "2", "5", "10"].uniq
-  @timeout = ["1","2","5","10","60"]
+  @response_body['request_options'] = JSON.pretty_generate(request.options)
+  @response_body['return_msg'] = response.return_code.upcase
+  @response_body['return_code'] = response.code
+  @response_body['return_time'] = response.time
+  @response_body['return_body'] = response.body.inspect
+  @response_body['return_headers'] = response.response_headers
 
-  erb :index
+  @response_body.to_json
 end
 
 
@@ -173,7 +133,6 @@ post '/save' do
   File.open("requests/#{collection}.json", "w") do |f|
     f.write(stored_collection.to_json)
   end
-  200
 end
 
 
@@ -188,7 +147,7 @@ get '/savedrequests' do
 
     # Strip extension and directory from filename
     collection = collection[9..-6]
-    collection_map[collection] = collection_names
+    collection_map[collection] = collection_names.sort
   end
 
   if collections.length > 0
@@ -215,7 +174,6 @@ end
 delete '/collections/:collection' do
   if File.exists? "requests/#{params[:collection]}.json"
     File.delete("requests/#{params[:collection]}.json")
-    return 200
   else
     return 404
   end
@@ -231,7 +189,6 @@ delete '/collections/:collection/:request' do
     File.open("requests/#{params[:collection]}.json", "w") do |f|
       f.write(stored_collection.to_json)
     end
-    return 200
   else
     return 404
   end
@@ -240,7 +197,29 @@ end
 
 # Retrieve list of saved logs
 get '/logs' do
-  # TODO
+  entries = Dir["logs/*.log"]
+  return entries.map{ |k| k[5..-5]}
+end
+
+
+# Download log
+get '/logs/:log' do
+  begin
+    send_file "logs/#{params[:log]}.log"
+  rescue
+    return 404
+  end
+end
+
+
+# Upload file
+# TODO: Maximum file size, cleanup tmp directory, etc
+post '/upload' do
+  unless params['datafile'].nil?
+    File.open('tmp/' + params['datafile'][:filename], 'w') do |f|
+      f.write(params['datafile'][:tempfile].read)
+    end
+  end
 end
 
 
@@ -266,6 +245,6 @@ get '/quit' do
 end
 
 after '/quit' do
-  puts ?\n + "Exiting..."
+  puts  "\nExiting..."
   exit!
 end

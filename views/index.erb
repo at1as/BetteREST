@@ -16,33 +16,41 @@
     <div class="container">
       <ul class="nav navbar-nav header-ul" style="display:inline-block;">
 
+        <!-- BRANDING -->
         <li style="float:left">
           <h1>BetteR &mdash; REST API Test Client</h1>
         </li>
-        <li class="header-li" style="float:right">
-          <a class="header-button" onclick="quit()">Quit</a>
+
+        <!-- DROPDOWN MENU -->
+        <li style="float:right">
+            <a class="header-li">
+              Settings <span class="caret"></span>
+            </a>
+          <ul id="dropdown">
+            <li onclick="modalToggle('load-dialog-modal')"><a>Configuration</a></li>
+            <li onclick="savedRequestList()"><a>Load Request</a></li>
+            <li onclick="modalToggle('variables-modal')"><a>Variables</a></li>
+            <li onclick="modalToggle('file-upload-modal')"><a>File Upload</a></li>
+            <li onclick="modalToggle('logs-modal')"><a>Logs</a></li>
+            <li onclick="quit()"><a>Quit</a></li>
+          </ul>
         </li>
-        <li class="header-li" style="float:right">
-          <a class="header-button" onclick="modalToggle('load-dialog-modal')">Settings</a>
-        </li>
-        <li class="header-li" style="float:right">
-          <a class="header-button" onclick="modalToggle('variables-modal')">Variables</a>
-        </li>
-        <li class="header-li" style="float:right">
-          <a class="header-button" onclick="modalToggle('file-upload-modal')">File Upload</a>
+
+        <!-- WARNINGS -->
+        <li class="header-li" id="warning-header">
+          <a id="warning-text" class="header-button caution" style="display:none" tooltip=""></a>
         </li>
 
       </ul>
     </div>
   </div>
 
+
   <!-- PAGE CONTENT -->
   <div class="container">
-    <form id="form1" name="fullRequestData" method="post" action="/" target="_self" enctype="multipart/form-data">
 
       <!-- URL -->
       <div>
-        <input type="hidden" class="form-control form-field-small" id="serveURLDiv" name="serveURLDiv" value="<% if @visible[0] == "hidden"%>hidden<% else %>displayed<% end %>">
         <h2><div id="headingReq" onclick="toggleRequestVisibility()">[&ndash;] Request</div></h2>
 
         <div style="width:100%" class="box" id="path">
@@ -64,10 +72,9 @@
         </div>
       </div>
 
+
       <!-- AUTH -->
       <div>
-        <input type="hidden" id="serveAuthDiv" name="serveAuthDiv" value="<% if @visible[1] == "hidden"%>hidden<% else %>displayed<% end %>">
-
         <h2><div id="headingAuth" onclick="toggleAuthVisibility()">[&ndash;] Authentication</div></h2>
         <div class="box" id="auth">
           <div id="authSelect">
@@ -91,15 +98,13 @@
         </div>
       </div>
 
+
       <!-- HEADERS -->
       <div>
-        <input type="hidden" id="serveHeaderDiv" name="serveHeaderDiv" value="<% if @visible[2] == "hidden"%>hidden<% else %>displayed<% end %>">
-        <input type="hidden" id="headerCount" name="headerCount" value="1">
-
         <h2><div id="headingHead" onclick="toggleHeaderVisibility()">[&ndash;] Headers</div></h2>
         <div class="box" id="headers">
           <div id="headerfieldsAll">
-            <% @headerHash.each_with_index do |(key, value), index| %>
+            <% @header_hash.each_with_index do |(key, value), index| %>
             <div id="headerfields<%= index %>" style="margin-bottom:2px;" >
               <input type="text" value="<%=key%>" name="key<%=index%>" id="key<%=index%>" placeholder=" Name" class="key form-control head-input" />
               <input type="text" value="<%=value%>" name="value<%=index%>" id="value<%=index%>" placeholder=" Value" class="value form-control head-input" />
@@ -117,34 +122,32 @@
         </div>
       </div>
 
+
       <!-- PAYLOAD -->
       <div>
-        <input type="hidden" id="servePayloadDiv" name="servePayloadDiv" value="<% if @visible[3] == "hidden"%>hidden<% else %>displayed<% end %>">
-
         <h2><div id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
         <div class="box" id="data">
           <textarea class="form-control" value="<%=h(params[:payload])%>" name="payload" id="payload" placeholder=" Payload Data" style="height:<%= @payloadHeight %>"><%=h(params[:payload])%></textarea>
         </div>
       </div>
 
+
       <!-- SUBMIT BUTTONS -->
       <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
-        <input type="submit" value="Send" class="submit width25 btn btn-simple" onclick="setHeight()" style="margin-bottom:10px;"/>
-        <input type="button" value="Clear All" class="submit width25 btn btn-simple" onclick="clearAllFields()" style="margin-bottom:10px;"/>
+        <input type="button" value="Send" class="submit width25 btn btn-simple" onclick="sendRequest()" style="margin-bottom:10px;"/>
         <input type="button" value="Save" class="submit width25 btn btn-simple" onclick="modalToggle('save-modal')" style="margin-bottom:10px;"/>
-        <input type="button" value="Load" class="submit width25 btn btn-simple" onclick="savedRequestList()" style="margin-bottom:10px;"/>
+        <input type="button" value="Clear All" class="submit width25 btn btn-simple" onclick="clearAllFields()" style="margin-bottom:10px;"/>
       </div>
 
-      <!-- RESPONSE -->
-      <% if @formResponse %>
-      <div>
-        <input type="hidden" id="serveResultsDiv" name="serveResultsDiv" value="<% if @visible[4] == "hidden"%>hidden<% else %>displayed<% end %>">
 
+      <!-- RESPONSE -->
+      <div>
         <h2><div  id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
         <div class="box" id="results">
           <div id="response-status">
-            <b>Request Time:</b> <%= @returnTime.to_s %> seconds<br/>
-            <b>Return Code:</b> <%= @returnCode.to_s %>
+            <b>Return Code:</b> <span id="returnCode"><%= @return_code.to_s %></span>
+            <br/>
+            <b>Request Time:</b> <span id="requestTime"><%= @return_time.to_s %></span>
           </div>
           <hr class="v-marginless">
           <div style="padding: 0px;">
@@ -163,16 +166,16 @@
 
           </div>
           <div>
-            <textarea class="form-control" style="min-height:180px; overflow:scroll; height:<%= @resultsHeight %>" id="resultsBody"><%= h @returnBody %>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; height:<%= @resultsHeight %>" id="resultsBody"><%= h @return_body %>
             </textarea>
-            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-req-head"><%= @statCodeReturn.to_s %>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-req-head"><%= @return_status_code.to_s %>
             </textarea>
-            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-resp-head"><%= @requestOptions.to_s %>
+            <textarea class="form-control" style="min-height:180px; overflow:scroll; display:none; font-size:15px; height:<%= @resultsHeight %>" id="results-resp-head"><%= @request_options.to_s.force_encoding('utf-8') %>
             </textarea>
           </div>
         </div>
       </div>
-      <% end %>
+
 
 
       <!-- MODALS -->
@@ -200,13 +203,13 @@
                 <% if @ssl %>checked<% end %>>
               </div>
               <div>
-                <label class="form-label conf-label" for="enableLogging">Log Requests</label>
-                <input type="checkbox" name="enableLogging" id="enableLogging" class="checkbox" style="float:right"
-                <% if @loggingOn %>checked<% end %>>
+                <label class="form-label conf-label" for="logging">Log Requests</label>
+                <input type="checkbox" name="logging" id="logging" class="checkbox" style="float:right"
+                <% if @log_requests %>checked<% end %>>
               </div>
               <div>
                 <label class="form-label conf-label" for="timeoutInterval">Timeout Interval (seconds)</label>
-                <input type="number" min="0" max="3600" name="timeoutInterval" id="timeoutInterval" value="<%= @timeoutInterval %>" style="float:right; width:50px; text-align:right; box-shadow:none;">
+                <input type="number" min="0" max="3600" name="timeoutInterval" id="timeoutInterval" value="<%= @timeout_interval %>" style="float:right; width:50px; text-align:right; box-shadow:none;">
               </div>
             </div>
           </div>
@@ -219,10 +222,13 @@
             <h4 style="text-align:center"><strong>Attach File to Request</strong></h4>
             <hr>
             <div class="modal-body">
-              <input type="file" id="datafile" name="datafile">
-              <div style="margin-top:25px; margin-bottom:5px; text-align:center">
-                <div id="clearFileUpload" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="clearFileUpload()">Clear</div>
-              </div>
+              <form id="upload_form" method="post" action="/upload" enctype="multipart/form-data">
+                <input type="file" id="datafile" name="datafile">
+                <div style="margin-top:25px; margin-bottom:5px; text-align:center">
+                  <input type="submit" id="upload_submit" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" value="Upload">
+                  <div id="clearFileUpload" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="clearFileUpload()">Clear</div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -272,7 +278,7 @@
               <div style="width:100%; text-align:center; margin-top:10px; margin-bottom:10px;">
                 <b>{{Key}}</b> for <b>Value</b>
               </div>
-              <i>Note:</i> will not work for Header Keys
+              Within headers, payload or URL
             </div>
             <div style="margin-top:20px;">
               <input class="form-control var-input" type="text" value="<%=h(params[:varKey])%>" name="varKey" id="varKey" placeholder=" Key" />
@@ -283,14 +289,18 @@
             </div>
           </div>
         </div>
-
       </div>
+      <!-- TODO: REMOVE -->
       <input type="hidden" id="payloadHeight" name="payloadHeight" value="100">
       <input type="hidden" id="responseHeight" name="responseHeight" value="180">
-    </form>
+
   </div>
 
   <script type="text/javascript">
+
+  /* Common variables */
+  var clickCount = document.getElementById('headerfieldsAll').children.length - 1;
+
 
   /* Construct Simple Request Object */
   function assembleRequestPayload() {
@@ -310,17 +320,15 @@
         }
       }
     }
-
     /* PAYLOAD */
     body.payload  = document.getElementById('payload').value;
 
     return body;
   }
 
-
   /* Construct Request object with all parameters*/
   function assembleFullPayload() {
-    var body      = assembleReuestPayload();
+    var body      = assembleRequestPayload();
 
     /* AUTH */
     body.user     = document.getElementById('usr').value;
@@ -334,13 +342,76 @@
     body.redirect = document.getElementById('followlocation').checked;
     body.verbose  = document.getElementById('verbose').checked;
     body.ssl_ver  = document.getElementById('ssl_verifypeer').checked;
-    body.logging  = document.getElementById('enableLogging').checked;
+    body.logging  = document.getElementById('logging').checked;
     body.timeout  = document.getElementById('timeoutInterval').value;
 
     /* FILE UPLOAD */
-    body.files    = document.getElementById('datafile').value;
+    body.file     = document.getElementById('datafile').value;
+
+    /* VISIBILITY */
+    body.show_url     = document.getElementById('path').style.display;
+    body.show_auth    = document.getElementById('auth').style.display;
+    body.show_head    = document.getElementById('headers').style.display;
+    body.show_payload = document.getElementById('data').style.display;
+    body.show_results = document.getElementById('results').style.display;
 
     return body;
+  }
+
+  // TODO
+  /* Upload file for request */
+  function uploadFile() {
+    var vFD = new FormData(document.getElementById('datavalue'));
+
+    var client = new XMLHttpRequest();
+    client.open('POST', 'upload');
+    client.send(vFD);
+  }
+
+  /* Prepare and then send the request */
+  function sendRequest() {
+    var url     = '/request';
+    var payload = assembleFullPayload();
+
+    /* Replace variable keys with their specified values */
+    if (payload.var_key && payload.var_val){
+      payload.url     = payload.url.replace('{{' + payload.var_key + '}}', payload.var_val);
+      payload.payload = payload.payload.replace('{{' + payload.var_key + '}}', payload.var_val);
+
+      /* Replace values in header */
+      var keys = Object.keys(payload.headers);
+      for(n=0; n<keys.length; n++) {
+        console.log(payload.headers[keys[n]]);
+        payload.headers[keys[n]] = payload.headers[keys[n]].replace('{{' + payload.var_key + '}}', payload.var_val);
+      }
+
+      /* Replace keys in header */
+      for(m=0; m<keys.length; m++) {
+        if (keys[m].indexOf('{{' + payload.var_key + '}}') != -1){
+          payload.headers[keys[m].replace('{{' + payload.var_key + '}}', payload.var_val)] = payload.headers[keys[m]];
+          delete payload.headers[keys[m]];
+        }
+      }
+    }
+
+    /* Send Request */
+    var data    = JSON.stringify(payload);
+    var client  = new XMLHttpRequest();
+    client.open('POST', url, false);
+    client.setRequestHeader('Content-Type', 'application/json');
+    client.send(data);
+
+    if (client.status == 200) {
+      var response = JSON.parse(client.responseText);
+      console.log(response)
+      document.getElementById('requestTime').innerHTML = response.return_time + ' seconds';
+      document.getElementById('returnCode').innerHTML = response.return_code + ' ' + response.return_msg;
+      document.getElementById('resultsBody').innerHTML = response.return_body;
+      document.getElementById('results-req-head').innerHTML = response.return_headers;
+      document.getElementById('results-resp-head').innerHTML = response.request_options;
+    } else {
+      console.log("Unknown Error: POST " + url + " failed.");
+    }
   }
 
 
@@ -348,8 +419,8 @@
   function save() {
     var url             = '/save';
     var payload         = assembleRequestPayload();
+    payload.collection  = document.getElementById('collection_name').value || "Default";
     payload.name        = document.getElementById('test_name').value;
-    payload.collection  = document.getElementById('collection_name').value;
     var data            = JSON.stringify(payload);
     var client          = new XMLHttpRequest();
 
@@ -388,12 +459,12 @@
         var collection        = document.createElement('div');
         collection.className  = 'collection-header';
         collection_name       = '<span id="collection_name>">' + keys[i] + '</span>';
-        collection.innerHTML  = collection_name + '<span aria-hidden="true" onclick="deleteCollection(this)" class="rm-collection">×</span><span class="sr-only">Close</span>';
+        collection.innerHTML  = collection_name + '<span aria-hidden="true" onclick="deleteCollection(this)" class="rm-collection">&times;</span><span class="sr-only">Close</span>';
 
         for(j=0; j < response[keys[i]].length; j++) {
           var req_container   = document.createElement('div');
           var req_list        = document.createElement('div');
-          req_container.innerHTML = '<span aria-hidden="true" onclick="deleteRequest(this)" class="rm-collection">×</span><span class="sr-only">Close</span>';
+          req_container.innerHTML = '<span aria-hidden="true" onclick="deleteRequest(this)" class="rm-collection">&times;</span><span class="sr-only">Close</span>';
           req_list.id         = keys[i] + '-' + response[keys[i]][j];
           req_list.className  = 'collection-data';
           req_list.innerHTML  = response[keys[i]][j];
@@ -443,6 +514,34 @@
     if (fielddata.payload) {
       document.getElementById('payload').value = fielddata.payload;
     }
+    if (fielddata.user) {
+      document.getElementById('usr').value = fielddata.user;
+    }
+    if (fielddata.password) {
+      document.getElementById('pwd').value = fielddata.password;
+    }
+    if (fielddata.var_key) {
+      document.getElementById('varKey').value = fielddata.var_key;
+    }
+    if (fielddata.var_val) {
+      document.getElementById('varVal').value = fielddata.var_val;
+    }
+    if (fielddata.timeout) {
+      document.getElementById('timeoutInterval').value = fielddata.timeout;
+    }
+    if (fielddata.redirect) {
+      document.getElementById('followlocation').value = fielddata.redirect;
+    }
+    if (fielddata.verbose) {
+      document.getElementById('verbose').value = fielddata.verbose;
+    }
+    if (fielddata.ssl_ver) {
+      document.getElementById('ssl_verifypeer').value = fielddata.ssl_ver;
+    }
+    if (fielddata.logging) {
+      document.getElementById('logging').value = fielddata.logging;
+    }
+
     if (fielddata.headers) {
       var header_keys   = Object.keys(fielddata['headers']);
       var header_fields = document.getElementById('headerfieldsAll').children.length -1;
@@ -467,6 +566,22 @@
          document.getElementById('key' + indexes[n]).value   = header_keys[n];
          document.getElementById('value' + indexes[n]).value = fielddata['headers'][header_keys[n]];
       }
+    }
+
+    if (fielddata.show_url == 'none') {
+      toggleRequestVisibility();
+    }
+    if (fielddata.show_auth == 'none') {
+      toggleAuthVisibility();
+    }
+    if (fielddata.show_head == 'none') {
+      toggleHeaderVisibility();
+    }
+    if (fielddata.show_payload == 'none') {
+      toggleDataVisibility();
+    }
+    if (fielddata.show_results == 'none') {
+      toggleResultsVisibility();
     }
   }
 
@@ -509,37 +624,21 @@
 
   /* Toggle Modal display */
   function modalToggle(modal_id) {
+    document.getElementById('dropdown').style.display = 'none';
     bgrnd = document.getElementById('backdrop');
     modal = document.getElementById(modal_id);
     bgrnd.style.display = (bgrnd.style.display == '') ? 'none' : '';
     modal.style.display = (modal.style.display == '') ? 'none' : '';
   }
 
-
   function modalHideAll() {
+    document.getElementById('dropdown').style.display           = '';
     document.getElementById('backdrop').style.display           = 'none';
     document.getElementById('load-dialog-modal').style.display  = 'none';
     document.getElementById('save-modal').style.display         = 'none';
     document.getElementById('load-modal').style.display         = 'none';
     document.getElementById('file-upload-modal').style.display  = 'none';
     document.getElementById('variables-modal').style.display    = 'none';
-  }
-
-  /*Re-serve minimised sections minimised on page reload */
-  if (document.getElementById('serveURLDiv').value == 'hidden') {
-    toggleRequestVisibility('arg1');
-  }
-  if (document.getElementById('serveAuthDiv').value == 'hidden') {
-    toggleAuthVisibility('arg1');
-  }
-  if (document.getElementById('serveHeaderDiv').value == 'hidden') {
-    toggleHeaderVisibility('arg1');
-  }
-  if (document.getElementById('servePayloadDiv').value == 'hidden') {
-    toggleDataVisibility('arg1');
-  }
-  if (document.getElementById('serveResultsDiv') && document.getElementById('serveResultsDiv').value == 'hidden') {
-    toggleResultsVisibility('arg1');
   }
 
   /* Change page layout to reflect minimizing/maximising divs */
@@ -550,11 +649,6 @@
     path_box.style.display = (path_box.style.display != 'none' ? 'none' : '');
     req_header.innerHTML   = (path_box.style.display != 'none' ? '[&ndash;] Request' : '[+] Request');
     req_header.className   = (path_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
-
-    /* So we can block this from being executed on page reload, which would undo the minimise */
-    if (arguments.length == 0) {
-      document.getElementById('serveURLDiv').value = (document.getElementById('serveURLDiv').value != 'hidden' ? 'hidden' : 'displayed');
-    }
   }
 
   function toggleAuthVisibility(){
@@ -564,10 +658,6 @@
     auth_box.style.display  = (auth_box.style.display != 'none' ? 'none' : '');
     auth_header.innerHTML   = (auth_box.style.display != 'none' ? '[&ndash;] Authentication' : '[+] Authentication');
     auth_header.className   = (auth_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
-
-    if (arguments.length == 0 ) {
-      document.getElementById('serveAuthDiv').value = (document.getElementById('serveAuthDiv').value != 'hidden' ? 'hidden' : 'displayed');
-    }
   }
 
   function toggleHeaderVisibility(){
@@ -577,10 +667,6 @@
     headers_box.style.display = (headers_box.style.display != 'none' ? 'none' : '');
     head_header.innerHTML     = (headers_box.style.display != 'none' ? '[&ndash;] Headers' : '[+] Headers');
     head_header.className     = (headers_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
-
-    if (arguments.length == 0 ) {
-      document.getElementById('serveHeaderDiv').value = (document.getElementById('serveHeaderDiv').value != 'hidden' ? 'hidden' : 'displayed');
-    }
   }
 
   function toggleDataVisibility(){
@@ -590,10 +676,6 @@
     data_box.style.display  = (data_box.style.display != 'none' ? 'none' : '');
     data_header.innerHTML   = (data_box.style.display != 'none' ? '[&ndash;] Payload' : '[+] Payload');
     data_header.className   = (data_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
-
-    if (arguments.length == 0) {
-      document.getElementById('servePayloadDiv').value = (document.getElementById('servePayloadDiv').value != 'hidden' ? 'hidden' : 'displayed');
-    }
   }
 
   function toggleResultsVisibility() {
@@ -603,49 +685,13 @@
     results_box.style.display = (results_box.style.display != 'none' ? 'none' : '');
     results_header.innerHTML  = (results_box.style.display != 'none' ? '[&ndash;] Results' : '[+] Results');
     results_header.className  = (results_box.style.display != 'none' ? 'shown-box' : 'hidden-box');
-
-    if (arguments.length == 0) {
-      document.getElementById('serveResultsDiv').value = (document.getElementById('serveResultsDiv').value != 'hidden' ? 'hidden' : 'displayed');
-    }
   }
 
 
-  /*clear all form fields. Delete additional header fields*/
-  function clearAllFields() {
-    document.getElementById('requestType').value    = 'GET';
-    document.getElementById('times').value          = '1';
-    document.getElementById('url').value            = '';
-    document.getElementById('usr').value            = '';
-    document.getElementById('pwd').value            = '';
-    document.getElementById('payload').value        = '';
-    document.getElementById('varKey').value         = '';
-    document.getElementById('varValue').value       = '';
-    document.getElementById('payload').style.height = '100px';
-
-    if (document.getElementById('resultsBody')) {
-      document.getElementById('resultsBody').value         = '';
-      document.getElementById('resultsBody').style.height  = '180px';
-    }
-    if (document.getElementById('results-req-head')) {
-      document.getElementById('results-req-head').value         = '';
-      document.getElementById('results-req-head').style.height  = '180px';
-    }
-    if (document.getElementById('results-resp-head')) {
-      document.getElementById('results-resp-head').value         = '';
-      document.getElementById('results-resp-head').style.height  = '180px';
-    }
-    while (headerfieldsAll.firstChild) {
-      headerfieldsAll.removeChild(headerfieldsAll.firstChild);
-    }
-  }
-
-  var clickCount = document.getElementById('headerfieldsAll').children.length - 1;
-  document.getElementById('headerCount').value = clickCount + 1;
-
-  /* Add a new header row to bottom */
+  /* Header functions */
+  /* Append header to bottom */
   function addNewHeader() {
     clickCount += 1;
-    document.getElementById('headerCount').value = clickCount + 1;
 
     var input_container = document.createElement('div');
     var header_key      = document.createElement('input');
@@ -698,7 +744,6 @@
     last_row.parentNode.removeChild(last_row);
   }
 
-  // TODO
   function getHeaderIndexes(){
     var rows    = document.getElementById('headerfieldsAll').children;
     var indexes = [];
@@ -708,15 +753,17 @@
     return indexes;
   }
 
-  function clearAuthCredentials() {
-    document.getElementById('usr').value = '';
-    document.getElementById('pwd').value = '';
-  }
 
+  /* Clear field functions */
   function clearURL(){
     document.getElementById('url').value = '';
     document.getElementById('times').options.selectedIndex        = 0;
     document.getElementById('requestType').options.selectedIndex  = 0;
+  }
+
+  function clearAuthCredentials() {
+    document.getElementById('usr').value = '';
+    document.getElementById('pwd').value = '';
   }
 
   function removeRow(rowNumber) {
@@ -724,7 +771,52 @@
     document.getElementById('headerfieldsAll').removeChild(document.getElementById('headerfields' + rNum));
   }
 
+  function clearFileUpload() {
+    var oldInput        = document.getElementById('datafile');
+    var newInput        = document.createElement('input');
+    newInput.id         = oldInput.id;
+    newInput.type       = oldInput.type;
+    newInput.name       = oldInput.name;
+    newInput.className  = oldInput.className;
+    oldInput.parentNode.replaceChild(newInput, oldInput);
+  }
 
+  function clearVariables() {
+    document.getElementById('varKey').value   = '';
+    document.getElementById('varValue').value = '';
+  }
+
+  /*clear all form fields. Delete additional header fields*/
+  function clearAllFields() {
+    document.getElementById('requestType').value    = 'GET';
+    document.getElementById('times').value          = '1';
+    document.getElementById('url').value            = '';
+    document.getElementById('usr').value            = '';
+    document.getElementById('pwd').value            = '';
+    document.getElementById('payload').value        = '';
+    document.getElementById('varKey').value         = '';
+    document.getElementById('varValue').value       = '';
+    document.getElementById('payload').style.height = '100px';
+
+    if (document.getElementById('resultsBody')) {
+      document.getElementById('resultsBody').value         = '';
+      document.getElementById('resultsBody').style.height  = '180px';
+    }
+    if (document.getElementById('results-req-head')) {
+      document.getElementById('results-req-head').value         = '';
+      document.getElementById('results-req-head').style.height  = '180px';
+    }
+    if (document.getElementById('results-resp-head')) {
+      document.getElementById('results-resp-head').value         = '';
+      document.getElementById('results-resp-head').style.height  = '180px';
+    }
+    while (headerfieldsAll.firstChild) {
+      headerfieldsAll.removeChild(headerfieldsAll.firstChild);
+    }
+  }
+
+
+  /* Page View functions */
   function toggleResponseContent(new_selection){
     /* Clear current filters */
     document.getElementById('response-data-link').style.color   = '#000';
@@ -746,23 +838,6 @@
     }
   }
 
-
-  function clearFileUpload() {
-    var oldInput        = document.getElementById('datafile');
-    var newInput        = document.createElement('input');
-
-    newInput.id         = oldInput.id;
-    newInput.type       = oldInput.type;
-    newInput.name       = oldInput.name;
-    newInput.className  = oldInput.className;
-    oldInput.parentNode.replaceChild(newInput, oldInput);
-  }
-
-  function clearVariables() {
-    document.getElementById('varKey').value   = '';
-    document.getElementById('varValue').value = '';
-  }
-
   function setHeight() {
     var payloadHeight = document.getElementById('payload').style.height;
     document.getElementById('payloadHeight').value = payloadHeight;
@@ -778,6 +853,7 @@
     document.getElementById('responseHeight').value = resHeight;
   }
 
+
   /* Shut down server and then reload page */
   function quit(){
     var url = '/quit';
@@ -787,11 +863,90 @@
     try {
       client.send();
     } catch (e) {
-      console.log('Expected exception... Reloading page');
+      console.log('Catching expected exception. Reloading page now');
     } finally {
       window.location.reload();
     }
   }
+
+
+  /* Warnings */
+  function warn() {
+    // Clear Previous text
+    document.getElementById('warning-text').style.display = 'none';
+    document.getElementById('warning-text').setAttribute('tooltip', '');
+    var current_warning = '';
+    var warning_count   = 0;
+
+    // GET request with body
+    if (document.getElementById('payload').value != '' && document.getElementById('requestType').value == 'GET') {
+      warning_count += 1;
+      document.getElementById('warning-text').style.display = '';
+      document.getElementById('warning-text').setAttribute('tooltip', 'GET request should not contain a payload');
+      current_warning = document.getElementById('warning-text').getAttribute('tooltip');
+    }
+
+    // Empty header key OR value
+    var indexes = getHeaderIndexes();
+    var header_warning = false;
+    indexes.forEach(function(index) {
+      var key_id = document.getElementById('key' + index);
+      var val_id = document.getElementById('value' + index);
+      if ((key_id.value == '' || val_id.value == '') && (key_id.value != val_id.value)) {
+        header_warning = true;
+      }
+    });
+    if (header_warning) {
+      warning_count += 1;
+      document.getElementById('warning-text').style.display = '';
+      document.getElementById('warning-text').setAttribute('tooltip', current_warning + '\nHeaders must contain a key and value');
+      current_warning = document.getElementById('warning-text').getAttribute('tooltip');
+    }
+    document.getElementById('warning-text').innerHTML = '[ ' + warning_count + ' ]';
+  }
+
+
+  /* Event listeners */
+
+  /* Don't allow form to submit */
+  document.getElementById('upload_form').onsubmit = function(event) {
+    event.preventDefault();
+
+    /*var url     = '/upload';
+    var data    = serialize(document.getElementById('upload_form'))
+    var client  = new XMLHttpRequest();
+
+    client.open('POST', url, false);
+
+    client.send(data);*/
+    alert(serialize(document.forms[0]).length);
+
+    //alert(serialize(document.getElementById('upload_form')));
+  }
+
+  /* Save page state on refresh */
+  window.onkeyup = function() {
+    var fielddata = assembleFullPayload()
+    localStorage.fielddata = JSON.stringify(fielddata);
+    warn();
+  }
+  window.onclick = function() {
+    var fielddata = assembleFullPayload()
+    localStorage.fielddata = JSON.stringify(fielddata);
+    warn();
+  }
+  window.onchange = function() {
+    var fielddata = assembleFullPayload()
+    localStorage.fielddata = JSON.stringify(fielddata);
+    warn();
+  }
+
+  /* Reload saved page stat on refresh */
+  window.onload = function() {
+    populateView(JSON.parse(localStorage.fielddata));
+    warn();
+  }
+
 
   /* Block some JS and Form behaviour from occuring */
   function returnFalse(event) {
