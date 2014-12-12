@@ -215,11 +215,12 @@ end
 # Upload file
 # TODO: Maximum file size, cleanup tmp directory, etc
 post '/upload' do
-  unless params['datafile'].nil?
-    File.open('tmp/' + params['datafile'][:filename], 'w') do |f|
-      f.write(params['datafile'][:tempfile].read)
+  unless request.body.nil?
+    File.open('tmp/' + params[:file][:filename], 'w') do |f|
+      f.write(params[:file][:tempfile].read)
     end
   end
+  200
 end
 
 

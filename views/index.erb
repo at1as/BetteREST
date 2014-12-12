@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap-theme.min.css">
   <link rel="stylesheet" href="main.css">
+  <script type="text/javascript" src="http://form-serialize.googlecode.com/svn/trunk/serialize-0.2.min.js"></script>
 </head>
 
 <body role="document">
@@ -906,23 +907,30 @@
   }
 
 
-  /* Event listeners */
-
-  /* Don't allow form to submit */
+  /* Upload form data without form submit */
   document.getElementById('upload_form').onsubmit = function(event) {
     event.preventDefault();
 
-    /*var url     = '/upload';
-    var data    = serialize(document.getElementById('upload_form'))
-    var client  = new XMLHttpRequest();
+    var data_store  = document.getElementById('datafile');
+    var form        = new FormData();
+    form.append('file', data_store.files[0]);
 
-    client.open('POST', url, false);
+    var client = new XMLHttpRequest();
 
-    client.send(data);*/
-    alert(serialize(document.forms[0]).length);
+    client.onreadystatechange = function() {
+      if (client.readyState == 4 && client.status == 200) {
+        modalHideAll();
+      } else if (client.readyState == 4) {
+        console.log('Error uploading file');
+      }
+    }
 
-    //alert(serialize(document.getElementById('upload_form')));
+    client.open('POST', '/upload', true);
+    client.send(form);
   }
+
+
+  /* Event listeners */
 
   /* Save page state on refresh */
   window.onkeyup = function() {
