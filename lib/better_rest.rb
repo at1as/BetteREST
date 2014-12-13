@@ -30,11 +30,8 @@ BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
 get '/?' do
   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
   @times = ["1", "2", "5", "10"]
-  @validHeaderCount = 1
   @header_hash = {"" => ""}
   @follow, @verbose, @ssl, @log_requests = true, true, false, false
-  @payloadHeight = "100px"
-  @resultsHeight = "180px"
   @timeout_interval = 1
 
   erb :index
@@ -106,7 +103,7 @@ post '/request' do
   @response_body['return_msg'] = response.return_code.upcase
   @response_body['return_code'] = response.code
   @response_body['return_time'] = response.time
-  @response_body['return_body'] = response.body
+  @response_body['return_body'] = response.body.force_encoding('UTF-8')
   @response_body['return_headers'] = response.response_headers
 
   @response_body.to_json
@@ -133,6 +130,7 @@ post '/save' do
   File.open("requests/#{collection}.json", "w") do |f|
     f.write(stored_collection.to_json)
   end
+  200
 end
 
 
@@ -167,6 +165,7 @@ get '/savedrequests/:collection/:request' do
   else
     return 404
   end
+  200
 end
 
 
@@ -177,6 +176,7 @@ delete '/collections/:collection' do
   else
     return 404
   end
+  200
 end
 
 
@@ -192,13 +192,15 @@ delete '/collections/:collection/:request' do
   else
     return 404
   end
+  200
 end
 
 
 # Retrieve list of saved logs
 get '/logs' do
   entries = Dir["logs/*.log"]
-  return entries.map{ |k| k[5..-5]}
+  entries = entries.map!{ |k| k[5..-5]}
+  return { :logs => entries }.to_json
 end
 
 
@@ -213,8 +215,9 @@ end
 
 
 # Upload file
-# TODO: Maximum file size, cleanup tmp directory, etc
+# Clear directory writing file
 post '/upload' do
+  FileUtils.rm_rf(Dir.glob('tmp/*'))
   unless request.body.nil?
     File.open('tmp/' + params[:file][:filename], 'w') do |f|
       f.write(params[:file][:tempfile].read)
