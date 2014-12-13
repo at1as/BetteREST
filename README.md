@@ -31,9 +31,8 @@ Requires a ruby installation with the following gems installed:
 ### TODO
 
 * POSTMAN import
-* Add OAuth/OAuth2 support
+* OAuth/OAuth2 support
 * Update current deprecated Basic/Digest Auth method
-* Add download to file
-* Add support for more than one variable
-* Download logs (Front-end)
-* Crashes and burns with UTF-8 URLs
+* Download to file
+* Support more than one variable
+* Delete logs
