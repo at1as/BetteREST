@@ -5,7 +5,6 @@
   <title>BetteR &mdash; REST API Test Client</title>
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="stylesheet" href="bootstrap.min.css">
-  <link rel="stylesheet" href="bootstrap-theme.min.css">
   <link rel="stylesheet" href="main.css">
 </head>
 
@@ -27,11 +26,11 @@
               Settings <span class="caret"></span>
             </a>
           <ul id="dropdown">
-            <li onclick="modalToggle('load-dialog-modal')"><a>Configuration</a></li>
+            <li onclick="modalToggle('config-modal')"><a>Configuration</a></li>
             <li onclick="savedRequestList()"><a>Load Request</a></li>
             <li onclick="modalToggle('variables-modal')"><a>Variables</a></li>
             <li onclick="modalToggle('file-upload-modal')"><a>File Upload</a></li>
-            <!--<li onclick="modalToggle('logs-modal')"><a>Logs</a></li>-->
+            <li onclick="logsList()"><a>Logs</a></li>
             <li onclick="quit()"><a>Quit</a></li>
           </ul>
         </li>
@@ -59,7 +58,7 @@
             <option value="<%= request %>"><%= request %></option>
             <% end %>
           </select>
-          <input type="text" class="form-control form-field-small url-input" name="url" id="url" placeholder=" URL"/>
+          <input type="text" class="form-control form-field-small url-input" name="url" id="url" placeholder=" URL" autocomplete="off">
           <select id="times" name="times" class="form-control form-field-small" style="width:100px; display:inline-block">
             <% @times.each do |number| %>
             <option value="<%= number %>"><%= number %> <% if number == "1" %>time<% else %>times<% end %></option>
@@ -135,10 +134,10 @@
 
 
       <!-- SUBMIT BUTTONS -->
-      <div style="margin-top:5px, padding-top: 3px, padding-bottom: 4px">
-        <input type="button" value="Send" class="submit width25 btn btn-simple" onclick="sendRequest()" style="margin-bottom:10px;"/>
-        <input type="button" value="Save" class="submit width25 btn btn-simple" onclick="modalToggle('save-modal')" style="margin-bottom:10px;"/>
-        <input type="button" value="Clear All" class="submit width25 btn btn-simple" onclick="clearAllFields()" style="margin-bottom:10px;"/>
+      <div>
+        <input type="button" value="Send" class="btn width13 submit" onclick="sendRequest()">
+        <input type="button" value="Save" class="btn width13 submit" onclick="modalToggle('save-modal')">
+        <input type="button" value="Clear All" class="btn width13 submit" onclick="clearAllFields()">
       </div>
 
 
@@ -146,10 +145,10 @@
       <div>
         <h2><div  id="headingResults" style="margin-top:10px" onclick="toggleResultsVisibility()">[&ndash;] Results</div></h2>
         <div class="box" id="results">
-          <div id="response-status">
-            <b>Return Code:</b> <span id="returnCode"></span>
+          <div id="response-status" class="semi-bold">
+            Return Code: <span id="returnCode"></span>
             <br/>
-            <b>Request Time:</b> <span id="requestTime"></span>
+            Request Time: <span id="requestTime"></span>
           </div>
           <hr class="v-marginless">
           <div style="padding: 0px;">
@@ -184,7 +183,7 @@
       <div id="backdrop" style="display:none" onclick="modalHideAll()">
 
         <!-- SETTINGS MODAL-->
-        <div id="load-dialog-modal" class="centered" tabindex="-1" role="dialog" onclick="returnFalse(event)" style="display:none;">
+        <div id="config-modal" class="centered" tabindex="-1" role="dialog" onclick="returnFalse(event)" style="display:none;">
           <div class="modal-content" style="padding-left:15px; padding-right:15px; height:100%">
             <h4 style="text-align:center"><strong>Configuration</strong></h4>
             <hr>
@@ -265,6 +264,18 @@
             <hr>
             <div class="modal-body">
               <div id="reqdata"></div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- LOGS MODAL -->
+        <div id="logs-modal" class="centered" tabindex="-1" role="dialog" style="display:none; z-index:11" onclick="returnFalse(event)">
+          <div class="modal-content" style="padding-left:15px; padding-right:15px;">
+            <h4 style="text-align:center"><strong>Logs</strong></h4>
+            <hr>
+            <div class="modal-body">
+              <div id="logsdata"></div>
             </div>
           </div>
         </div>
@@ -360,6 +371,7 @@
     body.show_head    = document.getElementById('headers').style.display;
     body.show_payload = document.getElementById('data').style.display;
     body.show_results = document.getElementById('results').style.display;
+    body.data_height  = document.getElementById('payload').offsetHeight;
 
     return body;
   }
@@ -387,7 +399,6 @@
       /* Replace values in header */
       var keys = Object.keys(payload.headers);
       for(n=0; n<keys.length; n++) {
-        console.log(payload.headers[keys[n]]);
         payload.headers[keys[n]] = payload.headers[keys[n]].replace('{{' + payload.var_key + '}}', payload.var_val);
       }
 
@@ -425,7 +436,7 @@
   function save() {
     var url             = '/save';
     var payload         = assembleRequestPayload();
-    payload.collection  = document.getElementById('collection_name').value || "Default";
+    payload.collection  = document.getElementById('collection_name').value || 'Default';
     payload.name        = document.getElementById('test_name').value;
     var data            = JSON.stringify(payload);
     var client          = new XMLHttpRequest();
@@ -437,7 +448,7 @@
     if (client.status == 200) {
       modalHideAll();
     } else {
-      console.log("Unknown Error: POST " + url + " failed.");
+      console.log('Unknown Error: POST ' + url + ' failed.');
     }
   }
 
@@ -452,8 +463,8 @@
 
     /* Clear and then populate modal with response */
     modalToggle('load-modal');
-    var data_container = document.getElementById('reqdata');
-    data_container.innerHTML = '';
+    var data_container        = document.getElementById('reqdata');
+    data_container.innerHTML  = '';
 
     if (client.status == 200) {
       var response  = JSON.parse(client.responseText);
@@ -464,7 +475,7 @@
 
         var collection        = document.createElement('div');
         collection.className  = 'collection-header';
-        collection_name       = '<span id="collection_name>">' + keys[i] + '</span>';
+        collection_name       = '<span id="collection_name>" class="load_collection_name">' + keys[i] + '</span>';
         collection.innerHTML  = collection_name + '<span aria-hidden="true" onclick="deleteCollection(this)" class="rm-collection">&times;</span><span class="sr-only">Close</span>';
 
         for(j=0; j < response[keys[i]].length; j++) {
@@ -559,8 +570,6 @@
       var header_fields = document.getElementById('headerfieldsAll').children.length -1;
       var extra_headers = header_keys.length - header_fields;
 
-      console.log(extra_headers)
-
       if (extra_headers > 0) {
         for (m=0; m < extra_headers-1; m++) {
           addNewHeader();
@@ -572,7 +581,6 @@
       }
 
       indexes = getHeaderIndexes();
-      console.log(indexes);
 
       for(n=0; n<indexes.length; n++) {
          document.getElementById('key' + indexes[n]).value   = header_keys[n];
@@ -623,13 +631,48 @@
     var url     = '/collections/' + collection_name + '/' + request_name;
     var client  = new XMLHttpRequest();
 
-    client.open('DELETE', url, false);
+    client.onreadystatechange = function() {
+      if (client.readyState == 4 && client.status == 200) {
+        modalHideAll();
+      } else if (client.readyState == 4) {
+        console.log('Unknown Error: DELETE ' + collection_name + '/' + request_name + ' failed');
+      }
+    }
+
+    client.open('DELETE', url, true);
+    client.send();
+  }
+
+
+  /* Retrieve a list of all log entries */
+  function logsList(){
+    var url     = '/logs';
+    var client  = new XMLHttpRequest();
+
+    client.open('GET', url, false);
     client.send();
 
     if (client.status == 200) {
-      modalHideAll();
+      modalToggle('logs-modal');
+      var log_list = JSON.parse(client.responseText).logs;
+
+      /* Clear prior log entries from modal */
+      var log_container = document.getElementById('logsdata');
+      while (log_container.firstChild) {
+        log_container.removeChild(log_container.firstChild);
+      }
+
+      /* Now populate modal with log entries */
+      for (j=0; j<log_list.length; j++) {
+        var log_item        = document.createElement('a');
+        var item_txt        = document.createTextNode(log_list[j]);
+        log_item.href       = '/logs/' + log_list[j];
+        log_item.className  = 'logNodes';
+        log_item.appendChild(item_txt);
+        document.getElementById('logsdata').appendChild(log_item);
+      }
     } else {
-      console.log('Unknown Error: DELETE ' + collection_name + '/' + request_name + ' failed');
+      console.log('Unknown Error: GET ' + logs + ' failed');
     }
   }
 
@@ -646,11 +689,12 @@
   function modalHideAll() {
     document.getElementById('dropdown').style.display           = '';
     document.getElementById('backdrop').style.display           = 'none';
-    document.getElementById('load-dialog-modal').style.display  = 'none';
+    document.getElementById('config-modal').style.display       = 'none';
     document.getElementById('save-modal').style.display         = 'none';
     document.getElementById('load-modal').style.display         = 'none';
     document.getElementById('file-upload-modal').style.display  = 'none';
     document.getElementById('variables-modal').style.display    = 'none';
+    document.getElementById('logs-modal').style.display         = 'none';
   }
 
   /* Change page layout to reflect minimizing/maximising divs */
@@ -746,7 +790,6 @@
     input_container.appendChild(header_key);
     input_container.appendChild(header_val);
     input_container.appendChild(close_btn);
-    document.getElementById(header_key.id).focus();
   }
 
   /* Remove a header row from the bottom */
@@ -949,7 +992,7 @@
 
         modalHideAll();
       } else if (client.readyState == 4) {
-        console.log('Error uploading file');
+        console.log('Error uploading file ' + filename);
       }
     }
 

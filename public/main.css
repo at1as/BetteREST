@@ -10,6 +10,7 @@ h1 {
 }
 h2 {
   font-size: 15px;
+  margin-top: 18px;
   color: red;
   display: inline-block;
 }
@@ -28,7 +29,7 @@ textarea{
   border-color: transparent;
   background-color: #FDFDFD;
   overflow:hidden;
-  min-height: 100px;
+
   max-width: 100%;
   min-width: 100%;
   box-shadow: 2px 1px 1px #DDDDDD;
@@ -37,6 +38,7 @@ textarea{
 }
 label{
   font-weight:400;
+  font-size: 13px;
 }
 li{
   margin-left:20px;
@@ -96,7 +98,7 @@ ul li:hover ul {
   max-width:700px;
   margin:2px auto 2px auto;
 }
-.width25{
+.width13{
   width:13%;
 }
 .box{
@@ -121,9 +123,16 @@ ul li:hover ul {
   width:100%;
 }
 .submit {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
   margin-top: 8px;
   margin-left: 10px;
   float: right;
+}
+.submit:hover{
+  background-color:#000;
+  color:white;
+  text-shadow: 0 1px 0 #000;
 }
 .checkbox{
   border:none;
@@ -236,14 +245,30 @@ ul li:hover ul {
   line-height:inherit;
   float:right;
   font-weight:700;
+  padding-top:4px;
+  padding-bottom:4px;
 }
 .rm-collection:hover{
   color:red;
 }
+.load_collection_name{
+  display:inline-block;
+  padding-bottom:8px;
+}
 .caution{
   color:yellow;
 }
-
+.semi-bold{
+  font-weight:500;
+}
+.logNodes{
+  display:block;
+  text-align:center;
+  margin-right:auto;
+  margin-left:auto;
+  padding-left:40px;
+  padding-right:40px;
+}
 
 
 /* By ID */
@@ -257,19 +282,6 @@ ul li:hover ul {
 #add:hover{
   color:white;
   text-shadow: 0 1px 0 #000;
-}
-#dialog-modal{
-  visibility: none;
-}
-#dialog-background-blur{
-  background-color: #EEEEEE;
-  opacity: 0.85;
-  position: fixed;
-  left:0;
-  top:0;
-  width:100%;
-  height:100%;
-  z-index: 10;
 }
 #header{
   background-color:black;
@@ -332,6 +344,14 @@ ul li:hover ul {
   width:50px;
   text-align:right;
   box-shadow:none;
+}
+#payload{
+  height:100px;
+}
+#logsdata{
+  max-height:350px;
+  overflow:scroll;
+  padding-bottom:15px;
 }
 
 
