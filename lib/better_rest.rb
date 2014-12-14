@@ -32,7 +32,7 @@ get '/?' do
   @times = ["1", "2", "5", "10"]
   @header_hash = {"" => ""}
   @follow, @verbose, @ssl, @log_requests = true, true, false, false
-  @timeout_interval = 1
+  @timeout_interval = 2
 
   erb :index
 end
@@ -96,14 +96,20 @@ post '/request' do
     end
   end
 
-  # View response parameters
+  # Response parameters return to View
   @response_body = {}
   request.options[:url] = request.url
   @response_body['request_options'] = JSON.pretty_generate(request.options)
-  @response_body['return_msg'] = response.return_code.upcase
+
+  # Return message OK can be confused with 200 OK
+  @response_body['return_msg'] = ''
+  unless response.return_code.upcase.to_s == 'OK'
+    @response_body['return_msg'] = response.return_code.upcase
+  end
+
   @response_body['return_code'] = response.code
   @response_body['return_time'] = response.time
-  @response_body['return_body'] = response.body.force_encoding('UTF-8')
+  @response_body['return_body'] = response.body.force_encoding('ISO-8859-1')
   @response_body['return_headers'] = response.response_headers
 
   @response_body.to_json
@@ -214,16 +220,37 @@ get '/logs/:log' do
 end
 
 
+# Delete log
+delete '/logs/:log' do
+  if File.exists? "logs/#{params[:log]}.log"
+    File.delete("logs/#{params[:log]}.log")
+  else
+    return 404
+  end
+  200
+end
+
+
 # Upload file
-# Clear directory writing file
 post '/upload' do
+
+  # Clear directory before writing file
   FileUtils.rm_rf(Dir.glob('tmp/*'))
+
   unless request.body.nil?
     File.open('tmp/' + params[:file][:filename], 'w') do |f|
       f.write(params[:file][:tempfile].read)
     end
   end
   200
+end
+
+
+# Import from POSTMAN Collection
+post '/import' do
+  FileUtils.rm_rf(Dir.glob('tmp/*'))
+
+  # TODO
 end
 
 
