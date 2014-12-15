@@ -1,5 +1,5 @@
 .DS_Store
-.gem
 requests
 logs
 tmp
+*.gem
