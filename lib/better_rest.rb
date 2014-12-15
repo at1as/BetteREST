@@ -24,6 +24,7 @@ configure do
 end
 
 BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
+API_VERSION = 1.0
 
 
 # Return default values
@@ -248,9 +249,58 @@ end
 
 # Import from POSTMAN Collection
 post '/import' do
+
+  # Clear tmp directory before writing file
   FileUtils.rm_rf(Dir.glob('tmp/*'))
 
-  # TODO
+  # Save File
+  unless request.body.nil?
+    File.open('tmp/postman_import.json', 'w') do |f|
+      f.write(params[:file][:tempfile].read)
+    end
+  end
+
+  # Read File
+  if File.exists? "tmp/postman_import.json"
+    stored_collection = JSON.parse File.read("tmp/postman_import.json") rescue return 500
+
+    # Data dump of multiple collections
+    if stored_collection['collections']
+      stored_collection = stored_collection['collections']
+    # Single collection
+    else
+      stored_collection = [stored_collection]
+    end
+  end
+
+  # Extract File information
+  stored_collection.each do |collection|
+    new_collection = {}
+
+    collection['requests'].each do |request|
+      request_details = {}
+      request_details['name'] = request['name']
+      request_details['collection'] = collection['name']
+      request_details['url'] = request['url']
+      request_details['request'] = request['method']
+      request_details['headers'] = request['headers']
+      request_details['payload'] = request['data']
+      request_details['quantity'] = 1
+
+      new_collection[request['name']] = request_details
+    end
+
+    # Write file
+    begin
+      File.open("requests/#{collection['name']}.json", 'w') do |f|
+        f.write(new_collection.to_json)
+      end
+    rescue
+      return 500
+    end
+  end
+
+  200
 end
 
 
@@ -265,7 +315,8 @@ get '/env' do
   <<-ENDRESPONSE
       Ruby:    #{RUBY_VERSION} <br/>
       Rack:    #{Rack::VERSION} <br/>
-      Sinatra: #{Sinatra::VERSION}
+      Sinatra: #{Sinatra::VERSION} <br/>
+      API:     v#{API_VERSION}
   ENDRESPONSE
 end
 

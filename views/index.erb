@@ -17,7 +17,7 @@
 
         <!-- BRANDING -->
         <li style="float:left">
-          <h1>BetteR &mdash; REST API Test Client</h1>
+          <h1 style="margin-top:16px">BetteR &mdash; REST API Test Client</h1>
         </li>
 
         <!-- DROPDOWN MENU -->
@@ -30,6 +30,7 @@
             <li onclick="savedRequestList()"><a>Load Request</a></li>
             <li onclick="modalToggle('variables-modal')"><a>Variables</a></li>
             <li onclick="modalToggle('file-upload-modal')"><a>File Upload</a></li>
+            <li onclick="modalToggle('import-modal')"><a>Import</a></li>
             <li onclick="logsList()"><a>Logs</a></li>
             <li onclick="quit()"><a>Quit</a></li>
           </ul>
@@ -235,6 +236,23 @@
         </div>
 
 
+        <!-- IMPORT MODAL -->
+        <div id="import-modal" class="centered" tabindex="-1" role="dialog" style="display:none; z-index:11" onclick="returnFalse(event)">
+          <div class="modal-content" style="padding-left:15px; padding-right:15px;">
+            <h4 style="text-align:center"><strong>Import from POSTMAN</strong></h4>
+            <hr>
+            <div class="modal-body">
+              <form id="import_form" method="post" action="/import" enctype="multipart/form-data">
+                <input type="file" id="importfile" name="importfile">
+                <div style="margin-top:25px; margin-bottom:5px; text-align:center">
+                  <input type="submit" id="import_submit" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" value="Import">
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
         <!-- SAVE REQUEST MODAL -->
         <div id="save-modal" class="centered" tabindex="-1" role="dialog" style="display:none; z-index:11" onclick="returnFalse(event)">
           <div class="modal-content" style="padding-left:15px; padding-right:15px;">
@@ -376,15 +394,6 @@
     return body;
   }
 
-  // TODO
-  /* Upload file for request */
-  function uploadFile() {
-    var vFD = new FormData(document.getElementById('datavalue'));
-
-    var client = new XMLHttpRequest();
-    client.open('POST', 'upload');
-    client.send(vFD);
-  }
 
   /* Prepare and then send the request */
   function sendRequest() {
@@ -510,6 +519,7 @@
 
     if (client.status == 200) {
       modalToggle('load-modal');
+      clearFile();
       populateView(JSON.parse(client.responseText));
     } else {
       console.log('Unknown Error: GET ' + url + ' failed');
@@ -645,6 +655,7 @@
 
 
   /* Retrieve a list of all log entries */
+  /* TODO: Add Log Deletion */
   function logsList(){
     var url     = '/logs';
     var client  = new XMLHttpRequest();
@@ -666,9 +677,14 @@
       for (j=0; j<log_list.length; j++) {
         var log_item        = document.createElement('a');
         var item_txt        = document.createTextNode(log_list[j]);
+        //var close           = document.createElement('span');
+        //var entry_container = document.createElement('div');
+
         log_item.href       = '/logs/' + log_list[j];
         log_item.className  = 'logNodes';
         log_item.appendChild(item_txt);
+        //close.innerHTML   = 'x';
+        //close.setAttribute('onclick', deleteLog(log_list[j]));
         document.getElementById('logsdata').appendChild(log_item);
       }
     } else {
@@ -693,6 +709,7 @@
     document.getElementById('save-modal').style.display         = 'none';
     document.getElementById('load-modal').style.display         = 'none';
     document.getElementById('file-upload-modal').style.display  = 'none';
+    document.getElementById('import-modal').style.display       = 'none';
     document.getElementById('variables-modal').style.display    = 'none';
     document.getElementById('logs-modal').style.display         = 'none';
   }
@@ -849,8 +866,6 @@
     document.getElementById('usr').value            = '';
     document.getElementById('pwd').value            = '';
     document.getElementById('payload').value        = '';
-    document.getElementById('varKey').value         = '';
-    document.getElementById('varValue').value       = '';
     document.getElementById('payload').style.height = '100px';
 
     if (document.getElementById('resultsBody')) {
@@ -868,6 +883,8 @@
     while (headerfieldsAll.firstChild) {
       headerfieldsAll.removeChild(headerfieldsAll.firstChild);
     }
+    document.getElementById('requestTime').innerHTML  = '';
+    document.getElementById('returnCode').innerHTML   = '';
     clearFile();
   }
 
@@ -892,21 +909,6 @@
     } else if (new_selection.id == 'request-header-link') {
       document.getElementById('results-resp-head').style.display  = '';
     }
-  }
-
-  function setHeight() {
-    var payloadHeight = document.getElementById('payload').style.height;
-    document.getElementById('payloadHeight').value = payloadHeight;
-    if (document.getElementById('resultsBody').style.display != 'none'){
-      var resHeight = document.getElementById('resultsBody').style.height;
-    }
-    if (document.getElementById('results-req-head').style.display != 'none') {
-      var resHeight = document.getElementById('results-req-head').style.height;
-    }
-    if (document.getElementById('results-resp-head').style.display != 'none') {
-      var resHeight = document.getElementById('results-req-head').style.height;
-    }
-    document.getElementById('responseHeight').value = resHeight;
   }
 
 
@@ -969,7 +971,30 @@
   }
 
 
-  /* Upload form data without form submit */
+  /* Import from POSTMAN */
+  document.getElementById('import_form').onsubmit = function(event) {
+    event.preventDefault();
+
+    var data_store  = document.getElementById('importfile');
+    var form        = new FormData();
+    form.append('file', data_store.files[0]);
+
+    var client = new XMLHttpRequest();
+
+    client.onreadystatechange = function() {
+      if (client.readyState == 4 && client.status == 200) {
+        modalHideAll();
+      } else if (client.readyState == 4) {
+        console.log('Error importing POSTMAN file');
+      }
+    }
+
+    client.open('POST', '/import', true);
+    client.send(form);
+  }
+
+
+  /* Upload file */
   document.getElementById('upload_form').onsubmit = function(event) {
     event.preventDefault();
 
@@ -981,13 +1006,11 @@
 
     client.onreadystatechange = function() {
       if (client.readyState == 4 && client.status == 200) {
-        var height    = document.getElementById('payload').offsetHeight;
         var filename  = document.getElementById('datafile').files[0].name;
 
         document.getElementById('payload').style.display    = 'none';
         document.getElementById('filename').style.display   = '';
         document.getElementById('clear-file').style.display = '';
-        document.getElementById('filename').height          = height;
         document.getElementById('filename').innerHTML       = filename;
 
         modalHideAll();
