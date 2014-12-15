@@ -10,7 +10,7 @@ h1 {
 }
 h2 {
   font-size: 15px;
-  margin-top: 18px;
+  margin-top: 16px;
   color: red;
   display: inline-block;
 }
@@ -96,7 +96,6 @@ ul li:hover ul {
 /* Classes */
 .container{
   max-width:700px;
-  margin:2px auto 2px auto;
 }
 .width13{
   width:13%;
@@ -269,6 +268,9 @@ ul li:hover ul {
   padding-left:40px;
   padding-right:40px;
 }
+.navbar-nav>li>a {
+  line-height:1.2;
+}
 
 
 /* By ID */
@@ -288,6 +290,11 @@ ul li:hover ul {
   color:white;
 }
 #datafile{
+  width:100%;
+  border:none;
+  box-shadow:none;
+}
+#importfile{
   width:100%;
   border:none;
   box-shadow:none;
