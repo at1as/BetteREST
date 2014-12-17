@@ -17,6 +17,9 @@ h2 {
 h2:hover{
   color:black;
 }
+hr{
+  margin-bottom:10px;
+}
 input{
   border-radius: 2px;
   background-color:#FEFEFE;
@@ -239,6 +242,7 @@ ul li:hover ul {
     width: -moz-calc(100% - 40px);
     width: -webkit-calc(100% - 40px);
     width: calc(100% - 40px);
+    overflow: hidden;
 }
 .rm-collection{
   line-height:inherit;
@@ -311,14 +315,13 @@ ul li:hover ul {
 #auth-span{
   display:inline-block;
   white-space:nowrap;
-  margin-top:4px;
   margin-bottom:4px;
   margin-left:15px;
 }
 #response-status{
   margin-left:15px;
   margin-top: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 #response-filters{
   margin-left:0px;
@@ -327,7 +330,7 @@ ul li:hover ul {
   margin-top:4px;
 }
 #reqdata{
-  width:250px;
+  width:400px;
   max-height:300px;
   overflow:scroll;
 }
@@ -359,6 +362,9 @@ ul li:hover ul {
   max-height:350px;
   overflow:scroll;
   padding-bottom:15px;
+}
+#logs-modal{
+  width:400px;
 }
 
 
