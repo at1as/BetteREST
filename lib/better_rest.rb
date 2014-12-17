@@ -28,6 +28,18 @@ helpers do
     JSON.parse(cookies).map { |key, value| "#{key}=#{value}" }.join('; ')
   end
 
+  def parse_postman_headers(headers)
+    header_hash = {}
+    header_list = headers.strip.split(': ')
+    keys = header_list.select.each_with_index { |str, i| i.even? }
+    values = header_list.select.each_with_index { |str, i| i.odd? }
+
+    keys.each_with_index do |key, index|
+      header_hash[key] = values[index]
+    end
+    header_hash
+  end
+
 end
 
 configure do
@@ -141,7 +153,14 @@ post '/request' do
 
   @response_body['return_code'] = response.code
   @response_body['return_time'] = response.time
-  @response_body['return_body'] = response.body.force_encoding('ISO-8859-1')
+
+  # Return body with correct encoding
+  if response.headers_hash['Content-Type'] == "application/json"
+    @response_body['return_body'] = JSON.pretty_generate(JSON.parse(response.body)).force_encoding('ISO-8859-1')
+  else
+    @response_body['return_body'] = response.body.force_encoding('ISO-8859-1')
+  end
+
   @response_body['return_headers'] = response.response_headers
 
   @response_body.to_json
@@ -323,7 +342,7 @@ post '/import' do
       request_details['collection'] = collection['name']
       request_details['url'] = request['url']
       request_details['request'] = request['method']
-      request_details['headers'] = request['headers']
+      request_details['headers'] = parse_postman_headers(request['headers'])
       request_details['payload'] = request['data']
       request_details['quantity'] = 1
 

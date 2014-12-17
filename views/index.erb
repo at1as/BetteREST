@@ -527,6 +527,7 @@
       modalHideAll();
       clearFile();
       populateView(JSON.parse(client.responseText));
+      warn();
     } else {
       console.log('Unknown Error: GET ' + url + ' failed');
     }
