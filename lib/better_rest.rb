@@ -14,6 +14,20 @@ set :views, File.expand_path('../../views', __FILE__)
 helpers do
   include Rack::Utils
   alias_method :h, :escape_html
+
+  def parse_cookies(cookies)
+    cookie_hash = {}
+    cookies.each do |c|
+      key, value = c.split('; ').first.split('=', 2)
+      cookie_hash[key] = value
+    end
+    cookie_hash.to_json
+  end
+
+  def stringify_cookies(cookies)
+    JSON.parse(cookies).map { |key, value| "#{key}=#{value}" }.join('; ')
+  end
+
 end
 
 configure do
@@ -32,7 +46,8 @@ get '/?' do
   @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
   @times = ["1", "2", "5", "10"]
   @header_hash = {"" => ""}
-  @follow, @verbose, @ssl, @log_requests = true, true, false, false
+  @follow, @cookies, @verbose = [true] * 3
+  @ssl, @log_requests = [false] * 2
   @timeout_interval = 2
 
   erb :index
@@ -53,6 +68,7 @@ post '/request' do
   @verbose = @request_body['verbose'] rescue false
   @ssl = @request_body['ssl_ver'] rescue false
   @log_requests = @request_body['logging'] rescue false
+  @cookies = @request_body['cookies'] rescue true
   @timeout_interval = Integer(@request_body['timeout']) rescue 1
   @request_body['headers']['User-Agent'] = BETTER_SIGNATURE unless @request_body['headers']['User-Agent']
 
@@ -77,6 +93,15 @@ post '/request' do
     request.options[:body] = { file: File.open('tmp/' + @request_body['file'], 'r') }
   end
 
+  # Attach cookie to header
+  if @cookies && @request_body['headers']['Cookie'].nil?
+    if File.exists? "cookiejar"
+      cookie = File.read("cookiejar")
+    end
+    request.options[:headers]['Cookie'] = stringify_cookies(cookie) unless cookie.empty?
+  end
+
+
   # Remove unused fields from request
   request.options.delete(:body) if request.options[:body].empty?
   if @request_body['user'].empty? || @request_body['password'].empty?
@@ -95,6 +120,12 @@ post '/request' do
     File.open('logs/' + Time.now.strftime('%Y-%m-%d') + '.log', 'a') do |file|
       file.write('-' * 10 + ?\n + Time.now.to_s + request.inspect + "\n\n")
     end
+  end
+
+  # Write cookie to file
+  if response.headers_hash['set-cookie']
+    cookies = parse_cookies(response.headers_hash['set-cookie'])
+    File.open('cookiejar', 'w') { |file| file.write(cookies) }
   end
 
   # Response parameters return to View
@@ -168,6 +199,7 @@ get '/savedrequests/:collection/:request' do
   if File.exists? "requests/#{params[:collection]}.json"
     collection = JSON.parse File.read("requests/#{params[:collection]}.json")
     request = collection[params[:request]]
+
     return request.to_json
   else
     return 404
@@ -178,8 +210,10 @@ end
 
 # Delete Request Collection
 delete '/collections/:collection' do
-  if File.exists? "requests/#{params[:collection]}.json"
-    File.delete("requests/#{params[:collection]}.json")
+  collection = "requests/#{params[:collection]}.json"
+
+  if File.exists? collection
+    File.delete(collection)
   else
     return 404
   end
@@ -189,11 +223,13 @@ end
 
 # Delete Request from Collection
 delete '/collections/:collection/:request' do
-  if File.exists? "requests/#{params[:collection]}.json"
-    stored_collection = JSON.parse File.read("requests/#{params[:collection]}.json")
+  collection = "requests/#{params[:collection]}.json"
+
+  if File.exists? collection
+    stored_collection = JSON.parse File.read(collection)
     stored_collection.delete(params[:request])
 
-    File.open("requests/#{params[:collection]}.json", "w") do |f|
+    File.open(collection, "w") do |f|
       f.write(stored_collection.to_json)
     end
   else
@@ -223,8 +259,10 @@ end
 
 # Delete log
 delete '/logs/:log' do
-  if File.exists? "logs/#{params[:log]}.log"
-    File.delete("logs/#{params[:log]}.log")
+  log = "logs/#{params[:log]}.log"
+
+  if File.exists? log
+    File.delete(log)
   else
     return 404
   end
@@ -250,19 +288,21 @@ end
 # Import from POSTMAN Collection
 post '/import' do
 
+  file = 'tmp/postman_import.json'
+
   # Clear tmp directory before writing file
   FileUtils.rm_rf(Dir.glob('tmp/*'))
 
   # Save File
   unless request.body.nil?
-    File.open('tmp/postman_import.json', 'w') do |f|
+    File.open(file, 'w') do |f|
       f.write(params[:file][:tempfile].read)
     end
   end
 
   # Read File
-  if File.exists? "tmp/postman_import.json"
-    stored_collection = JSON.parse File.read("tmp/postman_import.json") rescue return 500
+  if File.exists? file
+    stored_collection = JSON.parse File.read(file) rescue return 500
 
     # Data dump of multiple collections
     if stored_collection['collections']

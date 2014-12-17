@@ -2,4 +2,5 @@
 requests
 logs
 tmp
+cookiejar
 *.gem

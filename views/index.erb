@@ -195,6 +195,11 @@
                 <% if @follow %>checked<% end %>>
               </div>
               <div>
+                <label class="form-label conf-label" for="cookies">Send Cookies</label>
+                <input type="checkbox" name="cookies" id="cookies" class="checkbox" style="float:right"
+                <% if @cookies %>checked<% end %>>
+              </div>
+              <div>
                 <label class="form-label conf-label" for="verbose">Verbose Response</label>
                 <input type="checkbox" name="verbose" id="verbose" class="checkbox" style="float:right"
                 <% if @verbose %>checked<% end %>>
@@ -371,6 +376,7 @@
 
     /* SETTINGS */
     body.redirect = document.getElementById('followlocation').checked;
+    body.cookies  = document.getElementById('cookies').checked;
     body.verbose  = document.getElementById('verbose').checked;
     body.ssl_ver  = document.getElementById('ssl_verifypeer').checked;
     body.logging  = document.getElementById('logging').checked;
@@ -518,7 +524,7 @@
     client.send();
 
     if (client.status == 200) {
-      modalToggle('load-modal');
+      modalHideAll();
       clearFile();
       populateView(JSON.parse(client.responseText));
     } else {
@@ -564,6 +570,9 @@
     }
     if (fielddata.redirect) {
       document.getElementById('followlocation').value = fielddata.redirect;
+    }
+    if (fielddata.cookies) {
+      document.getElementById('cookies').value = fielddata.cookies;
     }
     if (fielddata.verbose) {
       document.getElementById('verbose').value = fielddata.verbose;
