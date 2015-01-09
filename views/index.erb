@@ -105,9 +105,9 @@
         <div class="box" id="headers">
           <div id="headerfieldsAll">
             <% @header_hash.each_with_index do |(key, value), index| %>
-            <div id="headerfields<%= index %>" style="margin-bottom:2px;" >
-              <input type="text" value="<%=key%>" name="key<%=index%>" id="key<%=index%>" placeholder=" Name" class="key form-control head-input" />
-              <input type="text" value="<%=value%>" name="value<%=index%>" id="value<%=index%>" placeholder=" Value" class="value form-control head-input" />
+            <div id="headerfields<%= index %>" class="headerContainer" >
+              <input type="text" value="<%=key%>" name="key" id="key<%=index%>" placeholder=" Name" class="key form-control head-input" autocomplete="off"/>
+              <input type="text" value="<%=value%>" name="value" id="value<%=index%>" placeholder=" Value" class="value form-control head-input" autocomplete="off"/>
 
               <button id="close<%= index %>" tabindex="-1" type="button" class="close" onclick="removeRow(this)">
                 <span style="line-height:inherit" aria-hidden="true">&times;</span>
@@ -299,6 +299,9 @@
             <hr>
             <div class="modal-body">
               <div id="logsdata"></div>
+              <div id="clearAllLogs">
+                <div class="btn btn-simple" style="width:200px" onclick="deleteAllLogs()">Delete All</div>
+              </div>
             </div>
           </div>
         </div>
@@ -664,8 +667,28 @@
   }
 
 
+  /* delete log from list */
+  function deleteLog(button_id){
+    var log_name = button_id.getAttribute('name');
+
+    var url     = '/logs/' + log_name;
+    var client  = new XMLHttpRequest();
+
+    client.onreadystatechange = function() {
+      if (client.readyState == 4 && client.status == 200) {
+        modalHideAll();
+        logsList();
+      } else if (client.readyState == 4) {
+        console.log('Unknown Error: DELETE ' + log_name + ' failed');
+      }
+    }
+
+    client.open('DELETE', url, true);
+    client.send();
+  }
+
+
   /* Retrieve a list of all log entries */
-  /* TODO: Add Log Deletion */
   function logsList(){
     var url     = '/logs';
     var client  = new XMLHttpRequest();
@@ -687,15 +710,21 @@
       for (j=0; j<log_list.length; j++) {
         var log_item        = document.createElement('a');
         var item_txt        = document.createTextNode(log_list[j]);
-        //var close           = document.createElement('span');
-        //var entry_container = document.createElement('div');
+        var close           = document.createElement('span');
+        var entry_container = document.createElement('div');
 
         log_item.href       = '/logs/' + log_list[j];
         log_item.className  = 'logNodes';
         log_item.appendChild(item_txt);
-        //close.innerHTML   = 'x';
-        //close.setAttribute('onclick', deleteLog(log_list[j]));
-        document.getElementById('logsdata').appendChild(log_item);
+        close.innerHTML     = 'x';
+        close.className     = 'float-red';
+        close.setAttribute('onclick', 'deleteLog(this)');
+        close.setAttribute('name', log_list[j]);
+
+        entry_container.className = 'logEntry';
+        entry_container.appendChild(log_item);
+        entry_container.appendChild(close);
+        document.getElementById('logsdata').appendChild(entry_container);
       }
     } else {
       console.log('Unknown Error: GET ' + logs + ' failed');
@@ -781,12 +810,12 @@
     var header_val      = document.createElement('input');
     var close_btn       = document.createElement('button');
 
-    input_container.type    = 'div';
-    input_container.style   = 'margin-bottom:2px;';
-    input_container.id      = 'headerfields' + clickCount;
+    input_container.type      = 'div';
+    input_container.id        = 'headerfields' + clickCount;
+    input_container.className = 'headerContainer';
 
     header_key.type         = 'text';
-    header_key.name         = 'key' + clickCount;
+    header_key.name         = 'key';
     header_key.id           = 'key' + clickCount;
     header_key.className    = 'key form-control head-input';
     header_key.placeholder  = ' Name';
@@ -795,10 +824,10 @@
     header_key.value        = header_key.value.replace('key', 'key' + clickCount);
 
     /* Not sure why this is necessary. But it is */
-    header_key.style        = 'margin-right:9px';
+    //header_key.style        = 'margin-right:9px';
 
     header_val.type         = 'text';
-    header_val.name         = 'value' + clickCount;
+    header_val.name         = 'value';
     header_val.id           = 'value' + clickCount;
     header_val.className    = 'value form-control head-input';
     header_val.placeholder  = ' Value';
