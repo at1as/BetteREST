@@ -8,8 +8,16 @@ require 'sinatra'
 require 'typhoeus'
 require 'json'
 
+set :environment, :development
 set :public_dir, File.expand_path('../../public', __FILE__)
 set :views, File.expand_path('../../views', __FILE__)
+set :bind, '0.0.0.0'
+
+configure :development do
+  enable :logging, :dump_errors, :raise_errors
+end
+set :show_exceptions, true if development?
+
 
 helpers do
   include Rack::Utils
@@ -17,9 +25,12 @@ helpers do
 
   def parse_cookies(cookies)
     cookie_hash = {}
-    cookies.each do |c|
-      key, value = c.split('; ').first.split('=', 2)
-      cookie_hash[key] = value
+    cookies_list = [*cookies]
+    cookies_list.each do |cookie|
+      cookie.split('; ').each do |c|
+	key, value = c.split('=', 2)
+	cookie_hash[key] = value
+      end
     end
     cookie_hash.to_json
   end
@@ -375,7 +386,8 @@ get '/env' do
       Ruby:    #{RUBY_VERSION} <br/>
       Rack:    #{Rack::VERSION} <br/>
       Sinatra: #{Sinatra::VERSION} <br/>
-      API:     v#{API_VERSION}
+      API:     v#{API_VERSION} <br/>
+      Env:     #{settings.environment}
   ENDRESPONSE
 end
 
