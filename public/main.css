@@ -98,7 +98,7 @@ ul li:hover ul {
 
 /* Classes */
 .container{
-  max-width:700px;
+  max-width:720px;
 }
 .width13{
   width:13%;
@@ -264,18 +264,30 @@ ul li:hover ul {
 .semi-bold{
   font-weight:500;
 }
+.logEntry{
+  text-align:center;
+  padding-top:4px;
+  padding-bottom:4px;
+}
 .logNodes{
-  display:block;
+  display:inline-block;
   text-align:center;
   margin-right:auto;
   margin-left:auto;
-  padding-left:40px;
   padding-right:40px;
 }
 .navbar-nav>li>a {
   line-height:1.2;
 }
-
+.headerContainer{
+  margin-bottom:2px;
+}
+.float-red:hover{
+  color:red;
+}
+.form-control{
+  height: 32px;
+}
 
 /* By ID */
 #add{
@@ -365,6 +377,13 @@ ul li:hover ul {
 }
 #logs-modal{
   width:400px;
+}
+#clearAllLogs{
+  margin-left:auto;
+  margin-right:auto;
+  margin-top:15px;
+  width:100%;
+  text-align:center;
 }
 
 

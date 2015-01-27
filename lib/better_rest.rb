@@ -146,7 +146,7 @@ post '/request' do
   end
 
   # Write cookie to file
-  if response.headers_hash['set-cookie']
+  if @cookies && response.headers_hash['set-cookie']
     cookies = parse_cookies(response.headers_hash['set-cookie'])
     File.open('cookiejar', 'w') { |file| file.write(cookies) }
   end
@@ -172,7 +172,7 @@ post '/request' do
     @response_body['return_body'] = response.body.force_encoding('ISO-8859-1')
   end
 
-  @response_body['return_headers'] = response.response_headers
+  @response_body['return_headers'] = response.response_headers.force_encoding('ISO-8859-1')
 
   @response_body.to_json
 end
@@ -287,7 +287,18 @@ get '/logs/:log' do
 end
 
 
-# Delete log
+# Delete logs
+delete '/logs' do
+  logs = Dir["logs/*.log"]
+
+  logs.each do |log|
+    File.delete(log)
+  end
+  200
+end
+
+
+# Delete log entry
 delete '/logs/:log' do
   log = "logs/#{params[:log]}.log"
 
