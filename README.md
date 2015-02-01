@@ -25,7 +25,7 @@ Or download the repository here for the latest version and launch via:
 ```bash
 $ ./bin/better_rest
 ```
-To try BetteR, without installing the Gem, it's also hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku, the build is likely to be from a much older commit.
+To try BetteR, without installing the Gem, it's also hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku internally hosted APIs can't be tested.
 
 ### Dependencies
 
