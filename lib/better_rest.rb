@@ -121,7 +121,7 @@ post '/request' do
     if File.exists? "cookiejar"
       cookie = File.read("cookiejar")
     end
-    request.options[:headers]['Cookie'] = stringify_cookies(cookie) unless cookie.empty?
+    request.options[:headers]['Cookie'] = stringify_cookies(cookie) unless cookie.nil? || cookie.empty?
   end
 
 
