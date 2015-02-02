@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = "better_rest"
-  s.version       = "0.2.3"
+  s.version       = "0.2.4"
   s.licenses	    = ['MIT']
   s.summary       = "REST Test Client"
   s.date          = "2015-02-01"
