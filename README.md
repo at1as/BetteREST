@@ -14,22 +14,26 @@ BetteR emphasises both a clean and easy to use interface, as well as allowing us
 * Save and load Requests
 * Attach files to requests
 * Send parallel requests
+* Use in your preferred browser
+* Save session cookies
 
 ### Usage
 
-The easiest way to use BetteR is to install it using the [Ruby Gem](http://rubygems.org/gems/better_rest) (note that I usually keep the gem several commits behind the github repo):
+The easiest way to use BetteR is to install it using the [Ruby Gem](http://rubygems.org/gems/better_rest) (note that the gem is usually a few commits behind the github repo):
 ```bash
 $ gem install better_rest
 ```
-Or download the repository here for the latest version and launch via:
+Or download the repository here for the latest version. Assign appropriate execute permissions, open port 5678 (on remote instances) and launch via:
 ```bash
+$ git clone https://github.com/at1as/BetteR.git
 $ ./bin/better_rest
+$ Navigate browser to 0.0.0.0:5678 (local) or X.X.X.X:5678 (remote server)
 ```
 To try BetteR, without installing the Gem, it's also hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku internally hosted APIs can't be tested.
 
 ### Dependencies
 
-See Gemfile for dependencies
+See Gemfile for a list of dependencies
 
 ### TODO
 
@@ -37,4 +41,4 @@ See Gemfile for dependencies
 * Update current deprecated Basic/Digest Auth method
 * Download to file
 * Support more than one variable
-* Delete logs (front-end)
+* Support for multiple concurrent sessions
