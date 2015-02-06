@@ -28,15 +28,17 @@ helpers do
     cookies_list = [*cookies]
     cookies_list.each do |cookie|
       cookie.split('; ').each do |c|
-	key, value = c.split('=', 2)
-	cookie_hash[key] = value
+        key, value = c.split('=', 2)
+        cookie_hash[key] = value
       end
     end
     cookie_hash.to_json
   end
 
   def stringify_cookies(cookies)
-    JSON.parse(cookies).map { |key, value| "#{key}=#{value}" }.join('; ')
+    JSON.parse(cookies).map { |key, value| 
+      if value then "#{key}=#{value}" else "#{key}" end
+    }.join('; ')
   end
 
   def parse_postman_headers(headers)
