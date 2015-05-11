@@ -572,20 +572,20 @@
     if (fielddata.timeout) {
       document.getElementById('timeoutInterval').value = fielddata.timeout;
     }
-    if (fielddata.redirect) {
-      document.getElementById('followlocation').value = fielddata.redirect;
+    if (fielddata.hasOwnProperty('redirect')) {
+      document.getElementById('followlocation').checked = fielddata.redirect;
     }
-    if (fielddata.cookies) {
-      document.getElementById('cookies').value = fielddata.cookies;
+    if (fielddata.hasOwnProperty('cookies')) {
+      document.getElementById('cookies').checked = fielddata.cookies;
     }
-    if (fielddata.verbose) {
-      document.getElementById('verbose').value = fielddata.verbose;
+    if (fielddata.hasOwnProperty('verbose')) {
+      document.getElementById('verbose').checked = fielddata.verbose;
     }
-    if (fielddata.ssl_ver) {
-      document.getElementById('ssl_verifypeer').value = fielddata.ssl_ver;
+    if (fielddata.hasOwnProperty('ssl_ver')) {
+      document.getElementById('ssl_verifypeer').checked = fielddata.ssl_ver;
     }
-    if (fielddata.logging) {
-      document.getElementById('logging').value = fielddata.logging;
+    if (fielddata.hasOwnProperty('logging')) {
+      document.getElementById('logging').checked = fielddata.logging;
     }
 
     if (fielddata.headers) {
@@ -975,19 +975,31 @@
     var current_warning = '';
     var warning_count   = 0;
 
-    // GET request with body
-    if (document.getElementById('requestType').value == 'GET') {
+    // Wrong type of request with body
+    var bodyless_requests = ["GET", "DELETE", "HEAD", "PATCH", "OPTIONS"];
+    var current_request   = document.getElementById('requestType').value;
+    if (bodyless_requests.indexOf(current_request) >= 0) {
       if (document.getElementById('payload').value != '' && document.getElementById('payload').style.display != 'none') {
         warning_count += 1;
         document.getElementById('warning-text').style.display = '';
-        document.getElementById('warning-text').setAttribute('tooltip', 'GET request should not contain a payload');
+        document.getElementById('warning-text').setAttribute('tooltip', current_request + ' request should not contain a payload');
         current_warning = document.getElementById('warning-text').getAttribute('tooltip');
       } else if (document.getElementById('filename').style.display != 'none') {
         warning_count += 1;
         document.getElementById('warning-text').style.display = '';
-        document.getElementById('warning-text').setAttribute('tooltip', 'GET request should not contain a data payload');
+        document.getElementById('warning-text').setAttribute('tooltip', current_request + ' request should not contain a data payload');
         current_warning = document.getElementById('warning-text').getAttribute('tooltip');
       }
+    }
+
+    // Empty username OR password
+    var username_entered = document.getElementById('usr').value != '';
+    var password_entered = document.getElementById('pwd').value != '';
+    if ((username_entered && !password_entered) || (!username_entered && password_entered)) {
+      warning_count += 1;
+      document.getElementById('warning-text').style.display = '';
+      document.getElementById('warning-text').setAttribute('tooltip', current_warning + '\nAuthentication must provide username and password');
+      current_warning = document.getElementById('warning-text').getAttribute('tooltip');
     }
 
     // Empty header key OR value
@@ -1006,6 +1018,7 @@
       document.getElementById('warning-text').setAttribute('tooltip', current_warning + '\nHeaders must contain a key and value');
       current_warning = document.getElementById('warning-text').getAttribute('tooltip');
     }
+    
     document.getElementById('warning-text').innerHTML = '[ ' + warning_count + ' ]';
   }
 

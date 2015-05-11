@@ -27,9 +27,9 @@ Or download the repository here for the latest version. Assign appropriate execu
 ```bash
 $ git clone https://github.com/at1as/BetteR.git
 $ ./bin/better_rest
-$ Navigate browser to 0.0.0.0:5678 (local) or X.X.X.X:5678 (remote server)
+$ Navigate browser to http://0.0.0.0:5678 (local) or http://X.X.X.X:5678 (remote server)
 ```
-To try BetteR, without installing the Gem, it's also hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku internally hosted APIs can't be tested.
+To try BetteR, without installing the Gem, it's also hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku internally hosted APIs can't be tested and that it's not currently session based, so multiple concurrent users may result in unexpected behaviour.
 
 ### Dependencies
 
