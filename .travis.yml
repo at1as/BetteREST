@@ -4,4 +4,4 @@ rvm:
   - 2.0.0
   - 2.1.0
   - 2.2.0
-script: xvfb-run rake
+script: bundle exec xvfb-run rake
