@@ -1,7 +1,4 @@
 source 'https://rubygems.org'
 
-gem 'sinatra'
-gem 'typhoeus'
-gem 'vegas'
-gem 'json'
-gem 'rake'
+# Specify your gem's dependencies in better_rest.gemspec
+gemspec

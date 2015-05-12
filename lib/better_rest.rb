@@ -62,17 +62,21 @@ configure do
   end
 end
 
+ALLOWED_METHODS = %w(GET POST DELETE)
 BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
 API_VERSION = 1.0
 
 
 # Return default values
 get '/?' do
-  @requests = ["GET","POST","PUT","DELETE","HEAD","OPTIONS","PATCH"]
-  @times = ["1", "2", "5", "10"]
+  @requests = %w(GET POST PUT DELETE HEAD OPTIONS PATCH)
+  @times = %w(1 2 5 10)
   @header_hash = {"" => ""}
-  @follow, @cookies, @verbose = [true] * 3
-  @ssl, @log_requests = [false] * 2
+  @follow = true
+  @cookies = true
+  @verbose = true
+  @ssl = false
+  @log_requests = false
   @timeout_interval = 2
 
   erb :index
@@ -200,7 +204,6 @@ post '/save' do
   File.open("requests/#{collection}.json", "w") do |f|
     f.write(stored_collection.to_json)
   end
-  200
 end
 
 
@@ -221,7 +224,7 @@ get '/savedrequests' do
   if collections.length > 0
     return collection_map.to_json
   else
-    return 404
+    return {}.to_json 
   end
 end
 
@@ -236,7 +239,6 @@ get '/savedrequests/:collection/:request' do
   else
     return 404
   end
-  200
 end
 
 
@@ -249,7 +251,6 @@ delete '/collections/:collection' do
   else
     return 404
   end
-  200
 end
 
 
@@ -267,7 +268,6 @@ delete '/collections/:collection/:request' do
   else
     return 404
   end
-  200
 end
 
 
@@ -284,7 +284,7 @@ get '/logs/:log' do
   begin
     send_file "logs/#{params[:log]}.log"
   rescue
-    return 404
+    404
   end
 end
 
@@ -296,20 +296,19 @@ delete '/logs' do
   logs.each do |log|
     File.delete(log)
   end
-  200
 end
 
 
 # Delete log entry
 delete '/logs/:log' do
-  log = "logs/#{params[:log]}.log"
-
+  log = "logs/#{params[:log]}.log" #.gsub(/ /, '\ ')
+  
   if File.exists? log
     File.delete(log)
+    200
   else
-    return 404
+    404
   end
-  200
 end
 
 
@@ -324,13 +323,15 @@ post '/upload' do
       f.write(params[:file][:tempfile].read)
     end
   end
-  200
 end
 
 
 # Import from POSTMAN Collection
 post '/import' do
 
+  # Refuse wrong filetype
+  return 415 unless params[:file][:type] == "application/json"
+  
   file = 'tmp/postman_import.json'
 
   # Clear tmp directory before writing file
@@ -345,7 +346,7 @@ post '/import' do
 
   # Read File
   if File.exists? file
-    stored_collection = JSON.parse File.read(file) rescue return 500
+    stored_collection = JSON.parse File.read(file) rescue return 422
 
     # Data dump of multiple collections
     if stored_collection['collections']
@@ -360,17 +361,21 @@ post '/import' do
   stored_collection.each do |collection|
     new_collection = {}
 
-    collection['requests'].each do |request|
-      request_details = {}
-      request_details['name'] = request['name']
-      request_details['collection'] = collection['name']
-      request_details['url'] = request['url']
-      request_details['request'] = request['method']
-      request_details['headers'] = parse_postman_headers(request['headers'])
-      request_details['payload'] = request['data']
-      request_details['quantity'] = 1
+    begin
+      collection['requests'].each do |request|
+        request_details = {}
+        request_details['name'] = request['name']
+        request_details['collection'] = collection['name']
+        request_details['url'] = request['url']
+        request_details['request'] = request['method']
+        request_details['headers'] = parse_postman_headers(request['headers'])
+        request_details['payload'] = request['data']
+        request_details['quantity'] = 1
 
-      new_collection[request['name']] = request_details
+        new_collection[request['name']] = request_details
+      end
+    rescue
+      return 422
     end
 
     # Write file
@@ -383,13 +388,14 @@ post '/import' do
     end
   end
 
-  200
 end
 
 
 # Defaults to main page
 not_found do
-  redirect '/'
+  if request.request_method == "GET"
+    redirect '/'
+  end
 end
 
 
@@ -414,3 +420,4 @@ after '/quit' do
   puts  "\nExiting..."
   exit!
 end
+
