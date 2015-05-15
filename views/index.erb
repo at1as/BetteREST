@@ -22,17 +22,31 @@
 
         <!-- DROPDOWN MENU -->
         <li style="float:right">
-            <a class="header-li">
-              Settings <span class="caret"></span>
-            </a>
+          <a id="dropdown_settings" class="header-li">
+            Settings <span class="caret"></span>
+          </a>
           <ul id="dropdown">
-            <li onclick="modalToggle('config-modal')"><a>Configuration</a></li>
-            <li onclick="savedRequestList()"><a>Load Request</a></li>
-            <li onclick="modalToggle('variables-modal')"><a>Variables</a></li>
-            <li onclick="modalToggle('file-upload-modal')"><a>File Upload</a></li>
-            <li onclick="modalToggle('import-modal')"><a>Import</a></li>
-            <li onclick="logsList()"><a>Logs</a></li>
-            <li onclick="quit()"><a>Quit</a></li>
+            <li id="dropdown_configuration" onclick="modalToggle('config-modal')">
+              <a>Configuration</a>
+            </li>
+            <li id="dropdown_load_request" onclick="savedRequestList()">
+              <a>Load Request</a>
+            </li>
+            <li id="dropdown_variables" onclick="modalToggle('variables-modal')">
+              <a>Variables</a>
+            </li>
+            <li id="dropdown_upload" onclick="modalToggle('file-upload-modal')">
+              <a>File Upload</a>
+            </li>
+            <li id="dropdown_import" onclick="modalToggle('import-modal')">
+              <a>Import</a>
+            </li>
+            <li id="dropdown_logs" onclick="logsList()">
+              <a>Logs</a>
+            </li>
+            <li id="dropdown_quit" onclick="quit()">
+              <a>Quit</a>
+            </li>
           </ul>
         </li>
 
@@ -573,7 +587,9 @@
       document.getElementById('timeoutInterval').value = fielddata.timeout;
     }
     if (fielddata.hasOwnProperty('redirect')) {
-      document.getElementById('followlocation').checked = fielddata.redirect;
+      if (document.getElementById('redirect') === true) {
+        document.getElementById('followlocation').checked = fielddata.redirect;
+      }
     }
     if (fielddata.hasOwnProperty('cookies')) {
       document.getElementById('cookies').checked = fielddata.cookies;
@@ -1087,10 +1103,16 @@
   /* Event listeners */
 
   /* Save page state on refresh */
-  window.onkeyup = function() {
+  window.onkeyup = function(e) {
     var fielddata = assembleFullPayload()
     localStorage.fielddata = JSON.stringify(fielddata);
     warn();
+    
+    /* Close modal on 'escape' key */
+    var pressed_key = e.keyCode ? e.keyCode : e.which;
+    if (pressed_key === 27) {
+      modalHideAll();
+    }
   }
   window.onclick = function() {
     var fielddata = assembleFullPayload()
