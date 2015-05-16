@@ -587,9 +587,7 @@
       document.getElementById('timeoutInterval').value = fielddata.timeout;
     }
     if (fielddata.hasOwnProperty('redirect')) {
-      if (document.getElementById('redirect') === true) {
-        document.getElementById('followlocation').checked = fielddata.redirect;
-      }
+      document.getElementById('followlocation').checked = fielddata.redirect;
     }
     if (fielddata.hasOwnProperty('cookies')) {
       document.getElementById('cookies').checked = fielddata.cookies;
