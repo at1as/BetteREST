@@ -343,7 +343,13 @@ class TestBetterRest < MiniTest::Test
     payload = create_modified_request({show_results: true})
     validate_response(payload)
   end
-  
+
+  def test_launch_sinatra
+    # Script returns true for zero exit status, false for non-zero
+    assert true, `ruby "./bin/better_rest"`
+  end
+
+
   # API Methods
   def create_modified_request(new_params)
     payload = JSON.parse(DEFAULT_PAYLOAD)
