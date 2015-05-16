@@ -43,12 +43,14 @@ class TestBetterRest < MiniTest::Test
     Capybara.current_driver = :webkit
   end
 
+
   # Directory structure
   def test_directories_exist
     assert_equal(true, File.directory?("./tmp"), "tmp directory does not exist!")
     assert_equal(true, File.directory?("./logs"), "log directory does not exist!")
     assert_equal(true, File.directory?("./requests"), "requests directory does not exist!")
   end
+
 
   # URL Navigation
   def test_index_page_no_redirect
@@ -79,6 +81,7 @@ class TestBetterRest < MiniTest::Test
     assert_equal("/savedrequests", last_request.fullpath)
   end
 
+
   # Redirect for Invalid URL
   def test_not_found_redirect
     get '/this_page_does_not_exist'
@@ -93,6 +96,7 @@ class TestBetterRest < MiniTest::Test
     follow_redirect!
     assert_equal("/", last_request.fullpath)
   end
+
 
   # Logging
   def test_retrieve_non_existent_log_entry
@@ -124,28 +128,11 @@ class TestBetterRest < MiniTest::Test
     assert_equal(404, last_response.status, "Attempt to delete non existent log did not return 404")
   end
 
+
   # Collection Import
   def test_wrong_content_type_upload
     File.open('wrong_filetype.txt', 'w') { |f| f.write("JUST A TEST") }
-    #file = Rack::Test::UploadedFile.new("wrong_filetype.txt", "text/plain")
-    #file = Rack::Multipart::UploadedFile.new("wrong_filetype.txt", "text/plain")
-    #env = Rack::MockRequest.env_for('/import', method: "POST", params: {:text_source => file } )
-    #app.call env #r = Rack::Request.new(env)
-    
-    #post '/import', file: "THIS IS THE WRONG FORMAT"
-
-    #post "/import", "file" => Rack::Multipart::UploadedFile.new("wrong_filetype.txt", "text/plain")  #Rack::Test::UploadedFile.new("wrong_filetype.txt", "text/plain")
-    
     post "/import", "file" => Rack::Test::UploadedFile.new("wrong_filetype.txt", "text/plain")
-    #puts last_response.inspect
-    #last_response.each do |x|
-    #  puts "\n\n#{x}\n #{last_response[x]}"
-    #end
-    #post '/upload', :file => file
-    #puts last_response
-    #puts last_response.server_error?
-    #puts "ABC #{last_response.methods}"
-    #puts r.methods
     assert_equal(415, last_response.status, "Attempt to upload wrong filetype did not return a 415")
   end
 
@@ -153,8 +140,6 @@ class TestBetterRest < MiniTest::Test
     json = { :hello => "world" }.to_json
     File.open('invalid_content.json', 'w') { |f| f.write(json) }
     post "/import", "file" => Rack::Test::UploadedFile.new("invalid_content.json", "application/json")
-    #File.open('tmp.html', 'w') { |f| f.write(last_response.body) }
-    #post '/import', file: Rack::Multipart::UploadedFile.new("invalid_content.json", "application/json") #{ hello: "world" }
     assert_equal(422, last_response.status, "Attempt to upload invalid json filecontent did not return a 422")
   end
 
@@ -175,29 +160,128 @@ class TestBetterRest < MiniTest::Test
 
   # Variable Request Parameters
   def test_send_variable_api_request
+    # Can't test this here. JS script swaps variables before sending to the server
     payload = create_modified_request({var_key: '{{url}}', var_val: 'www.example.com', url: 'http://{{url}}'})
     validate_response(payload)
   end
 
-  # Request Option Parameters
-  def test_verbose_api_request
-    payload = create_modified_request({verbose: false})
-    validate_response(payload)
-    #visit '/'
-    #inline_response = last_response.body.gsub!(/(\S)[^\S\n]*\n[^\S\n]*(\S)/, '\1 \2')
-    #puts "ABC: \n\n\n\n #{page.body} \n\n\n\n :ABC"
-    #assert inline_response.include?('<input type="checkbox" name="verbose" id="verbose" class="checkbox" style="float:right" >')
-    #visit "/request", payload, {"Content-Type" => "application/json"}
-    visit "/"
-    #assert page.has_content?('<input type="checkbox" name="verbose" id="verbose" class="checkbox" style="float:right" >')
-    puts page.body
-    assert page.has_content?("html")
+  # Request Parameter Persistence
+  def test_api_request_settings_persist_refresh
+    visit '/'
+    fill_in_values
+    visit '/'
+    validate_filled_in_values
+    Capybara.reset_sessions!
+  end
 
-    payload = create_modified_request({verbose: true})
-    validate_response(payload)
-    get '/'
-    inline_response = last_response.body.gsub!(/(\S)[^\S\n]*\n[^\S\n]*(\S)/, '\1 \2')
-    assert inline_response.include?('<input type="checkbox" name="verbose" id="verbose" class="checkbox" style="float:right" checked>')
+  def test_api_request_settings_persist_submission
+    visit '/'
+    fill_in_values
+    find_by_id('submit_request').click
+    validate_filled_in_values
+    Capybara.reset_sessions!
+  end
+
+  def test_header_minimise_persist_refresh
+    # Minimise All Content Divs
+    visit '/'
+    find_by_id('headingReq').click
+    find_by_id('headingAuth').click
+    find_by_id('headingHead').click
+    find_by_id('headingData').click
+    find_by_id('headingResults').click
+    # Validate Content divs are minimised
+    visit '/'
+    assert_equal('+', find_by_id('headingReq').text[1])
+    assert_equal('+', find_by_id('headingAuth').text[1])
+    assert_equal('+', find_by_id('headingHead').text[1])
+    assert_equal('+', find_by_id('headingData').text[1])
+    assert_equal('+', find_by_id('headingResults').text[1])
+    # Maximise all content divs
+    find_by_id('headingReq').click
+    find_by_id('headingAuth').click
+    find_by_id('headingHead').click
+    find_by_id('headingData').click
+    find_by_id('headingResults').click
+    # Validate Content divs are minimised (n.b. &ndash not '-')
+    visit '/'
+    assert_equal('–', find_by_id('headingReq').text[1])
+    assert_equal('–', find_by_id('headingAuth').text[1])
+    assert_equal('–', find_by_id('headingHead').text[1])
+    assert_equal('–', find_by_id('headingData').text[1])
+    assert_equal('–', find_by_id('headingResults').text[1])
+    Capybara.reset_sessions!
+  end
+
+  #def test_textarea_size_persists_refresh
+  #  # SKIP: textarea height set by JS becomes its minimum width in Chrome
+  #  #       this is not desirable behaviour, so this feature is not yet implemented
+  #  visit '/'
+  #  execute_script("document.getElementById('payload').style.height = '300px'")
+  #  visit '/'
+  #  payload_height = evaluate_script("document.getElementById('payload').style.height")
+  #  assert_equal '300px', payload_height
+  #  Capybara.reset_sessions!
+  #end
+
+  def fill_in_values
+    # URL
+    select 'POST', :from => 'requestType'
+    fill_in 'url', :with => 'http://www.example.com'
+    select '10 times', :from => 'times'
+    # Auth
+    fill_in 'usr', :with => 'my_username'
+    fill_in 'pwd', :with => 'my_passw0rd'
+    # Headers
+    click_button 'Add'
+    fill_in 'key1', :with => 'Content-Type'
+    fill_in 'value1', :with => 'text/plain'
+    # Payload
+    fill_in 'payload', :with => 'some payload data'
+    # Configuration Details
+    find_by_id('dropdown_settings').hover
+    find_by_id('dropdown_configuration').click
+    check 'followlocation'
+    check 'cookies'
+    check 'verbose'
+    check 'ssl_verifypeer'
+    check 'logging'
+    fill_in 'timeoutInterval', :with =>'10'
+    execute_script('modalHideAll();')
+    # Variables
+    find_by_id('dropdown_settings').hover
+    find_by_id('dropdown_variables').click
+    fill_in 'varKey', :with => 'first variable'
+    fill_in 'varValue', :with => 'first value'
+    execute_script('modalHideAll();')
+  end
+
+  def validate_filled_in_values
+    # URL
+    assert_equal 'POST', find_field('requestType').value
+    assert_equal 'http://www.example.com', find_field('url').value
+    assert_equal '10', find_field('times').value
+    # Auth
+    assert_equal 'my_username', find_field('usr').value
+    assert_equal 'my_passw0rd', find_field('pwd').value
+    # Payload
+    assert_equal 'some payload data', find_field('payload').value
+    # Configuration Details
+    find_by_id('dropdown_settings').hover
+    find_by_id('dropdown_configuration').click
+    assert_equal true, find_by_id('followlocation').checked?
+    assert_equal true, find_by_id('cookies').checked?
+    assert_equal true, find_by_id('verbose').checked?
+    assert_equal true, find_by_id('ssl_verifypeer').checked?
+    assert_equal true, find_by_id('logging').checked?
+    assert_equal '10', find_field('timeoutInterval').value
+    execute_script('modalHideAll();')
+    # Variables
+    find_by_id('dropdown_settings').hover
+    find_by_id('dropdown_variables').click
+    assert_equal 'first variable', find_by_id('varKey').value
+    assert_equal 'first value', find_by_id('varValue').value
+    execute_script('modalHideAll();')
   end
 
   def test_ssl_verify_api_request
@@ -222,6 +306,7 @@ class TestBetterRest < MiniTest::Test
     payload = create_modified_request({timeout: 1})
     validate_response(payload)
   end
+
 
   # Request Page Layout Parameters
   def test_show_url_api_request
@@ -259,13 +344,6 @@ class TestBetterRest < MiniTest::Test
     validate_response(payload)
   end
   
-  def test_data_height_api_request
-    payload = create_modified_request({data_height: 30})
-    validate_response(payload)
-    payload = create_modified_request({data_height: 130})
-    validate_response(payload)
-  end
-  
   # API Methods
   def create_modified_request(new_params)
     payload = JSON.parse(DEFAULT_PAYLOAD)
@@ -282,8 +360,6 @@ class TestBetterRest < MiniTest::Test
     test_response = JSON.parse(last_response.body)
     test_response_request = JSON.parse(JSON.parse(last_response.body)['request_options'])
 
-    #puts "\n\n\n\nABC #{test_response}\n\n#{test_response.is_a? Hash}\n\n"
-    #puts "\n\n\n#{payload_details}"
     assert last_response.ok?
     
     # BASIC
@@ -294,16 +370,7 @@ class TestBetterRest < MiniTest::Test
     assert_equal(payload_details['verbose'], test_response_request.fetch('verbose'))
     assert_equal(payload_details['ssl_ver'], test_response_request.fetch('ssl_verifypeer'))
     assert_equal(payload_details['url'], test_response_request.fetch('url'))
-    #assert_equal(payload_details['logging'], test_response_request.fetch('logging'))
     assert_equal(payload_details['timeout'].to_i, test_response_request.fetch('timeout'), payload_details)
-    # LAYOUT
-    
-    #assert_equal(payload_details['show_url'], test_response_request.fetch('show_url'))
-    #assert_equal(payload_details['show_auth'], test_response_request.fetch('show_auth'))
-    #assert_equal(payload_details['show_head'], test_response_request.fetch('show_head'))
-    #assert_equal(payload_details['show_data'], test_response_request.fetch('show_data'))
-    #assert_equal(payload_details['show_results'], test_response_request.fetch('show_results'))
-    #assert_equal(payload_details['data_height'], test_response_request.fetch('data_height'))
   end
 
 end

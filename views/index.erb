@@ -150,7 +150,7 @@
 
       <!-- SUBMIT BUTTONS -->
       <div>
-        <input type="button" value="Send" class="btn width13 submit" onclick="sendRequest()">
+        <input id="submit_request" type="button" value="Send" class="btn width13 submit" onclick="sendRequest()">
         <input type="button" value="Save" class="btn width13 submit" onclick="modalToggle('save-modal')">
         <input type="button" value="Clear All" class="btn width13 submit" onclick="clearAllFields()">
       </div>
@@ -1108,9 +1108,9 @@
     localStorage.fielddata = JSON.stringify(fielddata);
     warn();
     
-    /* Close modal on 'escape' key */
+    /* Close modal on 'escape' or 'enter' key */
     var pressed_key = e.keyCode ? e.keyCode : e.which;
-    if (pressed_key === 27) {
+    if (pressed_key === 27 || pressed_key === 13) {
       modalHideAll();
     }
   }
