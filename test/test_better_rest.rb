@@ -129,26 +129,61 @@ class TestBetterRest < MiniTest::Test
   end
 
 
-  # Collection Import
-  def test_wrong_content_type_upload
+  # Collections - Tests
+  def test_wrong_content_type_collection
     File.open('wrong_filetype.txt', 'w') { |f| f.write("JUST A TEST") }
     post "/import", "file" => Rack::Test::UploadedFile.new("wrong_filetype.txt", "text/plain")
     assert_equal(415, last_response.status, "Attempt to upload wrong filetype did not return a 415")
   end
 
-  def test_invalid_file_contents
+  def test_invalid_file_content_collection
     json = { :hello => "world" }.to_json
     File.open('invalid_content.json', 'w') { |f| f.write(json) }
     post "/import", "file" => Rack::Test::UploadedFile.new("invalid_content.json", "application/json")
     assert_equal(422, last_response.status, "Attempt to upload invalid json filecontent did not return a 422")
   end
 
+  def test_upload_valid_collection
+    import_collection
+    assert_equal(200, last_response.status, "Attempt to upload valid postman collection did not return a 200")
+  end
+
+  def test_delete_test_from_collection
+    import_collection
+    collection_name = URI.encode('Unit Test Collection')
+    request_name = URI.encode('Basic POST - XML')
+    delete "/collections/#{collection_name}/#{request_name}"
+    assert_equal(200, last_response.status, "Attempt to delete test from collection did not return a 200")
+  end
+
+  def test_delete_nonexistent_test_from_collection
+    import_collection
+    collection_name = URI.encode('Unit Test Collection')
+    delete "/collections/#{collection_name}/doesnotexist"
+    assert_equal(404, last_response.status, "Attempt to delete nonexistent test from collection did not return a 404")
+  end
+
+  def test_delete_collection
+    import_collection
+    collection_name = URI.encode('Unit Test Collection')
+    delete "/collections/#{collection_name}"
+    assert_equal(200, last_response.status, "Attempt to delete collection did not return a 200")
+  end
+
+  def test_delete_nonexistent_collection
+    delete '/collections/doesnotexist'
+    assert_equal(404, last_response.status, "Attempt to delete nonexistent collection did not return a 404")
+  end
+
+  # Collections - Common
+  def import_collection
+    postman_collection = File.open('resources/unitTestCollection.json', 'r')
+    post '/import', 'file' => Rack::Test::UploadedFile.new(postman_collection, 'application/json')
+  end
+
 
   # Requests
   def test_send_basic_api_request
-    payload = '{"headers":{},"request":"GET","url":"http://www.example.com","quantity":"1","payload":"","user":"","password":"",
-                  "var_key":"","var_val":"","redirect":true,"cookies":true,"verbose":true,"ssl_ver":false,"logging":false,"timeout":"1",
-                  "file":"","show_url":"","show_auth":"","show_head":"","show_payload":"","show_results":"","data_height":100}'
     validate_response(DEFAULT_PAYLOAD)  
   end
 

@@ -242,6 +242,7 @@
           <div class="modal-content" style="padding-left:15px; padding-right:15px;">
             <h4 style="text-align:center"><strong>Attach File to Request</strong></h4>
             <hr>
+            <div id="file-upload-warning" style="color:red; text-align:center;"></div>
             <div class="modal-body">
               <form id="upload_form" method="post" action="/upload" enctype="multipart/form-data">
                 <input type="file" id="datafile" name="datafile">
@@ -260,6 +261,7 @@
           <div class="modal-content" style="padding-left:15px; padding-right:15px;">
             <h4 style="text-align:center"><strong>Import from POSTMAN</strong></h4>
             <hr>
+            <div id="import-warning" style="color:red; text-align:center;"></div>
             <div class="modal-body">
               <form id="import_form" method="post" action="/import" enctype="multipart/form-data">
                 <input type="file" id="importfile" name="importfile">
@@ -430,12 +432,12 @@
 
       /* Replace values in header */
       var keys = Object.keys(payload.headers);
-      for(n=0; n<keys.length; n++) {
+      for(var n=0; n<keys.length; n++) {
         payload.headers[keys[n]] = payload.headers[keys[n]].replace('{{' + payload.var_key + '}}', payload.var_val);
       }
 
       /* Replace keys in header */
-      for(m=0; m<keys.length; m++) {
+      for(var m=0; m<keys.length; m++) {
         if (keys[m].indexOf('{{' + payload.var_key + '}}') != -1){
           payload.headers[keys[m].replace('{{' + payload.var_key + '}}', payload.var_val)] = payload.headers[keys[m]];
           delete payload.headers[keys[m]];
@@ -503,14 +505,14 @@
       var keys      = Object.keys(response);
 
       /* Iterate through collections and saved requests per collection */
-      for(i=0; i < keys.length; i++) {
+      for(var i=0; i < keys.length; i++) {
 
         var collection        = document.createElement('div');
         collection.className  = 'collection-header';
         collection_name       = '<span id="collection_name>" class="load_collection_name">' + keys[i] + '</span>';
         collection.innerHTML  = collection_name + '<span aria-hidden="true" onclick="deleteCollection(this)" class="rm-collection">&times;</span><span class="sr-only">Close</span>';
 
-        for(j=0; j < response[keys[i]].length; j++) {
+        for(var j=0; j < response[keys[i]].length; j++) {
           var req_container   = document.createElement('div');
           var req_list        = document.createElement('div');
           req_container.innerHTML = '<span aria-hidden="true" onclick="deleteRequest(this)" class="rm-collection">&times;</span><span class="sr-only">Close</span>';
@@ -606,20 +608,20 @@
       var header_keys   = Object.keys(fielddata['headers']);
       var header_fields = document.getElementById('headerfieldsAll').children.length -1;
       var extra_headers = header_keys.length - header_fields;
-
+      
       if (extra_headers > 0) {
-        for (m=0; m < extra_headers-1; m++) {
+        for (var m=0; m < extra_headers-1; m++) {
           addNewHeader();
         }
       } else if (extra_headers <= 0) {
-        for (m=0; m < Math.abs(extra_headers)+1; m++) {
+        for (var m=0; m < Math.abs(extra_headers)+1; m++) {
           removeLastHeader();
         }
       }
 
       indexes = getHeaderIndexes();
 
-      for(n=0; n<indexes.length; n++) {
+      for(var n=0; n<indexes.length; n++) {
          document.getElementById('key' + indexes[n]).value   = header_keys[n];
          document.getElementById('value' + indexes[n]).value = fielddata['headers'][header_keys[n]];
       }
@@ -721,7 +723,7 @@
       }
 
       /* Now populate modal with log entries */
-      for (j=0; j<log_list.length; j++) {
+      for (var j=0; j<log_list.length; j++) {
         var log_item        = document.createElement('a');
         var item_txt        = document.createTextNode(log_list[j]);
         var close           = document.createElement('span');
@@ -765,6 +767,8 @@
     document.getElementById('import-modal').style.display       = 'none';
     document.getElementById('variables-modal').style.display    = 'none';
     document.getElementById('logs-modal').style.display         = 'none';
+    document.getElementById('file-upload-warning').innerHTML    = '';
+    document.getElementById('import-warning').innerHTML         = '';
   }
 
   /* Change page layout to reflect minimizing/maximising divs */
@@ -872,7 +876,7 @@
   function getHeaderIndexes(){
     var rows    = document.getElementById('headerfieldsAll').children;
     var indexes = [];
-    for(i=0; i<rows.length; i++) {
+    for(var i=0; i<rows.length; i++) {
       indexes.push(rows[i].id.match(/\d+/));
     }
     return indexes;
@@ -1050,8 +1054,12 @@
     client.onreadystatechange = function() {
       if (client.readyState == 4 && client.status == 200) {
         modalHideAll();
+      } else if (client.readyState == 4 && client.status == 422) {
+        document.getElementById('import-warning').innerHTML = 'Error parsing POSTMAN file';
+      } else if (client.readyState == 4 && client.status == 415) {
+        document.getElementById('import-warning').innerHTML = 'Error uploading POSTMAN file';
       } else if (client.readyState == 4) {
-        console.log('Error importing POSTMAN file');
+        document.getElementById('import-warning').innerHTML = 'Unknown Error uploading POSTMAN file';
       }
     }
 
@@ -1080,8 +1088,10 @@
         document.getElementById('filename').innerHTML       = filename;
 
         modalHideAll();
+      } else if (client.readyState == 4 && client.status == 422) {
+        document.getElementById('file-upload-warning').innerHTML = 'Error processing file "' + filename + '"';
       } else if (client.readyState == 4) {
-        console.log('Error uploading file ' + filename);
+        document.getElementById('file-upload-warning').innerHTML = 'Unknown error uploading file "' + filename + '"';
       }
     }
 
@@ -1100,7 +1110,7 @@
 
   /* Event listeners */
 
-  /* Save page state on refresh */
+  /* Commit page state on key press, click and changes */
   window.onkeyup = function(e) {
     var fielddata = assembleFullPayload()
     localStorage.fielddata = JSON.stringify(fielddata);
@@ -1123,7 +1133,7 @@
     warn();
   }
 
-  /* Reload saved page stat on refresh */
+  /* Reload saved page state on refresh */
   window.onload = function() {
     populateView(JSON.parse(localStorage.fielddata));
     warn();

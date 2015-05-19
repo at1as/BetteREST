@@ -251,6 +251,8 @@ delete '/collections/:collection' do
   else
     return 404
   end
+
+  200
 end
 
 
@@ -260,7 +262,12 @@ delete '/collections/:collection/:request' do
 
   if File.exists? collection
     stored_collection = JSON.parse File.read(collection)
-    stored_collection.delete(params[:request])
+    
+    begin
+      stored_collection.delete(params[:request]) if stored_collection.fetch(params[:request])
+    rescue
+      return 404
+    end
 
     File.open(collection, "w") do |f|
       f.write(stored_collection.to_json)
@@ -268,6 +275,8 @@ delete '/collections/:collection/:request' do
   else
     return 404
   end
+
+  200
 end
 
 
@@ -319,19 +328,29 @@ post '/upload' do
   FileUtils.rm_rf(Dir.glob('tmp/*'))
 
   unless request.body.nil?
-    File.open('tmp/' + params[:file][:filename], 'w') do |f|
-      f.write(params[:file][:tempfile].read)
+    begin
+      File.open('tmp/' + params[:file][:filename], 'w') do |f|
+        f.write(params[:file][:tempfile].read)
+      end
+    rescue
+      return 422
     end
   end
+
+  200
 end
 
 
 # Import from POSTMAN Collection
 post '/import' do
-
-  # Refuse wrong filetype
-  return 415 unless params[:file][:type] == "application/json"
   
+  # Refuse wrong filetype
+  begin
+    return 415 unless params[:file][:type] == "application/json"
+  rescue
+    return 422
+  end
+
   file = 'tmp/postman_import.json'
 
   # Clear tmp directory before writing file
@@ -347,7 +366,7 @@ post '/import' do
   # Read File
   if File.exists? file
     stored_collection = JSON.parse File.read(file) rescue return 422
-
+    
     # Data dump of multiple collections
     if stored_collection['collections']
       stored_collection = stored_collection['collections']
@@ -360,7 +379,6 @@ post '/import' do
   # Extract File information
   stored_collection.each do |collection|
     new_collection = {}
-
     begin
       collection['requests'].each do |request|
         request_details = {}
@@ -387,7 +405,8 @@ post '/import' do
       return 500
     end
   end
-
+  
+  200
 end
 
 
