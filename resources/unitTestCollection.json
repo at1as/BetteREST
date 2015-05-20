@@ -1,0 +1,61 @@
+{
+	"id": "09754c05-0ac0-336a-1681-ff93095ae6fc",
+	"name": "Unit Test Collection",
+	"description": "Collection used for unit tests",
+	"order": [
+		"63fbb5f4-0259-8a4d-7bbb-72662dde88dd",
+		"c7b9831c-34fa-437e-82b7-4733ade009d6"
+	],
+	"folders": [],
+	"timestamp": 1432062824147,
+	"synced": false,
+	"owner": 0,
+	"sharedWithTeam": false,
+	"subscribed": false,
+	"remoteLink": "",
+	"public": false,
+	"write": true,
+	"requests": [
+		{
+			"id": "63fbb5f4-0259-8a4d-7bbb-72662dde88dd",
+			"headers": "Content-Type: application/xml\n",
+			"url": "http://www.example.com?key1=param1",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1432063225319,
+			"name": "Basic GET",
+			"description": "",
+			"collectionId": "09754c05-0ac0-336a-1681-ff93095ae6fc",
+			"responses": [],
+			"synced": false
+		},
+		{
+			"id": "c7b9831c-34fa-437e-82b7-4733ade009d6",
+			"headers": "Content-Type: application/xml\n",
+			"url": "http://www.example.com?key1=param1",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1432063225319,
+			"name": "Basic POST - XML",
+			"description": "",
+			"collectionId": "09754c05-0ac0-336a-1681-ff93095ae6fc",
+			"responses": [],
+			"synced": false,
+			"collectionOwner": 0
+		}
+	]
+}
