@@ -1057,7 +1057,7 @@
       } else if (client.readyState == 4 && client.status == 422) {
         document.getElementById('import-warning').innerHTML = 'Error parsing POSTMAN file';
       } else if (client.readyState == 4 && client.status == 415) {
-        document.getElementById('import-warning').innerHTML = 'Error uploading POSTMAN file';
+        document.getElementById('import-warning').innerHTML = 'Error uploading POSTMAN file. Ensure file extension is ".json"';
       } else if (client.readyState == 4) {
         document.getElementById('import-warning').innerHTML = 'Unknown Error uploading POSTMAN file';
       }

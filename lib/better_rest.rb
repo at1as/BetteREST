@@ -43,7 +43,7 @@ helpers do
 
   def parse_postman_headers(headers)
     header_hash = {}
-    header_list = headers.strip.split(': ')
+    header_list = headers.split(/[:\n]/).map { |x| x.strip }
     keys = header_list.select.each_with_index { |str, i| i.even? }
     values = header_list.select.each_with_index { |str, i| i.odd? }
 
@@ -53,6 +53,13 @@ helpers do
     header_hash
   end
 
+  def parse_postman_environment(entry_list)
+    variables = {}
+    entry_list.each do |entry|
+      variables[entry['key']] = entry['value'] rescue nil
+    end
+    variables
+  end
 end
 
 configure do

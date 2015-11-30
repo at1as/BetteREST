@@ -369,6 +369,7 @@ ul li:hover ul {
 }
 #payload{
   height:100px;
+  overflow:scroll;
 }
 #logsdata{
   max-height:350px;
