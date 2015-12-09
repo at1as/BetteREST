@@ -593,16 +593,18 @@
     if (fielddata.password) {
       document.getElementById('pwd').value = fielddata.password;
     }
-    var variables = fielddata.variables;
-    var variable_keys = Object.keys(fielddata.variables);
+    if (fielddata.variables){
+      var variables = fielddata.variables;
+      var variable_keys = Object.keys(fielddata.variables);
 
-    /* Create variables fields until all stored variables have an input field */
-    while (document.getElementById('variables_list').children.length < (variable_keys.length * 2)) {
-      addVariables();
-    }
-    for (var i=0; i < variable_keys.length; i++) {
-      document.getElementById('varKey' + i).value = variable_keys[i];
-      document.getElementById('varValue' + i).value = variables[variable_keys[i]]; 
+      /* Create variables fields until all stored variables have an input field */
+      while (document.getElementById('variables_list').children.length < (variable_keys.length * 2)) {
+        addVariables();
+      }
+      for (var i=0; i < variable_keys.length; i++) {
+        document.getElementById('varKey' + i).value = variable_keys[i];
+        document.getElementById('varValue' + i).value = variables[variable_keys[i]]; 
+      }
     }
     if (fielddata.timeout) {
       document.getElementById('timeoutInterval').value = fielddata.timeout;
@@ -840,7 +842,6 @@
   /* Header functions */
   /* Append header to bottom */
   function addNewHeader() {
-    clickCount += 1;
 
     var input_container = document.createElement('div');
     var header_key      = document.createElement('input');
@@ -883,6 +884,8 @@
     input_container.appendChild(header_key);
     input_container.appendChild(header_val);
     input_container.appendChild(close_btn);
+    
+    clickCount += 1;
   }
 
   /* Remove a header row from the bottom */
@@ -895,8 +898,10 @@
   function getHeaderIndexes(){
     var rows    = document.getElementById('headerfieldsAll').children;
     var indexes = [];
-    for(var i=0; i<rows.length; i++) {
-      indexes.push(rows[i].id.match(/\d+/));
+    for(var i=0; i < rows.length; i++) {
+      if (rows[i].id.match(/\d+/) !== null){
+        indexes.push(rows[i].id.match(/\d+/));
+      }
     }
     return indexes;
   }

@@ -268,7 +268,7 @@ class TestBetterRest < MiniTest::Test
     fill_in 'usr', :with => 'my_username'
     fill_in 'pwd', :with => 'my_passw0rd'
     # Headers
-    click_button 'Add'
+    click_button 'add'
     fill_in 'key1', :with => 'Content-Type'
     fill_in 'value1', :with => 'text/plain'
     # Payload
@@ -286,8 +286,11 @@ class TestBetterRest < MiniTest::Test
     # Variables
     find_by_id('dropdown_settings').hover
     find_by_id('dropdown_variables').click
-    fill_in 'varKey', :with => 'first variable'
-    fill_in 'varValue', :with => 'first value'
+    fill_in 'varKey0', :with => 'first variable'
+    fill_in 'varValue0', :with => 'first value'
+    find_by_id('addVariable').click
+    fill_in 'varKey1', :with => 'second variable'
+    fill_in 'varValue1', :with => 'second value'
     execute_script('modalHideAll();')
   end
 
@@ -314,8 +317,10 @@ class TestBetterRest < MiniTest::Test
     # Variables
     find_by_id('dropdown_settings').hover
     find_by_id('dropdown_variables').click
-    assert_equal 'first variable', find_by_id('varKey').value
-    assert_equal 'first value', find_by_id('varValue').value
+    assert_equal 'first variable', find_by_id('varKey0').value
+    assert_equal 'first value', find_by_id('varValue0').value
+    assert_equal 'second variable', find_by_id('varKey0').value
+    assert_equal 'second value', find_by_id('varValue0').value
     execute_script('modalHideAll();')
   end
 
