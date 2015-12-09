@@ -319,8 +319,8 @@ class TestBetterRest < MiniTest::Test
     find_by_id('dropdown_variables').click
     assert_equal 'first variable', find_by_id('varKey0').value
     assert_equal 'first value', find_by_id('varValue0').value
-    assert_equal 'second variable', find_by_id('varKey0').value
-    assert_equal 'second value', find_by_id('varValue0').value
+    assert_equal 'second variable', find_by_id('varKey1').value
+    assert_equal 'second value', find_by_id('varValue1').value
     execute_script('modalHideAll();')
   end
 
