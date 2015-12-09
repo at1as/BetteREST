@@ -122,7 +122,9 @@
             <div id="headerfields<%= index %>" class="headerContainer" >
               <input type="text" value="<%=key%>" name="key" id="key<%=index%>" placeholder=" Name" class="key form-control head-input" autocomplete="off"/>
               <input type="text" value="<%=value%>" name="value" id="value<%=index%>" placeholder=" Value" class="value form-control head-input" autocomplete="off"/>
+            </div>
 
+            <div>
               <button id="close<%= index %>" tabindex="-1" type="button" class="close" onclick="removeRow(this)">
                 <span style="line-height:inherit" aria-hidden="true">&times;</span>
                 <span class="sr-only">Close</span>
@@ -141,7 +143,7 @@
       <div>
         <h2><div id="headingData" onclick="toggleDataVisibility()">[&ndash;] Payload</div></h2>
         <div class="box" id="data">
-          <textarea class="form-control" name="payload" id="payload" placeholder=" Payload Data"></textarea>
+          <textarea class="form-control" name="payload" id="payload" placeholder=" Payload Data" spellcheck="off"></textarea>
           <div id="filename" style="display:none; z-index:2; text-align:center; margin-top:5px; margin-bottom:5px"></div>
           <div id="clear-file" style="display:none" onclick="clearFile()">Remove File</div>
         </div>
@@ -335,11 +337,12 @@
               </div>
               Within headers, payload or URL
             </div>
-            <div style="margin-top:20px;">
-              <input class="form-control var-input" type="text" name="varKey" id="varKey" placeholder=" Key" />
-              <input class="form-control var-input" type="text" name="varValue" id="varValue" placeholder=" Value" style="float:right" />
+            <div id="variables_list" style="margin-top:20px;">
+              <input class="form-control var-input" type="text" name="varKey" id="varKey0" placeholder=" Key" />
+              <input class="form-control var-input" type="text" name="varValue" id="varValue0" placeholder=" Value" />
             </div>
             <div style="margin-top:25px; margin-bottom:5px; text-align:center">
+              <div id="addVariable" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="addVariables()">Add</div>
               <div id="clearVariables" class="btn btn-block btn-simple" style="width:140px; margin-left:auto; margin-right:auto;" onclick="clearVariables()">Clear</div>
             </div>
           </div>
@@ -368,7 +371,7 @@
     body.quantity = document.getElementById('times').value;
 
     /* HEADERS */
-    for (j=0; j<=clickCount; j++) {
+    for (var j=0; j <= clickCount; j++) {
       if (document.getElementById('key' + j)) {
         if (document.getElementById('key' + j).value != '') {
           body.headers[document.getElementById('key' + j).value] = document.getElementById('value' + j).value;
@@ -390,8 +393,15 @@
     body.password = document.getElementById('pwd').value;
 
     /* VARIABLES */
-    body.var_key  = document.getElementById('varKey').value;
-    body.var_val  = document.getElementById('varValue').value;
+    var variable_keys = document.getElementsByName('varKey');
+    var variable_vals = document.getElementsByName('varValue');
+    body.variables = {};
+
+    for (var i=0; i < variable_keys.length; i++) {
+      if (variable_keys[i].value !== '' && variable_vals[i].value !== '') {
+        body.variables[variable_keys[i].value] = variable_vals[i].value;
+      }
+    }
 
     /* SETTINGS */
     body.redirect = document.getElementById('followlocation').checked;
@@ -426,20 +436,24 @@
     var payload = assembleFullPayload();
 
     /* Replace variable keys with their specified values */
-    if (payload.var_key && payload.var_val){
-      payload.url     = payload.url.replace('{{' + payload.var_key + '}}', payload.var_val);
-      payload.payload = payload.payload.replace('{{' + payload.var_key + '}}', payload.var_key);
+    var variable_keys = Object.keys(payload.variables);
+    for (var i=0; i < variable_keys.length; i++){
+      var current_key = variable_keys[i];
+      var current_value = payload.variables[variable_keys[i]];
+      
+      payload.url     = payload.url.replace('{{' + current_key + '}}', current_value);
+      payload.payload = payload.payload.replace('{{' + current_key + '}}', current_value);
 
       /* Replace values in header */
       var keys = Object.keys(payload.headers);
-      for(var n=0; n<keys.length; n++) {
-        payload.headers[keys[n]] = payload.headers[keys[n]].replace('{{' + payload.var_key + '}}', payload.var_val);
+      for(var n=0; n < keys.length; n++) {
+        payload.headers[keys[n]] = payload.headers[keys[n]].replace('{{' + current_key + '}}', current_value);
       }
 
       /* Replace keys in header */
-      for(var m=0; m<keys.length; m++) {
-        if (keys[m].indexOf('{{' + payload.var_key + '}}') != -1){
-          payload.headers[keys[m].replace('{{' + payload.var_key + '}}', payload.var_val)] = payload.headers[keys[m]];
+      for(var m=0; m < keys.length; m++) {
+        if (keys[m].indexOf('{{' + current_key + '}}') != -1){
+          payload.headers[keys[m].replace('{{' + current_key + '}}', current_value)] = payload.headers[keys[m]];
           delete payload.headers[keys[m]];
         }
       }
@@ -454,7 +468,7 @@
 
     if (client.status == 200) {
       var response = JSON.parse(client.responseText);
-      console.log(response)
+      console.log(response);
       document.getElementById('requestTime').innerHTML        = response.return_time + ' seconds';
       document.getElementById('returnCode').innerHTML         = response.return_code + ' ' + response.return_msg;
       document.getElementById('resultsBody').innerHTML        = response.return_body;
@@ -579,11 +593,16 @@
     if (fielddata.password) {
       document.getElementById('pwd').value = fielddata.password;
     }
-    if (fielddata.var_key) {
-      document.getElementById('varKey').value = fielddata.var_key;
+    var variables = fielddata.variables;
+    var variable_keys = Object.keys(fielddata.variables);
+
+    /* Create variables fields until all stored variables have an input field */
+    while (document.getElementById('variables_list').children.length < (variable_keys.length * 2)) {
+      addVariables();
     }
-    if (fielddata.var_val) {
-      document.getElementById('varValue').value = fielddata.var_val;
+    for (var i=0; i < variable_keys.length; i++) {
+      document.getElementById('varKey' + i).value = variable_keys[i];
+      document.getElementById('varValue' + i).value = variables[variable_keys[i]]; 
     }
     if (fielddata.timeout) {
       document.getElementById('timeoutInterval').value = fielddata.timeout;
@@ -911,8 +930,16 @@
   }
 
   function clearVariables() {
-    document.getElementById('varKey').value   = '';
-    document.getElementById('varValue').value = '';
+    // Clear variables from Settings -> Variables
+    document.getElementById('varKey0').value   = '';
+    document.getElementById('varValue0').value = '';
+
+    var container = document.getElementById('variables_list');
+    var children = container.children;
+
+    while (container.children.length > 2){
+      container.removeChild(container.lastChild);
+    }
   }
 
   /*clear all form fields. Delete additional header fields*/
@@ -1107,12 +1134,44 @@
     clearFileUpload();
   }
 
+  function addVariables(){
+    // Add new row of variables in Settings -> Variables
+    var container = document.getElementById('variables_list');
+    var container_children = container.children.length;
+    var next_row = getNextRow(container_children);
+
+    var new_key = document.createElement('input');
+    new_key.className = 'form-control var-input';
+    new_key.type = 'text';
+    new_key.name = 'varKey';
+    new_key.id = 'varKey' + next_row;
+    new_key.placeholder = ' Key';
+    
+    var new_val = document.createElement('input');
+    new_val.className = 'form-control var-input';
+    new_val.type = 'text';
+    new_val.name = 'varValue';
+    new_val.id = 'varValue' + next_row;
+    new_val.placeholder = ' Value';  
+
+    container.appendChild(new_key);
+    container.appendChild(new_val);
+  }
+
+  function getNextRow(child_element_count){
+    // Given number of child elements present, determine next row
+    var row = parseInt(child_element_count/2);
+    if (child_element_count % 2 === 1) {
+      row += 1;
+    }
+    return row;
+  }
 
   /* Event listeners */
 
   /* Commit page state on key press, click and changes */
   window.onkeyup = function(e) {
-    var fielddata = assembleFullPayload()
+    var fielddata = assembleFullPayload();
     localStorage.fielddata = JSON.stringify(fielddata);
     warn();
     
@@ -1123,12 +1182,12 @@
     }
   }
   window.onclick = function() {
-    var fielddata = assembleFullPayload()
+    var fielddata = assembleFullPayload();
     localStorage.fielddata = JSON.stringify(fielddata);
     warn();
   }
   window.onchange = function() {
-    var fielddata = assembleFullPayload()
+    var fielddata = assembleFullPayload();
     localStorage.fielddata = JSON.stringify(fielddata);
     warn();
   }
