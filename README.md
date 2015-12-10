@@ -1,4 +1,4 @@
-# BetteR [![Build Status](https://travis-ci.org/at1as/BetteR.svg?branch=master)](https://travis-ci.org/at1as/BetteR) [![Gem Version](https://badge.fury.io/rb/better_rest.svg)](http://badge.fury.io/rb/better_rest)
+# BetteRest [![Build Status](https://travis-ci.org/at1as/BetteR.svg?branch=master)](https://travis-ci.org/at1as/BetteR) [![Gem Version](https://badge.fury.io/rb/better_rest.svg)](http://badge.fury.io/rb/better_rest)
 
 BetteR is a a REST test client written in Ruby and served by Sinatra.
 
@@ -19,20 +19,20 @@ BetteR emphasises both a clean and easy to use interface, as well as allowing us
 
 ### Usage
 
-The easiest way to use BetteR is to install it using the [Ruby Gem](http://rubygems.org/gems/better_rest) (note that the gem is usually a few commits behind the github repo):
+The easiest way to use BetteRest is to install it using the [Ruby Gem](http://rubygems.org/gems/better_rest) (note that the gem is usually a few commits behind the github repo):
 ```bash
 $ gem install better_rest
 ```
 Or download the repository here for the latest version. Assign appropriate execute permissions, open port 5678 (on remote instances) and launch via:
 ```bash
-$ git clone https://github.com/at1as/BetteR.git
+$ git clone https://github.com/at1as/BetteRest.git
 $ ./bin/better_rest
 $ Navigate browser to http://0.0.0.0:5678 (local) or http://X.X.X.X:5678 (remote server)
 ```
 
 ### Demo
 
-To try BetteR, without installing the Gem, it's hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku internally hosted APIs can't directly be tested.
+To try BetteRest, without installing the Gem, it's hosted on [Heroku](http://better-rest.herokuapp.com/). Note that when run on Heroku internally hosted APIs can't directly be tested.
 
 ### Dependencies
 
