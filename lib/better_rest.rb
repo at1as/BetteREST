@@ -13,10 +13,14 @@ set :public_dir, File.expand_path('../../public', __FILE__)
 set :views, File.expand_path('../../views', __FILE__)
 set :bind, '0.0.0.0'
 
+# Multiple simultaneous sessions. All sessions will be invalidated on app restart
+enable :sessions
+set :session_secret, rand(36**10).to_s(36)
+
 configure :development do
   enable :logging, :dump_errors, :raise_errors
+  set :show_excetions, true
 end
-set :show_exceptions, true if development?
 
 
 helpers do
@@ -70,7 +74,7 @@ configure do
 end
 
 ALLOWED_METHODS = %w(GET POST DELETE)
-BETTER_SIGNATURE = "BetteR - https://github.com/at1as/BetteR"
+BETTER_SIGNATURE = 'BetteRest - https://github.com/at1as/BetteR'
 API_VERSION = 1.0
 
 
@@ -78,7 +82,7 @@ API_VERSION = 1.0
 get '/?' do
   @requests = %w(GET POST PUT DELETE HEAD OPTIONS PATCH)
   @times = %w(1 2 5 10)
-  @header_hash = {"" => ""}
+  @header_hash = {'' => ''}
   @follow = true
   @cookies = true
   @verbose = true
@@ -111,13 +115,13 @@ post '/request' do
   # Create the Request
   hydra = Typhoeus::Hydra.new
   request = Typhoeus::Request.new(
-    @request_body["url"],
-    method: @request_body["request"],
-    username: @request_body["user"],
-    password: @request_body["password"],
-    auth_method: :auto,
-    headers: @request_body["headers"],
-    body: @request_body["payload"],
+    @request_body['url'],
+    method: @request_body['request'],
+    username: @request_body['user'],
+    password: @request_body['password'],
+    httpauth: :auto,
+    headers: @request_body['headers'],
+    body: @request_body['payload'],
     followlocation: @follow,
     verbose: @verbose,
     ssl_verifypeer: @ssl,
@@ -131,8 +135,8 @@ post '/request' do
 
   # Attach cookie to header
   if @cookies && @request_body['headers']['Cookie'].nil?
-    if File.exists? "cookiejar"
-      cookie = File.read("cookiejar")
+    if File.exists? 'cookiejar'
+      cookie = File.read('cookiejar')
     end
     request.options[:headers]['Cookie'] = stringify_cookies(cookie) unless cookie.nil? || cookie.empty?
   end
@@ -143,7 +147,7 @@ post '/request' do
   if @request_body['user'].empty? || @request_body['password'].empty?
     request.options.delete(:username)
     request.options.delete(:password)
-    request.options.delete(:auth_method)
+    request.options.delete(:httpauth)
   end
 
   # Send the request (specified number of times)
@@ -217,7 +221,7 @@ end
 # Load List of Requests
 get '/savedrequests' do
   collection_map = {}
-  collections = Dir["requests/*.json"]
+  collections = Dir['requests/*.json']
 
   collections.each do |collection|
     collection_contents = JSON.parse File.read(collection)
@@ -276,7 +280,7 @@ delete '/collections/:collection/:request' do
       return 404
     end
 
-    File.open(collection, "w") do |f|
+    File.open(collection, 'w') do |f|
       f.write(stored_collection.to_json)
     end
   else
@@ -289,7 +293,7 @@ end
 
 # Retrieve list of saved logs
 get '/logs' do
-  entries = Dir["logs/*.log"]
+  entries = Dir['logs/*.log']
   entries = entries.map!{ |k| k[5..-5]}
   return { :logs => entries }.to_json
 end
@@ -307,7 +311,7 @@ end
 
 # Delete logs
 delete '/logs' do
-  logs = Dir["logs/*.log"]
+  logs = Dir['logs/*.log']
 
   logs.each do |log|
     File.delete(log)
@@ -353,7 +357,7 @@ post '/import' do
   
   # Refuse wrong filetype
   begin
-    return 415 unless params[:file][:type] == "application/json"
+    return 415 unless params[:file][:type] == 'application/json'
   rescue
     return 422
   end
@@ -388,6 +392,7 @@ post '/import' do
     new_collection = {}
     begin
       collection['requests'].each do |request|
+
         request_details = {}
         request_details['name'] = request['name']
         request_details['collection'] = collection['name']
@@ -419,7 +424,7 @@ end
 
 # Defaults to main page
 not_found do
-  if request.request_method == "GET"
+  if request.request_method == 'GET'
     redirect '/'
   end
 end
@@ -443,7 +448,7 @@ get '/quit' do
 end
 
 after '/quit' do
-  puts  "\nExiting..."
+  puts  '\nExiting...'
   exit!
 end
 

@@ -38,7 +38,4 @@ See Gemfile for a list of dependencies
 ### TODO
 
 * OAuth/OAuth2 support
-* Update current deprecated Basic/Digest Auth method
 * Download to file
-* Support more than one variable
-* Support for multiple concurrent sessions

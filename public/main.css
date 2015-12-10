@@ -231,18 +231,18 @@ ul li:hover ul {
   font-weight:700;
 }
 .collection-data {
-    border: 1px solid #DDD;
-    border-radius: 3px;
-    font-weight: 400;
-    margin-bottom: 2px;
-    margin-left: 10px;
-    padding-bottom: 4px;
-    padding-left: 10px;
-    padding-top: 4px;
-    width: -moz-calc(100% - 40px);
-    width: -webkit-calc(100% - 40px);
-    width: calc(100% - 40px);
-    overflow: hidden;
+  border: 1px solid #DDD;
+  border-radius: 3px;
+  font-weight: 400;
+  margin-bottom: 2px;
+  margin-left: 10px;
+  padding-bottom: 4px;
+  padding-left: 10px;
+  padding-top: 4px;
+  width: -moz-calc(100% - 40px);
+  width: -webkit-calc(100% - 40px);
+  width: calc(100% - 40px);
+  overflow: hidden;
 }
 .rm-collection{
   line-height:inherit;
@@ -406,7 +406,6 @@ ul li:hover ul {
     min-width: 280px;
     text-align:center;
 }
-
 [tooltip]:hover:before {
     opacity: 0.85;
 

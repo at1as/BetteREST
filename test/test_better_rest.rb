@@ -205,7 +205,7 @@ class TestBetterRest < MiniTest::Test
     visit '/'
     fill_in_values
     visit '/'
-    validate_filled_in_values
+    validate_filled_in_values(true)
     Capybara.reset_sessions!
   end
 
@@ -225,6 +225,7 @@ class TestBetterRest < MiniTest::Test
     find_by_id('headingHead').click
     find_by_id('headingData').click
     find_by_id('headingResults').click
+    
     # Validate Content divs are minimised
     visit '/'
     assert_equal('+', find_by_id('headingReq').text[1])
@@ -232,12 +233,14 @@ class TestBetterRest < MiniTest::Test
     assert_equal('+', find_by_id('headingHead').text[1])
     assert_equal('+', find_by_id('headingData').text[1])
     assert_equal('+', find_by_id('headingResults').text[1])
+    
     # Maximise all content divs
     find_by_id('headingReq').click
     find_by_id('headingAuth').click
     find_by_id('headingHead').click
     find_by_id('headingData').click
     find_by_id('headingResults').click
+    
     # Validate Content divs are minimised (n.b. &ndash not '-')
     visit '/'
     assert_equal('–', find_by_id('headingReq').text[1])
@@ -264,15 +267,23 @@ class TestBetterRest < MiniTest::Test
     select 'POST', :from => 'requestType'
     fill_in 'url', :with => 'http://www.example.com'
     select '10 times', :from => 'times'
+    
     # Auth
     fill_in 'usr', :with => 'my_username'
     fill_in 'pwd', :with => 'my_passw0rd'
+    
     # Headers
     click_button 'add'
     fill_in 'key1', :with => 'Content-Type'
     fill_in 'value1', :with => 'text/plain'
+    click_button 'add' # Leave a blank row inbetween
+    click_button 'add'
+    fill_in 'key3', :with => 'User-Agent'
+    fill_in 'value3', :with => 'BetteRest'
+    
     # Payload
     fill_in 'payload', :with => 'some payload data'
+    
     # Configuration Details
     find_by_id('dropdown_settings').hover
     find_by_id('dropdown_configuration').click
@@ -283,6 +294,7 @@ class TestBetterRest < MiniTest::Test
     check 'logging'
     fill_in 'timeoutInterval', :with =>'10'
     execute_script('modalHideAll();')
+    
     # Variables
     find_by_id('dropdown_settings').hover
     find_by_id('dropdown_variables').click
@@ -294,16 +306,32 @@ class TestBetterRest < MiniTest::Test
     execute_script('modalHideAll();')
   end
 
-  def validate_filled_in_values
+  def validate_filled_in_values(page_refresh = false)
     # URL
     assert_equal 'POST', find_field('requestType').value
     assert_equal 'http://www.example.com', find_field('url').value
     assert_equal '10', find_field('times').value
+
     # Auth
     assert_equal 'my_username', find_field('usr').value
     assert_equal 'my_passw0rd', find_field('pwd').value
+    
+    # Headers
+    if page_refresh
+      assert_equal 'Content-Type', find_field('key0').value
+      assert_equal 'text/plain', find_field('value0').value
+      assert_equal 'User-Agent', find_field('key1').value
+      assert_equal 'BetteRest', find_field('value1').value
+    else
+      assert_equal 'Content-Type', find_field('key1').value
+      assert_equal 'text/plain', find_field('value1').value
+      assert_equal 'User-Agent', find_field('key3').value
+      assert_equal 'BetteRest', find_field('value3').value
+    end
+
     # Payload
     assert_equal 'some payload data', find_field('payload').value
+    
     # Configuration Details
     find_by_id('dropdown_settings').hover
     find_by_id('dropdown_configuration').click
@@ -314,6 +342,7 @@ class TestBetterRest < MiniTest::Test
     assert_equal true, find_by_id('logging').checked?
     assert_equal '10', find_field('timeoutInterval').value
     execute_script('modalHideAll();')
+    
     # Variables
     find_by_id('dropdown_settings').hover
     find_by_id('dropdown_variables').click
@@ -412,6 +441,7 @@ class TestBetterRest < MiniTest::Test
     assert_equal(200, last_response.status, "Sending API GET request did not return a 200")
     assert_instance_of(Float, Float(test_response.fetch('return_time')), "Return time not present or not a number")
     assert_equal(false, test_response.fetch('return_body').nil?, "Response body was empty")
+
     # OPTIONS
     assert_equal(payload_details['verbose'], test_response_request.fetch('verbose'))
     assert_equal(payload_details['ssl_ver'], test_response_request.fetch('ssl_verifypeer'))
