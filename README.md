@@ -1,4 +1,4 @@
-# BetteRest [![Build Status](https://travis-ci.org/at1as/BetteRest.svg?branch=master)](https://travis-ci.org/at1as/BetteR) [![Gem Version](https://badge.fury.io/rb/better_rest.svg)](http://badge.fury.io/rb/better_rest)
+# BetteRest [![Build Status](https://travis-ci.org/at1as/BetteRest.svg?branch=master)](https://travis-ci.org/at1as/BetteRest) [![Gem Version](https://badge.fury.io/rb/better_rest.svg)](http://badge.fury.io/rb/better_rest)
 
 BetteR is a a REST test client written in Ruby and served by Sinatra.
 
