@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.description   = "Configurable browser-accessible REST API test client"
   s.authors       = ["Jason Willems"]
   s.email         = ["jason@willems.ca"]
-  s.homepage      = "https://github.com/at1as/BetteR"
+  s.homepage      = "https://github.com/at1as/BetteREST"
 
   s.files         = `git ls-files`.split("\n")
   s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
