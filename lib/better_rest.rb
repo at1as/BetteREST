@@ -202,6 +202,7 @@ before '/save' do
 end
 
 post '/save' do
+  # TODO: Should validate body
   name = @request_payload['name']
   collection = @request_payload['collection']
 
@@ -215,6 +216,8 @@ post '/save' do
   File.open("requests/#{collection}.json", "w") do |f|
     f.write(stored_collection.to_json)
   end
+
+  200
 end
 
 
